@@ -16,6 +16,12 @@
 2. Labels multiply, they do not add; an unbounded label is how a monitoring system takes itself down.
 3. A parts list works the same way: every quantity traces to a per-unit rule, and failing on paper beats failing with a server in your hands.
 
+### Lecturer Commentary: The SRE Mentality vs. Reboot Culture
+
+- **The Fallacy of the Quick Reboot:** When a home Wi-Fi router or laptop hangs, users typically power-cycle the device or reinstall the operating system. In modern microservice deployments, engineers often adopt the same flawed mindset: tearing down a container and redeploying it when memory bloats or latency spikes. While the service recovers temporarily, the root cause remains uninvestigated and will inevitably recur.
+- **Burning Error Budget Without Learning:** A 5-minute recurring outage every month accumulates to an hour of annual downtime. In SRE practice, Error Budget exists to absorb the calculated risk of deploying new features and architectural improvements, not to subsidize recurring, unaddressed bugs.
+- **Hardware-Aware Service Level Objectives:** Real-world systems run on diverse physical hardware. Setting uniform service level objectives (such as 100,000 concurrent sessions) across mismatched machines is an anti-pattern. Engineers must benchmark the specific physical server, establish empirical operational baselines, and define SLIs/SLOs that reflect the hardware reality.
+
 ---
 
 ## Agenda
@@ -61,6 +67,15 @@ Monitoring and observability are not synonyms, and neither replaces the other.
 **Core Takeaway:**
 Metrics are cheap and excellent at answering prepared questions, but useless for unprepared ones. This is why logs and traces follow in week 5.
 
+#### Lecturer Commentary: Practical Analogies
+
+- **Classroom Attendance Analogy:**
+  - *Monitoring:* Tracking if the classroom headcount exceeds 60 chairs. When 70 students enter, a predefined alarm fires indicating physical capacity overflow.
+  - *Observability:* Logging student badge scan timestamps, student study tracks, entry and exit flows, and duration of stay. This rich context allows engineers to investigate unanticipated questions such as: "Why is the 4th-floor hallway congested specifically at 09:15?", enabling informed facility redesigns like installing wider doors or staggering class schedules.
+- **Electric Vehicle (EV) Telemetry Analogy:**
+  - *Monitoring:* Checking battery state of charge (100% dropping to 80%, then 50%) or vehicle speed on the dashboard.
+  - *Observability:* Telemetry tracking instantaneous power draw (kW/h) correlated with regenerative braking (regen) states, driver throttle aggression ("lead foot" habits), incline angles, and thermal trends. Tesla and modern EV telemetry platforms record high-resolution internal logs so engineers can diagnose unexplained range degradation under arbitrary environmental conditions.
+
 ---
 
 ### 1.2 Metric Types and Choosing Between Them
@@ -76,6 +91,11 @@ Pick the wrong type up front and the calculation you want later becomes impossib
 
 **Rule of Thumb:**
 If you want percentiles, use a **histogram**, because it aggregates across hosts. A **summary** does not aggregate across hosts.
+
+#### Lecturer Commentary: Averages vs. Percentiles in High-Concurrency Services
+
+- **The Danger of Mathematical Averages:** A simple average hides critical performance anomalies. If a service handles 100,000 total requests in an hour, an arithmetic mean might show an acceptable response rate. However, a histogram reveals whether 90,000 of those requests arrived in a single 5-minute burst at 09:15, completely saturating worker pools and dropping requests.
+- **Summaries vs. Histograms across Multi-Instance Deployments:** Summaries calculate statistical quantiles (like 0.99) locally in the application memory space before export. You cannot mathematically average percentiles across 10 application instances (`(p99_1 + p99_2) / 2` is statistically invalid). Histograms export raw bucket counters (`_bucket{le="..."}`), allowing the central Prometheus server to aggregate buckets across all instances before computing cluster-wide quantiles via PromQL.
 
 ---
 
@@ -126,6 +146,12 @@ http_requests_total{path="/register", status="200", instance="app01"} 198412
 #### The Liveness Property of Pull
 Because Prometheus pulls, a target that dies simply stops answering HTTP scrape requests. The built-in synthetic metric `up` automatically goes to `0`. That alone tells you something is wrong without requiring external health checkers.
 
+#### Lecturer Commentary: Scrape Frequency, Pull Dynamics, and Infrastructure Isolation
+
+- **Polling Mechanics:** Every scrape is a straightforward HTTP `GET /metrics` executed on a timer (defaulting to 15 seconds, equivalent to 4 queries per minute). Decreasing this interval to 5 seconds provides finer time resolution but triples data ingestion and storage overhead.
+- **The "Capstone Project Mistake" - Architecture Anti-Pattern:** A recurring error among university project teams is co-locating the monitoring stack on the same virtual machine or container host as the application workload. When the application leaks memory or locks the CPU, the entire VM crashes. The monitoring system dies along with the workload, preventing engineers from viewing historical telemetry or diagnosing the cause of failure.
+- **Physical Host Segregation:** In this course's lab environment, monitoring is strictly decoupled. For 20 student project groups running workloads on 20 dedicated physical servers, at least one additional, independent 21st server is dedicated entirely to hosting the Prometheus, Alertmanager, and Grafana observability stack.
+
 ---
 
 ### 1.4 Components of the Prometheus Stack
@@ -134,7 +160,7 @@ Five pieces, with responsibilities that do not overlap:
 
 | Component | Responsibility | Default Port | What Breaks Without It |
 | :--- | :--- | :--- | :--- |
-| **Prometheus server** | Scrapes targets, stores to TSDB, evaluates alerting/recording rules | `9090` | No data and no alerts at all |
+| **Prometheus server** | Scrapes targets, stores to TSDB, evaluates rules | `9090` | No data and no alerts at all |
 | **Exporter** | Translates a system's native runtime metrics into Prometheus exposition format | `9100` (node) | Devices/services speaking other protocols cannot be scraped |
 | **Alertmanager** | Routes, deduplicates, groups, inhibits, and delivers notifications | `9093` | Alerts fire inside Prometheus, but nobody is notified |
 | **Grafana** | Visualisation, dashboarding, and interactive data exploration | `3000` | Left querying raw numbers through Prometheus expression browser UI |
@@ -142,6 +168,11 @@ Five pieces, with responsibilities that do not overlap:
 
 **Caution on Pushgateway:**
 Pushgateway is strictly intended for genuinely short-lived batch jobs. Using it as a substitute for scraping long-running services destroys the `up` metric as a liveness signal, as the gateway stays alive even if the job has died.
+
+#### Lecturer Commentary: Component Roles and "Resume Padding" Anti-Patterns
+
+- **Grafana is Not a Database:** Students often mistakenly refer to Grafana as their monitoring store. Grafana is solely a presentation dashboard engine; it stores zero time-series metric data. If the underlying Prometheus TSDB or data source fails, Grafana renders empty panels.
+- **CNCF Landscape Over-Engineering:** Browsing the Cloud Native Computing Foundation (CNCF) observability landscape reveals hundreds of specialized projects. Installing dozens of tools simply to display an impressive architecture diagram creates unmaintainable operational drag. Monitoring tools consume compute and memory; observability infrastructure should remain lean, transparent, and purposeful.
 
 ---
 
@@ -192,6 +223,11 @@ Understanding internal storage explains why memory consumption grows and why res
 - **Memory consumption** grows with the number of **active time series**, not with the total disk size.
 - **Process restarts** replay the WAL from disk into memory; a bloated WAL results in a prolonged restart time.
 
+#### Lecturer Commentary: TSDB Memory Dynamics and Deletion Logic
+
+- **Why Retention Deletes Blocks, Not Rows:** Relational databases often slow down when executing massive `DELETE FROM table WHERE timestamp < ...` operations due to row indexing and lock overhead. Prometheus avoids this entirely: when retention expires (e.g. 15 days), it unlinks and deletes entire 2-hour or 8-hour filesystem directories.
+- **WAL Replay Latency:** When a Prometheus server with high active series restarts, it must read and replay every uncompacted record from the disk WAL into RAM to restore in-memory head chunks. If the system crashed under memory pressure, this replay phase can exhaust RAM again immediately, triggering an unrecoverable restart loop.
+
 ---
 
 ### 1.6 PromQL - Computing SLIs from Raw Metrics
@@ -221,6 +257,11 @@ histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket[
 - You **must** aggregate by the `le` (less than or equal) bucket label before calling `histogram_quantile()`.
 - Omission of `sum by (le)` calculates a per-instance quantile rather than a cluster-wide service quantile.
 
+#### Lecturer Commentary: AI Assistance and Foundational Understanding
+
+- **The Role of Generative AI in PromQL:** Generative AI tools (ChatGPT, Claude, Copilot) are highly capable at proposing PromQL boilerplate, SLI expressions, or Grafana queries when provided with system architecture context.
+- **The Pitfall of Skipping Fundamentals:** Relying blindly on AI outputs without understanding how PromQL aggregates buckets (`le` labels) or handles counter resets leads to silent calculation errors in production dashboards. When AI hallucinates a non-existent PromQL function or misinterprets vector matching, only an engineer with solid foundational understanding can detect and rectify the flaw. Master the manual math first; leverage AI to accelerate execution later.
+
 ---
 
 ### 1.7 The Cardinality Trap
@@ -246,6 +287,11 @@ $$\text{Total Series} = 12 \times 4 \times 6 \times 20 \times 3,200 = 18,432,000
 
 **Design Rule:**
 Labels may **only** contain values from a small, bounded, closed set. User IDs, order IDs, UUIDs, email addresses, and unparameterized URLs must **never** be used as metric labels; they belong exclusively in structured logs and distributed traces.
+
+#### Lecturer Commentary: Wireshark Analogy and Log Routing
+
+- **The Wireshark Packet Capture Analogy:** Running Wireshark on a saturated gigabit network interface without capture filters quickly exhausts system memory and crashes the packet analyzer. Injecting unbounded, high-cardinality labels into Prometheus creates an identical outcome: Prometheus attempts to maintain an active in-memory index for millions of distinct time series.
+- **Where High-Cardinality Data Belongs:** When debugging user-specific issues (e.g. tracking specific user IDs, transaction IDs, or stack traces), route this telemetry to log management platforms (such as Graylog, Loki, or Elasticsearch) or distributed tracing engines. Logs store arbitrary unstructured or semi-structured data sequentially without maintaining persistent multi-dimensional indexing trees in RAM.
 
 ---
 
@@ -320,6 +366,11 @@ A well-architected dashboard reads top to bottom without requiring spoken narrat
   2. *How badly and where?* (Row 2)
   3. *What physical or virtual resource is causing it?* (Row 3)
 
+#### Lecturer Commentary: The Task Manager Anti-Pattern and Inter-Team Blame
+
+- **The Activity Monitor / Task Manager Flaw:** Opening Windows Task Manager or macOS Activity Monitor presents hundreds of disaggregated processes (e.g. WindowServer using high CPU or Chrome consuming gigabytes of RAM). This interface does not tell you if your core business service is functioning properly. A production dashboard cannot simply be a raw list of host processes; it must synthesize metrics into a structured narrative.
+- **Bridging the Infrastructure vs. Application Divide:** In enterprise operations, infrastructure administrators frequently deflect service tickets by showing low CPU utilization on the front-end reverse proxy, claiming: "The servers and network are green; the problem must be in your application code." An end-to-end, top-to-bottom dashboard visualizes the entire request journey (from edge ingress down to backend database replica latency), preventing cross-team finger-pointing during critical outages.
+
 ---
 
 ### 1.11 Case Study 1: When the Monitoring System Took Itself Down
@@ -349,6 +400,17 @@ Physical infrastructure carries metrics, telemetry, and SLOs just like applicati
 | **Rack inlet & outlet temperature** | Gauge | In-rack environmental sensors via SNMP | Confirms cold/hot aisle containment integrity |
 | **PSU operational status** | Gauge (0/1) | IPMI or Redfish exporter | Detects servers running without power redundancy on a single feed |
 | **ToR switch ports in use** | Gauge | SNMP exporter on Top-of-Rack switch | Dictates procurement triggers for additional network switches |
+
+#### Lecturer Commentary: SNMP Architecture and Real-World Power Economics
+
+- **SNMP Polling Mechanics:** Simple Network Management Protocol (SNMP) functions analogously to Prometheus HTTP scraping. Enterprise switches, PDUs, and server management controllers run internal SNMP daemon agents that store hardware telemetry in Management Information Bases (MIBs). The Prometheus `snmp_exporter` periodically polls these endpoints and converts them into standard Prometheus metrics.
+- **Power Sizing Scale Comparison:**
+  - *Rural / Modest Home:* 5 Amperes main breaker.
+  - *Modern Urban Residence:* 15 Amperes single-phase breaker.
+  - *House with EV Charger:* 100 Amperes with dedicated secondary electrical circuits.
+  - *Colocation Data Centre Rack:* Typically rented with 16 Amperes or 32 Amperes feeds.
+- **Colocation Cost Context:** Renting a single standard 42U rack space with a 16A power feed at enterprise data centres (such as CAT Telecom or JAS TEL) costs approximately 50,000 THB per month for empty rack space and electrical utilities alone, excluding the cost of servers and software.
+- **Power Supply Density:** Older servers utilized 350W–500W power supplies. High-performance enterprise compute and GPU-accelerated nodes require dual 1,000W–2,000W 80 Plus Platinum power supplies. Running multiple multi-PSU servers on a single 16A feed risks exceeding thermal limits and tripping main breakers.
 
 ---
 
@@ -392,6 +454,14 @@ Email  |  Slack / Microsoft Teams  |  PagerDuty / Webhooks
 
 **Anti-Alert Fatigue Rule:**
 Alertmanager exists so that a single switch outage produces one concise incident notification rather than forty individual host unreachable pages.
+
+#### Lecturer Commentary: Alert Fatigue and Notification Psychology
+
+- **Alerts vs. Notifications:**
+  - *Alert:* Signifies an acute failure or critical threshold violation that demands immediate human intervention.
+  - *Notification:* General informational updates that do not require emergency action.
+- **The Psychology of Notification Fatigue:** In modern messaging environments, users often accumulate 999+ unread chat badges on platforms like LINE or Discord, eventually tuning them out entirely. When an SRE monitoring system configures noisy, low-severity alerts for every minor transient fluctuation, on-call engineers become desensitized. Critical Sev-1 alerts are overlooked simply because alarms fire continuously.
+- **Alert Ingestion Rule:** If an alert does not require immediate operational action, it should not trigger a pager or emergency message; it belongs on a weekly review report or dashboard.
 
 ---
 
@@ -506,7 +576,7 @@ Layer 1: Floor & Path--> Floor tile point loading, cable basket trays, clearance
 ```
 
 > **Planning Maxim:**
-> Plan top-down, build bottom-up. Unresolved decisions at higher layers lead to dangerous improvisations on installation day.
+> Plan top-down, build bottom-up. Decisions flow from monitoring back to the floor, but installation starts at the floor and works up. A layer that was never decided becomes a layer that gets improvised on the day.
 
 ---
 
@@ -635,7 +705,7 @@ Before procurement orders can be submitted, eight open technical unknowns must b
 2. **Blade Chassis Model & Slot Density:** Verifies if one chassis suffices or if a second 10U chassis is necessary.
 3. **Delivery Schedules for ~10 Incoming Servers:** Determines whether deployment occurs in a single build or staged batches.
 4. **ToR Switch Port Form Factor (SFP+ vs. 10GBASE-T RJ45):** Determines cable media selection (DAC twinax vs Cat6A twisted pair).
-5. **Verified Device Nameplate Power:** Replaces conservative engineering estimates with empirical wattage readings.
+5. **Real Device Nameplate Power:** Replaces conservative engineering estimates with empirical wattage readings.
 6. **Rack Depth and Vertical Rail Hole Specification:** Verifies compatibility of slide rails with square-hole or threaded rack posts.
 7. **Usable PDU Receptacle Count:** Audits available C13 and C19 outlet counts on existing rack PDUs.
 8. **Cable Pathway Distance to Main Distribution Frame (MDF):** Establishes optical patch cord lengths along actual cable trays.
@@ -655,7 +725,35 @@ Before procurement orders can be submitted, eight open technical unknowns must b
 
 ---
 
-### 2.11 Definition of Done for Week 4 Lab
+### 2.11 Lecturer Commentary: Field Context and Lab Hardware Realities
+
+#### 1. Hardware Origin and Physical Architecture
+- **Repurposed Enterprise Assets:** The lab hardware consists of enterprise Fujitsu Primergy blade servers and standalone 1U rack servers salvaged from faculty decommissioning (previously slated for scrap metal recycling). This equipment provides authentic data centre operations practice.
+- **Blade Enclosure Architecture:**
+  - The central chassis accommodates 8 blade server sleds.
+  - Sleds feature dual Intel Xeon sockets, multi-channel registered ECC server RAM (cannot be used in desktop PCs), and hot-swap SAS drive bays (e.g. dual 300GB 10K/15K RPM SAS drives).
+  - The rear backplane houses hot-swappable 80 Plus Platinum redundant power supplies, redundant fan modules, integrated pass-through or managed SAN switches (Fibre Channel), and Top-of-Rack network switch interconnect modules.
+- **Standalone 1U Servers:** Fujitsu 1U rackmount units provide dedicated bare-metal infrastructure for teams outside the blade chassis.
+
+#### 2. Physical Handling and Mechanical Precautions
+- **Latch and Lever Fragility:** Students must exercise care with server insertion levers and locking latches. Forcing blades into backplanes without aligning guide pins bends pins or snaps extraction levers (an issue encountered in prior semesters).
+- **Structural Integrity:** Heavy server chassis must never be stacked loosely on classroom tables; they must be staged on dedicated floor areas or securely mounted on rack rails.
+- **Rack Mount Compatibility:** Ensure rail kits match rack post geometry (cage-nut square holes vs. pre-threaded round holes) before installation.
+
+#### 3. Storage Arrays and Software Obsolescence
+- The lab inventory includes 3 legacy SAN/NAS disk storage enclosures (1 SSD-based array and 2 spinning HDD arrays).
+- **The Management Utility Trap:** The management software for these older storage controllers requires legacy operating systems (Windows XP or Windows 7) to run proprietary configuration utilities. The lecturer advises students to prioritize direct-attached SSD storage and avoid wasting time debugging obsolete storage management software unless specifically exploring legacy SAN protocols.
+
+#### 4. The Hypervisor Layer: Proxmox VE
+- **True Site Administrator Ownership:** In earlier coursework, students operated inside pre-provisioned virtual machines managed by faculty infrastructure administrators. In INT531 SRE, students take complete bare-metal ownership of physical hardware: configuring BIOS/UEFI settings, setting up IPMI/iRMC out-of-band management, partitioning disks, wiring patch panels, configuring VLANs, and deploying hypervisors via bootable USB drives.
+- **Why Proxmox VE was Chosen:**
+  - *Microsoft Hyper-V:* Incurs software licensing costs and platform constraints.
+  - *VMware ESXi:* Industry licensing restructuring under Broadcom created uncertainty and steep costs, prompting widespread migration across enterprise infrastructure.
+  - *Proxmox VE:* Open-source, lightweight, robust Debian-based Linux KVM/LXC virtualization platform with native clustering, web GUI, and REST APIs, well-suited for modern on-premises infrastructure.
+
+---
+
+### 2.12 Definition of Done for Week 4 Lab
 
 Before the laboratory session concludes, five verification milestones must be signed off:
 
@@ -667,7 +765,7 @@ Before the laboratory session concludes, five verification milestones must be si
 
 ---
 
-### 2.12 Course Deliverables and Next Week's Preparation
+### 2.13 Course Deliverables and Next Week's Preparation
 
 #### Group Assignments (Due in 5 Days):
 1. Complete BOM workbook with capacity calculations fully balanced and passing on all lines.
@@ -687,7 +785,7 @@ Before the laboratory session concludes, five verification milestones must be si
 
 ---
 
-### 2.13 Academic and Technical References
+### 2.14 Academic and Technical References
 
 - Beyer, B., Jones, N. R., Petoff, J., & Murphy, N. R. (2016). *Site Reliability Engineering: How Google Runs Production Systems*. O'Reilly Media. Chapter 6: Monitoring Distributed Systems.
 - Majors, C., Fong-Jones, L., & Miranda, G. (2022). *Observability Engineering: Achieving Operational Excellence*. O'Reilly Media. Chapters 1–3.
