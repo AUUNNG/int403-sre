@@ -21,6 +21,54 @@ By the end of this session you will be able to:
 
 ---
 
+## Course Structure, Teaching Philosophy, and Evaluation
+
+### Lecturer Commentary / Practical Context: Pedagogical Approach vs. Prerequisite Courses
+
+1. Distinction from Prerequisite Networking Courses:
+   - In compulsory introductory networking courses, pedagogy is structured in sequential, guided steps (step 1, step 2, step 3).
+   - In INT 403 / INT 531 SRE, the format transitions entirely to real-world engineering and self-directed problem-solving.
+   - SRE is broad and multidisciplinary, encompassing systems, data centre physical facilities, networks, software architecture, release engineering, and business operations. Students must investigate, read documentation, and resolve ambiguous issues independently.
+
+2. Assessment Breakdown:
+   - Three Modular Evaluation Slots: Conducted approximately every 5 weeks (15% per slot = 45% total).
+   - Practical Lab Examination: 15%.
+   - Continuous Assessment (Assignments, Project Setup, Class Activities): 40%.
+
+3. Oral Examination Protocol (Video Defense):
+   - Formal evaluations are NOT written tests and do NOT permit copying/pasting from AI prompts or external materials.
+   - Evaluation format: Students sit in front of a camera with screen recording enabled. Technical questions and operational scenarios appear on-screen sequentially.
+   - Students must articulate, reason through, and verbally explain the concepts and system architectures directly into the camera in real time.
+   - Audio recordings are transcribed and evaluated (using automated transcription and instructor/AI grading). Incoherent answers, memorized buzzwords without underlying logic, or evasive responses receive zero credit.
+   - Rationale: Real-world engineering requires clear verbal communication during live production incidents, postmortems, and stakeholder briefings.
+
+---
+
+## Industry Job Market and Hardware Economics in 2026
+
+### Lecturer Commentary / Practical Context: The 2026 Employment and Infrastructure Landscape
+
+1. Structural Shifts in IT Employment:
+   - Historical baseline: Two years prior (before widespread generative AI deployment), senior IT graduates enjoyed a 90% to 99% employment rate prior to graduation.
+   - 2026 baseline: Approximately 40% of recent graduates are currently unemployed.
+   - AI impact on junior developers: Enterprises have sharply reduced hiring for standard junior programmers who only write basic boilerplate or prompt AI chat interfaces. AI has increased delivery throughput, meaning companies require fewer entry-level coders.
+   - AI impact on UX/UI designers: Entry-level UX/UI positions have diminished significantly. Business Analysts (BAs) and product engineers use generative design systems to rapidly produce customer-facing mockups and prototypes directly from business requirements. UX/UI practitioners must pivot toward deep business analysis and technical product ownership.
+   - How students must adapt: Strong foundational systems knowledge (computer architecture, networking, distributed systems, error budgets, telemetry) combined with business domain understanding is the single most defensible career profile.
+
+2. Hardware Market Economics and Supply Chain Volatility:
+   - GPU / AI compute distortion: Semiconductor wafer manufacturing capacity is overwhelmingly directed toward high-margin AI GPUs and specialized accelerators rather than consumer/server RAM and enterprise SSDs.
+   - Price inflation: Enterprise M.2 NVMe SSDs that previously cost approximately 2,000 THB escalated to 5,000 THB and reached 8,000 THB within months.
+   - Procurement reality: Hardware vendors no longer guarantee quotation prices for the standard 30-to-90-day institutional purchase cycle. Price validity has shrunk to as little as 7 days, with international memory chip orders priced only upon physical collection.
+   - University notebook leasing constraint: Student laptop fleets leased under fixed 3-year contracts (~800 THB/month per machine) face procurement deadlocks because market replacement costs have exceeded budget ceilings by over 60%, making hardware preservation mandatory.
+
+3. The Data Centre Boom vs. Actual Employment Reality in Thailand:
+   - Massive hyperscaler and multinational investments in Thailand (e.g., Eastern Economic Corridor / Chonburi hyperscale facilities, urban carrier-neutral facilities like Telehouse Rama 9, and the 4-billion THB land development at Makkasan).
+   - Misconception: Data centres do NOT create thousands of continuous manual jobs like manufacturing assembly plants.
+   - Operational reality: Physical construction and initial equipment deployment require short-term contract labor (often executed by foreign turnkey engineering firms). Once operational, modern hyperscale facilities are managed by minimal staff and extensive software automation.
+   - Industry benchmark: Meta manages hundreds of thousands of network switches worldwide with an engineering team of approximately three dedicated switch automation engineers. Operational staff are only needed for physical component swapping.
+
+---
+
 ## Agenda Overview
 
 1. Why SRE exists: A real outage, its blast radius, and what failure costs
@@ -67,6 +115,29 @@ One small defect turned into a global event.
 
 Sources: AWS post-event summary; ThousandEyes, AWS Outage Analysis (Oct 2025); CyberCube (loss estimate).
 
+### Lecturer Commentary / Practical Context: Anatomy of Cascading Failures and Recovery Delays
+
+1. Why Did Recovery Require 15 Hours When the Bug Was Fixed in Under 3 Hours?
+   - The root defect (overwritten DynamoDB DNS endpoints) was diagnosed and manually rectified by 02:25.
+   - However, DNS is a globally distributed, cached protocol. Inconsistent and corrupted DNS records had propagated across recursive resolvers and caches worldwide.
+   - Client applications and intermediate caches continued serving stale or negative responses according to Time-to-Live (TTL) cycles.
+   - Furthermore, when DynamoDB endpoints reappeared, thousands of disconnected upstream services attempted simultaneous reconnection, causing massive thundering herd problems, connection pool exhaustion, and message queue backups that required over 12 additional hours to drain safely.
+
+2. Local Educational Parallel: Domain Migration at SIT KMUTT:
+   - When the SIT faculty migrated its learning management system from `elearning.sit.kmutt.ac.th` to `newlearning.sit.kmutt.ac.th`, the authoritative internal DNS records were updated in minutes.
+   - However, external consumer ISPs across Thailand (True, AIS, 3BB / Triple T Broadband) updated their recursive resolver caches at differing intervals. Some providers took weeks to propagate the new domain, preventing students from accessing course materials from home unless they explicitly switched their local device resolvers to public DNS (e.g., Google 8.8.8.8).
+   - This illustrates the core SRE principle: Fixing the server does not mean the user's service is restored.
+
+3. Control-Plane and Circular Dependencies:
+   - AWS engineers attempting to remediate the outage encountered broken internal tooling because internal AWS orchestration, authentication, and monitoring platforms themselves depended on DynamoDB and Route 53 endpoints.
+   - When your recovery tools depend on the system that is down, you cannot automate recovery and are forced into slow, high-risk manual interventions.
+
+4. Blameless Culture vs. The Cover-Up Mentality:
+   - In traditional legacy IT environments, incident responses frequently involve secrecy, evasive claims ("the server just hung, we rebooted it"), or shifting blame to protect individuals from termination or salary cuts.
+   - In mature SRE practice, transparency is mandatory. AWS released an exhaustive, public post-event summary detailing the exact race condition, the failure of automated rollbacks, and concrete mitigation steps.
+   - Blameless postmortems operate on the assumption that engineers make decisions in good faith based on available data. If an engineer triggers a bug, the systemic design, testing harness, and safety boundaries failed, not the person.
+   - Concealing root causes prevents organizational learning and guarantees the recurrence of catastrophic downtime.
+
 ### Four Lessons That Recur Across the Curriculum
 
 1. Dependencies fail in chains (Weeks 3 and 12)
@@ -108,6 +179,28 @@ Formulated at Google in 2003 by Ben Treynor Sloss:
 
 > Ben Treynor Sloss described SRE as what you get when software engineers design and run the operations function, instead of hiring more system administrators as the system grows.
 
+### Lecturer Commentary / Practical Context: SRE Competency and Shared Alignment
+
+1. SREs Must Be Capable Software Engineers:
+   - An effective SRE possesses software engineering competencies on par with core product developers. An SRE can write production code, understand distributed data structures, and contribute directly to the application codebase.
+   - The fundamental difference is domain focus: SREs apply engineering discipline to reliability, operability, scalability, and automated fault recovery.
+
+2. Eliminating Adversarial Silos:
+   - Traditional Ops vs. Dev dynamics:
+     * Dev goal: Ship features rapidly; rewarded for deployment volume.
+     * Ops goal: Keep servers online; rewarded for zero changes, leading to gatekeeping and conflict.
+     * When failures occur, Ops blames bad code; Dev blames server misconfiguration ("it ran fine on localhost, the code hasn't changed in months, so it must be your infrastructure").
+   - SRE eliminates this conflict by uniting both groups under shared ownership of the **End-User Experience**.
+
+3. The Metric That Matters: End-User Success:
+   - Server metrics alone (CPU load, memory consumption, interface packet rates) do NOT determine service health.
+   - Example: A university registration system may report 0% CPU utilization and 100% web server uptime, yet thousands of students cannot register because the payment API integration is returning 504 gateway timeouts. From the user's standpoint, the service is 100% down.
+   - SRE forces engineers to define and measure health from the boundary where the user interacts with the system.
+
+4. Preventing On-Call Burnout:
+   - Historical context: System administrators traditionally carried on-call pagers 24/7 without structured limits, waking up at 03:00 AM or 05:00 AM in constant paranoia over unmonitored failures.
+   - SRE establishes explicit operational limits: alert thresholds must be actionable, paging must only trigger for genuine user-impacting emergencies, and on-call rotations are strictly capped. If a system consumes too much operational time, production ownership is pushed back to the product developers until reliability improves.
+
 ### The Problem, The Mindset, and The Target State
 
 | Dimension | Description |
@@ -127,7 +220,7 @@ None of these paradigms replaces the others; they answer different questions wit
 | Headline Metric | Uptime and ticket resolution counts | The four DORA metrics (Deployment Frequency, Lead Time for Changes, Change Failure Rate, Failed Deployment Recovery Time) | SLOs and error budgets | Developer Experience (DevEx) and platform adoption rate |
 | What Gets Delivered | Firefighting manual fixes | CI/CD delivery pipelines and shared cultural alignment | Code, production automation, and SLO frameworks | Internal Developer Platform (IDP) and self-service capabilities |
 
-*Conceptual Note:* "Class SRE implements DevOps" — SRE provides concrete, programmatic, and measurable mechanisms to implement the cultural philosophy of DevOps.
+*Conceptual Note:* "Class SRE implements DevOps" — SRE provides concrete, programmatic, and measurable mechanisms to implement the cultural philosophy of DevOps. DevOps describes *what* needs to be achieved culturally; SRE provides the programmatic mechanisms (*how*) to execute and measure it.
 
 ### The Seven Principles of SRE
 
@@ -165,15 +258,33 @@ Downtime budget per 30-day window across availability tiers:
 | 99.99% (Four Nines) | 4.3 minutes | High-value payments and financial transaction systems |
 | 99.999% (Five Nines) | 26 seconds | Critical telecommunications and carrier infrastructure |
 
-#### Critical Mathematical and Operational Realities
+### Lecturer Commentary / Practical Context: Real-World Nuances of Availability Metrics
 
-1. Exponential cost curve: Each additional nine decreases allowed downtime tenfold, but achieving it typically costs exponentially more due to active redundancy, automated failover, and multi-region synchronization.
-2. Multiplicative degradation in series: Sequential dependent components reduce overall reliability below that of the weakest link:
-   $$A_{\text{total}} = A_1 \times A_2 \times A_3$$
-   For three services chained together, each with 99.9% availability:
-   $$0.999 \times 0.999 \times 0.999 \approx 0.997 \text{ (99.7\%)}$$
-   Allowed downtime increases from 43.2 minutes to over 2.1 hours per month.
-3. User perception vs. raw metrics: Users experience outage timing, duration, and context rather than an aggregate percentage. An outage of 43 minutes at 03:00 AM on a Sunday is imperceptible to most users, whereas a 43-minute outage during course registration day is disastrous.
+1. Time-of-Day and Contextual Impact:
+   - A raw statistical percentage does not reflect business damage:
+     * 43.2 minutes of total downtime occurring at 03:00 AM on a Sunday morning is generally invisible and acceptable for university administrative services.
+     * Conversely, 3 minutes of downtime at 09:00 AM on the opening morning of course registration causes thousands of students to lose course slots and triggers widespread public criticism.
+   - SRE SLOs must be time-aware and context-sensitive rather than simple 30-day flat averages.
+
+2. Physical Datacenter Siting and Carrier Interconnections:
+   - Why do facilities like Telehouse Rama 9 or Makkasan build on land costing over 4 billion THB in central Bangkok instead of cheap rural land?
+   - Telecom Carrier Density: Central Bangkok hosts all domestic telecommunications carriers and internet exchange nodes (True, AIS, NT). Cross-connects between operators can be provisioned with minimal latency and high resilience without running long-haul terrestrial dark fiber.
+   - Power Grid Stability: In Thailand, the Metropolitan Electricity Authority (MEA) business district grid in central Bangkok is strictly protected from the heavy load swings and voltage dips typical of industrial manufacturing estates in outer provinces.
+
+3. The Fallacy of 100% Target:
+   - Chasing 100% availability requires multiplying every component across hardware, dual PDU feeds, redundant UPS strings, multi-carrier BGP links, and distributed multi-region databases.
+   - Mathematical serial reliability degradation:
+     $$A_{\text{total}} = A_1 \times A_2 \times A_3$$
+     If a user flow depends sequentially on three services, each running at 99.9% availability:
+     $$0.999 \times 0.999 \times 0.999 \approx 0.997003 \text{ (99.7\%)}$$
+     Allowed monthly downtime triples from 43.2 minutes to over 2 hours and 9 minutes.
+   - SREs design graceful degradation (e.g., caching, static fallback pages, asynchronous queueing) so a failure in one dependent component does not take down the entire user transaction.
+
+4. The Error Budget Concept:
+   - Error Budget is defined as:
+     $$\text{Error Budget} = 100\% - \text{SLO}$$
+   - For a 99.9% SLO, the error budget is 0.1% allowed failure.
+   - An error budget gives development teams an explicit quota to deploy new features and take calculated architectural risks. If the budget is exhausted, releases are halted, and engineering capacity shifts entirely to reliability hardening.
 
 ### Why 100% Reliability is the Wrong Target
 
@@ -222,6 +333,12 @@ To classify an operational task as toil, evaluate it against six criteria:
 | Copying PUE readings manually off UPS displays into monthly reports | Toil | Repetitive manual logging; automatable via SNMP or Modbus telemetry scrapers. |
 | Designing containment layouts, automating firmware deployment, or postmortem analysis | Engineering (Not Toil) | Requires human judgment, produces permanent system improvements, done once. |
 
+### Lecturer Commentary / Practical Context: AI Tooling in Toil Elimination
+
+- Modern generative AI and scripting platforms can eliminate operational drudgery:
+  * Automating Ansible playbooks, writing parsing scripts for serial numbers, and synthesizing SNMP/PUE facility metrics into automated reports.
+  * SREs leverage AI to synthesize runbooks and generate initial automation logic, but engineers must validate the safety guards, rollback criteria, and execution boundaries.
+
 ---
 
 ## Section 05: SRE in 2026 and Career Evolution
@@ -244,7 +361,19 @@ To classify an operational task as toil, evaluate it against six criteria:
    - Explosive growth in AI model training and inference has constrained power availability, rack physical space, and cooling capacity.
    - Core practice: Adopt FinOps cost control, track Power Usage Effectiveness (PUE), and implement strict thermal containment.
 
-### The Emerging Role: Forward Deployed Engineer (FDE)
+### Lecturer Commentary / Practical Context: Enterprise AI Dependency Vulnerabilities
+
+1. Third-Party LLM Outage Cascades:
+   - If an enterprise builds customer service or automated triage entirely dependent on OpenAI, Anthropic, or Google APIs, an outage at the third-party provider completely paralyzes the internal system.
+   - Architectural mitigation: Design multi-model fallback strategies (e.g., primary frontier model falling back to lightweight local/hosted LLMs or deterministic heuristic rules) accompanied by aggressive client timeouts (e.g., 2.5 seconds) and circuit breakers.
+
+2. On-Premises Faculty AI Hardware Constraints:
+   - SIT KMUTT maintains an on-premises AI server environment (accessible through faculty advisors via internal services).
+   - Real-world constraints: Legacy compute servers retrofitted with modern GPU cards face power delivery and thermal throttling challenges. In recent trials, GPU units suffered hardware failure before formal commissioning. Enterprise hardware requires continuous warranty tracking, spares management, and thermal monitoring.
+
+---
+
+## The Emerging Role: Forward Deployed Engineer (FDE)
 
 An engineer who embeds directly within the customer's technical environment and takes end-to-end ownership of the system from day-one deployment through long-term production operations.
 
@@ -264,6 +393,18 @@ An engineer who embeds directly within the customer's technical environment and 
 - Accountability: "Whoever scoped the system on day one gets paged when it breaks in month six."
 - History: Pioneered by Palantir around 2005; widely adopted by 2026 by AI enterprises including OpenAI, Anthropic, Google Cloud, Databricks, Salesforce, and Scale AI.
 - Distinction: Traditional consultants deliver slides and recommendation reports; FDEs deliver functioning, production-grade software running in customer environments.
+
+### Lecturer Commentary / Practical Context: Bridging Engineering and Business Acumen
+
+1. The Critical Missing Skill in New Graduates:
+   - Industry alumni frequently report that university candidates possess reasonable baseline technical skills but completely lack business comprehension.
+   - Example scenario: When asked in an interview, "Why did you select this tech stack or design pattern?", candidates often answer, "Because the instructor assigned it."
+   - When asked how a shopping cart project handles checkout and payment gateway integration, candidates often fail to consider transaction boundaries, user conversion, or payment fallback paths.
+   - Real-world engineering requires understanding business value: What is the monetary cost of downtime? How does the transaction close? How do we minimize user drop-off?
+
+2. What Differentiates an FDE:
+   - An FDE operates at the intersection of business strategy, software engineering, and production SRE.
+   - They work directly alongside enterprise client users, writing custom glue code, mapping internal schemas, and deploying solutions onto client infrastructure, while ensuring systems meet enterprise SLOs.
 
 ### Comparative Matrix: Adjacent Technical Roles
 
@@ -300,22 +441,33 @@ Transition infrastructure from legacy open racks into a modern enclosed containm
 - Target State: Sealed hot and cold aisle containment; elimination of air recirculation; improved Power Usage Effectiveness (PUE); support for high power density per rack.
 - Operational Constraints: Zero downtime permitted for critical school services during operational hours; physical moves must execute during out-of-hours maintenance windows; full reversibility required.
 
-### Why Physical Rack Migration is SRE Work
+### Lecturer Commentary / Practical Context: Data Centre Facilities and Lab Logistics
 
-1. Change Management: Structured execution plans, explicit approval workflows, and designated change owners.
-2. Blast Radius Assessment: Analyzing dependencies to determine exactly which services fail if a particular circuit or switch is disconnected.
-3. Rollback Planning: Strict time-bound procedures to restore original operational state if newly migrated hardware fails to boot.
-4. Asset Inventory: Maintaining complete visibility over physical assets to enable rapid recovery and compliance auditing.
+1. The Reality of the SIT Data Centre Space (LX Building, 8th Floor):
+   - The faculty previously utilized legacy open racks that had accumulated rust, dust, and outdated cabling.
+   - The university's central Computer Center (SIT Data Centre, 8th floor LX Building) recently modernized its space into modular hot/cold aisle containment corridors.
+   - SIT secured access to 4 dedicated containment racks in this facility, with 1 rack specifically allocated for INT 403 / INT 531 coursework.
+   - Physical infrastructure benefits: Shared access to high-efficiency industrial chillers, automated fire suppression systems (FM-200 / Inergen rather than makeshift ceiling extinguishers), high-capacity centralized UPS, and diesel generators.
 
-### Physics and Engineering of Aisle Containment
+2. Hardware Allocation and Team Sizing:
+   - Target machine count: 20 physical server nodes.
+   - Group size rule: Strictly 2 to 3 students per group (never 4 or 5).
+   - Rationale: In teams larger than 3, only one student actively configures the hardware while others remain passive observers. Hands-on exposure is mandatory for every student.
+   - Hardware breakdown: 8 groups will receive blade server nodes from a decommissioned enterprise blade chassis; remaining groups will receive dedicated 1U/2U server chassis.
 
-In open-rack setups, hot exhaust air recirculates around the tops and sides of racks, as well as through unsealed U slots, re-entering server front intakes. This elevates intake temperatures above thermal design thresholds, forcing cooling compressors to run continuously at peak energy consumption without lowering internal rack temperatures.
+3. Physical Safety and Equipment Handling:
+   - Heavy chassis hazard: Fully loaded blade chassis or disk arrays weigh several hundred kilograms. Lifting an assembled chassis will cause severe spinal injury.
+   - Procedure: Equipment must be completely disassembled prior to transport: remove all power supplies, blade cards, storage drives, and fan trays. Even an empty bare chassis requires 5 to 6 people to lift safely.
+   - Center of gravity rule: Heaviest equipment (UPS batteries, dense disk enclosures) must always be installed in the lowest rack units (U1–U13) to prevent rack tipping.
 
-#### Key Containment Rules
+4. Thermal Dynamics and Containment Discipline:
+   - Containment creates a sealed box isolating supply air (fed from raised floor perforated tiles) from hot exhaust air.
+   - Leaving containment doors open or failing to install blanking panels causes cold air loss, triggers thermal imbalance, forces chillers to overwork, and trips facility environmental alarms.
+   - ISO/IEC 27001 controls govern facility access: biometric facial scanning, entry/exit logging (A.7.4), and zero unauthorized photography of asset tags, cabling schemes, or internal terminals.
 
-1. Air Separation: Containment physically isolates cold supply air from hot exhaust air.
-2. Blanking Panels: Every unused rack unit (U) must be sealed with a blanking panel. Empty rack units act as shortcuts for hot exhaust recirculation.
-3. Efficiency Impact: Decreases facility PUE and allows higher computational density per square metre.
+5. Classroom-to-Datacenter Layer 2 Network Link:
+   - The lab classroom currently possesses dedicated patch cabling connected directly to the 8th floor data centre rack switch on the same Layer 2 broadcast domain.
+   - Plugging into the wall outlet provides direct Layer 2 connectivity without routing hops, enabling immediate discovery and out-of-band management of laboratory hardware before formal network segregation policies are applied.
 
 ---
 
@@ -413,7 +565,7 @@ The submitted elevation diagram must meet production engineering standards:
 
 ### Deliverables and Grading Criteria (Total: 10 Marks)
 
-- Group Size: 3 to 4 students per team (15–20 groups total).
+- Group Size: 2 to 3 students per team (strictly enforced; max 20 groups total).
 - Due Date: Start of Week 2 session.
 
 | Assessment Component | Allocated Marks | Success Criteria |
