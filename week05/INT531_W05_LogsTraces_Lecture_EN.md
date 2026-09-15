@@ -1,110 +1,110 @@
-# INT531: Site Reliability Engineering
-## Week 05: Observability II - Logs and Distributed Tracing
+# เอกสารประกอบการบรรยาย INT531: วิศวกรรมความน่าเชื่อถือของระบบ (Site Reliability Engineering)
+## สัปดาห์ที่ 05: การสังเกตการณ์ระบบขั้นสูง (Observability II) - บันทึกเหตุการณ์ (Logs) และการติดตามแบบกระจายศูนย์ (Distributed Tracing)
 
-School of Information Technology, King Mongkut's University of Technology Thonburi  
-Lecture: 1.5 hours | Field Lab: 1.5 hours | Content Updated: 2026  
-Schedule: Morning - Collecting what metrics cannot say | Afternoon - Installing into the rack  
-
----
-
-## Table of Contents
-1. [Agenda and Learning Outcomes](#agenda-and-learning-outcomes)
-2. [Section 1: The Gap Metrics Cannot Fill](#section-1-the-gap-metrics-cannot-fill)
-3. [Section 2: Logs That Are Actually Usable](#section-2-logs-that-are-actually-usable)
-4. [Section 3: Loki and the Label Trap](#section-3-loki-and-the-label-trap)
-5. [Section 4: Distributed Tracing](#section-4-distributed-tracing)
-6. [Section 5: Joining the Three Pillars](#section-5-joining-the-three-pillars)
-7. [Section 6: Lab 5 - Installation Day](#section-6-lab-5---installation-day)
-8. [Assignments and Next Week](#assignments-and-next-week)
-9. [References and Standards](#references-and-standards)
-10. [Summary: Today in Three Sentences](#summary-today-in-three-sentences)
+คณะเทคโนโลยีสารสนเทศ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี  
+ระยะเวลาการบรรยาย: 1.5 ชั่วโมง | ปฏิบัติการภาคสนาม (Field Lab): 1.5 ชั่วโมง | ปรับปรุงเนื้อหาล่าสุด: 2026  
+กำหนดการ: ช่วงเช้า - การเก็บรวบรวมข้อมูลในส่วนที่มาตรวัด (Metrics) ไม่สามารถบอกได้ | ช่วงบ่าย - ปฏิบัติการติดตั้งอุปกรณ์ลงในตู้แร็ก (Installation Day)
 
 ---
 
-## Agenda and Learning Outcomes
+## สารบัญ
+1. [ภาพรวมและผลลัพธ์การเรียนรู้](#ภาพรวมและผลลัพธ์การเรียนรู้)
+2. [ส่วนที่ 1: ช่องว่างที่มาตรวัดไม่สามารถตอบได้ (The Gap Metrics Cannot Fill)](#ส่วนที่-1-ช่องว่างที่มาตรวัดไม่สามารถตอบได้-the-gap-metrics-cannot-fill)
+3. [ส่วนที่ 2: บันทึกเหตุการณ์ที่ใช้งานได้จริง (Logs That Are Actually Usable)](#ส่วนที่-2-บันทึกเหตุการณ์ที่ใช้งานได้จริง-logs-that-are-actually-usable)
+4. [ส่วนที่ 3: สถาปัตยกรรม Grafana Loki และกับดักของป้ายกำกับ (Loki and the Label Trap)](#ส่วนที่-3-สถาปัตยกรรม-grafana-loki-และกับดักของป้ายกำกับ-loki-and-the-label-trap)
+5. [ส่วนที่ 4: การติดตามแบบกระจายศูนย์ (Distributed Tracing)](#ส่วนที่-4-การติดตามแบบกระจายศูนย์-distributed-tracing)
+6. [ส่วนที่ 5: การผสานสามเสาหลักแห่งการสังเกตการณ์เข้าด้วยกัน (Joining the Three Pillars)](#ส่วนที่-5-การผสานสามเสาหลักแห่งการสังเกตการณ์เข้าด้วยกัน-joining-the-three-pillars)
+7. [ส่วนที่ 6: ปฏิบัติการ Lab 5 - วันติดตั้งอุปกรณ์ (Lab 5 - Installation Day)](#ส่วนที่-6-ปฏิบัติการ-lab-5---วันติดตั้งอุปกรณ์-lab-5---installation-day)
+8. [งานที่ได้รับมอบหมายและการเตรียมตัวสำหรับสัปดาห์ถัดไป (Assignments and Next Week)](#งานที่ได้รับมอบหมายและการเตรียมตัวสำหรับสัปดาห์ถัดไป-assignments-and-next-week)
+9. [เอกสารอ้างอิงและมาตรฐานที่เกี่ยวข้อง (References and Standards)](#เอกสารอ้างอิงและมาตรฐานที่เกี่ยวข้อง-references-and-standards)
+10. [บทสรุป 3 ประโยคสำคัญประจำวัน (Today in Three Sentences)](#บทสรุป-3-ประโยคสำคัญประจำวัน-today-in-three-sentences)
 
-### Agenda Overview
-- 01: The gap metrics cannot fill - Why we know 1% failed but not whose request it was
-- 02: Logs that are actually usable - Structured logging, levels, sampling, and cost
-- 03: Loki and the label trap - The same rule as Prometheus, missed a second time
-- 04: Distributed tracing - Spans, trace context, OpenTelemetry, and sampling
-- 05: Joining the three pillars - One trace_id threading metrics, logs, and traces together
-- 06: Lab 5 - Installation day - Into the containment rack: mount, cable, power on, accept
+---
 
-### Session Learning Outcomes (SLO)
-| Outcome Code | Description | Mapped Course Learning Outcome (CLO) |
+## ภาพรวมและผลลัพธ์การเรียนรู้
+
+### โครงสร้างหัวข้อการเรียนรู้ (Agenda)
+- 01: ช่องว่างที่มาตรวัดไม่สามารถตอบได้ (The gap metrics cannot fill) - เหตุใดเราถึงทราบว่าคำขอขัดข้อง 1% แต่ไม่ทราบว่าเป็นคำขอของผู้ใช้รายใด
+- 02: บันทึกเหตุการณ์ที่ใช้งานได้จริง (Logs that are actually usable) - การบันทึกแบบมีโครงสร้าง (Structured logging), ระดับความสำคัญ (Levels), การสุ่มตัวอย่าง (Sampling) และต้นทุน (Cost)
+- 03: Loki และกับดักของป้ายกำกับ (Loki and the label trap) - กฎเดียวกันกับ Prometheus ที่มักทำผิดพลาดซ้ำสอง
+- 04: การติดตามแบบกระจายศูนย์ (Distributed tracing) - สแปน (Spans), บริบทการติดตาม (Trace context), OpenTelemetry และกลยุทธ์การสุ่มเก็บข้อมูล (Sampling strategies)
+- 05: การผสานสามเสาหลักเข้าด้วยกัน (Joining the three pillars) - การร้อยเรียง Metrics, Logs และ Traces เข้าด้วยกันผ่าน `trace_id` เดียวกัน
+- 06: ปฏิบัติการ Lab 5 - วันติดตั้งอุปกรณ์ (Lab 5 - Installation day) - การติดตั้งอุปกรณ์ลงตู้แร็กแบบปิด (Containment rack): ติดตั้งราง ยึดอุปกรณ์ เดินสาย จ่ายไฟ และตรวจรับมอบงาน
+
+### ผลลัพธ์การเรียนรู้ประจำบทเรียน (Session Learning Outcomes: SLO)
+| รหัสผลลัพธ์ (SLO) | คำอธิบายรายละเอียด | ความเชื่อมโยงกับผลลัพธ์รายวิชา (CLO) |
 | :--- | :--- | :--- |
-| SLO 5.1 | Explain what metrics, logs, and traces each answer, and choose the right one | CLO3 |
-| SLO 5.2 | Write structured logs that are searchable, at an appropriate level | CLO3 |
-| SLO 5.3 | Explain Loki's label trap and design labels that are safe | CLO3, CLO5 |
-| SLO 5.4 | Read a trace waterfall and say where the time actually went | CLO5 |
-| SLO 5.5 | Explain trace sampling and its effect on what you can investigate later | CLO3 |
-| SLO 5.6 | Install equipment to an approved layout and verify it against acceptance criteria | CLO4, CLO7 |
+| **SLO 5.1** | สามารถอธิบายความแตกต่างของคำถามที่ Metrics, Logs และ Traces แต่ละตัวตอบได้ พร้อมทั้งเลือกใช้งานได้อย่างถูกต้องเหมาะสม | CLO3 |
+| **SLO 5.2** | สามารถเขียน Log แบบมีโครงสร้าง (Structured Log) ที่ค้นหาได้ง่ายและกำหนดระดับความสำคัญ (Log Level) ได้อย่างเหมาะสม | CLO3 |
+| **SLO 5.3** | สามารถอธิบายปัญหา Label Trap ใน Grafana Loki และออกแบบป้ายกำกับที่ปลอดภัยได้ | CLO3, CLO5 |
+| **SLO 5.4** | สามารถอ่านและวิเคราะห์แผนภาพ Waterfall ของ Trace เพื่อระบุจุดคอขวดของเวลาที่เกิดขึ้นจริงได้ | CLO5 |
+| **SLO 5.5** | สามารถอธิบายกลยุทธ์การสุ่มเก็บข้อมูล Trace (Sampling) และผลกระทบต่อความสามารถในการสืบค้นปัญหาในภายหลังได้ | CLO3 |
+| **SLO 5.6** | สามารถติดตั้งอุปกรณ์ฮาร์ดแวร์ตามผังที่ได้รับอนุมัติ และตรวจสอบความถูกต้องตามเกณฑ์ตรวจรับมอบงาน (Acceptance Criteria) ได้ | CLO4, CLO7 |
 
 ---
 
-## Section 1: The Gap Metrics Cannot Fill
+## ส่วนที่ 1: ช่องว่างที่มาตรวัดไม่สามารถตอบได้ (The Gap Metrics Cannot Fill)
 
-### Core Principle
-Metrics say there is a problem; they cannot say to whom, or where.
+### หลักการพื้นฐานทางวิศวกรรม SRE
+มาตรวัด (Metrics) มีหน้าที่บอกว่า "เกิดปัญหาขึ้นในระบบ" แต่ไม่สามารถบอกได้ว่า "ปัญหานั้นเกิดขึ้นกับใคร" หรือ "เกิดขึ้นที่จุดใดอย่างแน่ชัด"
 
-### Three Questions Metrics Cannot Answer
-Case study based on an incident in the Speech-to-Text (STT) service:
+### สามคำถามสำคัญที่ Metrics ไม่สามารถตอบได้
+กรณีศึกษาจากเหตุการณ์จริงของบริการถอดความเสียงพูดเป็นข้อความ (Speech-to-Text: STT Service):
 
-1. **"Why did this one lecturer's session fail?"**
-   - Metrics are aggregate calculations over time.
-   - We observe that 1% of total requests failed, but we cannot isolate or trace back to that specific session.
-   - Root cause in monitoring design: `session_id` was deliberately omitted from metric labels to avoid high cardinality.
+1. **"เหตุใดเซสชันการสอนของอาจารย์ท่านนี้จึงล้มเหลว?" ("Why did this one lecturer's session fail?")**
+   - Metrics เป็นข้อมูลเชิงสรุปรวม (Aggregates) เช่น ข้อมูลเชิงสถิติทำให้เราทราบว่ามีอัตราความล้มเหลวอยู่ที่ 1%
+   - ทว่าเราไม่สามารถสืบย้อนกลับไปยังเซสชันของอาจารย์ท่านนั้นได้โดยตรง
+   - สาเหตุเชิงสถาปัตยกรรม: ในการออกแบบระบบบันทึก Metrics เราจงใจตัด `session_id` ออกจาก Label เพื่อป้องกันปัญหาข้อมูลพุ่งสูงจนควบคุมไม่ได้ (High Cardinality)
 
-2. **"Where did those 3.2 seconds go?"**
-   - The latency histogram reports an aggregate total duration of 3.2 seconds.
-   - It cannot reveal that 1.66 seconds was spent waiting in the GPU job queue, while only 0.45 seconds was actual model inference.
+2. **"เวลา 3.2 วินาทีนั้นสูญเสียไปกับขั้นตอนใด?" ("Where did those 3.2 seconds go?")**
+   - แผนภูมิฮิสโตแกรม (Histogram) ระบุเพียงว่าระยะเวลาหน่วงรวม (Total Latency) อยู่ที่ 3.2 วินาที
+   - แต่ Metrics ไม่สามารถแจกแจงได้ว่า เวลา 1.66 วินาทีหมดไปกับการเข้าคิวรอทรัพยากร GPU (GPU Queue Wait) และมีเพียง 0.45 วินาทีเท่านั้นที่เป็นการประมวลผลคำนวณของโมเดลจริง (Actual Model Inference)
 
-3. **"What happened just before it broke?"**
-   - Metrics scrape at intervals (e.g., every 15 seconds).
-   - Events occurring between scrape intervals are unrecorded: specific error messages, call ordering, stack traces, and transient state changes are lost.
+3. **"เกิดเหตุการณ์อะไรขึ้นก่อนหน้าที่ระบบจะพัง?" ("What happened just before it broke?")**
+   - ระบบเก็บรวบรวม Metrics ดึงข้อมูล (Scrape) เป็นรอบตามช่วงเวลา (เช่น ทุก 15 วินาที)
+   - เหตุการณ์ย่อยๆ ที่เกิดขึ้นระหว่างรอบการเก็บข้อมูลจึงสูญหายไปทั้งหมด ไม่ว่าจะเป็นข้อความแจ้งข้อผิดพลาด (Error Text), ลำดับการเรียกฟังก์ชัน (Call Ordering) ตลอดจนร่องรอยการทำงาน (Stack Traces)
 
-*Conclusion:* None of these gaps is resolved by adding more metrics. They are fixed by collecting different classes of observability data.
+*ข้อสรุปสำคัญ:* ปัญหาทั้งสามข้อนี้ไม่สามารถแก้ไขได้ด้วยการเพิ่ม Metrics เข้าไปในระบบอีก แต่ต้องแก้ไขด้วยการเก็บรวบรวมข้อมูลเพื่อการสังเกตการณ์ในรูปแบบอื่น (A different kind of data)
 
-### The Three Pillars of Observability
-Each observability pillar entails different operational costs and answers a fundamentally distinct question.
+### สามเสาหลักแห่งการสังเกตการณ์ระบบ (The Three Pillars of Observability)
+แต่ละเสาหลักมีต้นทุนทางทรัพยากรที่แตกต่างกัน และตอบคำถามคนละด้านอย่างชัดเจน:
 
-| Feature / Dimension | Metrics | Logs | Traces |
+| มิติการเปรียบเทียบ | มาตรวัด (Metrics) | บันทึกเหตุการณ์ (Logs) | การติดตามร่องรอย (Traces) |
 | :--- | :--- | :--- | :--- |
-| Primary Question Answered | How much, how often, how bad | What exactly happened, in order | Where the time went, across services |
-| Cost Profile | Cheap: few bytes per sample | Expensive: full text per event | Sampled: typically 1% to 10% of requests |
-| Data Structure | Aggregated numeric values over time; no individual request records | One record/line per event; preserves exact granular detail | Directed acyclic graph (tree) per request with span timings |
-| Operational Limit | Cardinality is the hard limit | Volume and ingestion bandwidth is the hard limit | Instrumentation effort and engineering overhead is the limit |
-| Investigative Focus | Answers questions prepared in advance | Answers "what did this request do?" | Answers "which hop was slow?" |
+| **คำถามหลักที่ตอบ** | ปริมาณเท่าใด, บ่อยแค่ไหน, รุนแรงระดับใด (How much, how often, how bad) | เกิดอะไรขึ้นอย่างละเอียดตามลำดับเวลา (What exactly happened, in order) | เวลาสูญเสียไปที่ขั้นตอนใดในบรรดาเซอร์วิสต่างๆ (Where the time went, across services) |
+| **ลักษณะต้นทุน (Cost Profile)** | ประหยัดที่สุด: ไม่กี่ไบต์ต่อหนึ่งชุดข้อมูลตัวอย่าง (Cheap: a few bytes per sample) | สิ้นเปลืองสูง: เก็บข้อความเต็มของทุกเหตุการณ์ (Expensive: full text per event) | ต้องใช้การสุ่มตัวอย่าง: ปกติเก็บ 1% ถึง 10% ของคำขอทั้งหมด (Sampled: usually 1-10% of requests) |
+| **โครงสร้างข้อมูล** | ตัวเลขสรุปรวมตามช่วงเวลา ไม่มีข้อมูลเฉพาะของคำขอรายตัว (Aggregated - no individual request) | ข้อมูลหนึ่งบรรทัดต่อหนึ่งเหตุการณ์ เก็บรายละเอียดสมบูรณ์ (One line per event, keeps detail) | โครงสร้างรูปต้นไม้ (Directed Acyclic Graph: DAG) หนึ่งต้นต่อหนึ่งคำขอ พร้อมข้อมูลเวลา (One tree per request, with timings) |
+| **ขีดจำกัดทางระบบ (Hard Limit)** | ความหลากหลายของป้ายกำกับ (Cardinality) เป็นขีดจำกัดวิกฤต | ปริมาณและแบนด์วิดท์ในการบันทึกข้อมูล (Volume/Ingestion) เป็นขีดจำกัดวิกฤต | ภาระงานในการฝังโค้ดตรวจวัด (Instrumentation effort) เป็นข้อจำกัดหลัก |
+| **จุดมุ่งหมายในการสืบค้น** | ตอบคำถามตามเงื่อนไขที่เตรียมไว้ล่วงหน้า (Questions prepared in advance) | ตอบว่า "คำขอนี้ทำอะไรลงไปบ้าง" (What did this request do?) | ตอบว่า "จุดเชื่อมต่อ (Hop) ใดทำงานช้า" (Which hop was slow?) |
 
-#### Decision Rule: Selecting the Right Pillar
-- *"Is the service healthy?"* -> Query **Metrics**.
-- *"Why did this one session fail?"* -> Query **Logs**.
-- *"Which step took the 3 seconds?"* -> Query **Traces**.
+#### กฎการตัดสินใจเลือกใช้เสาหลัก (Decision Rule)
+- หากต้องการทราบว่า *"ระบบยังคงทำงานเป็นปกติดีอยู่หรือไม่?"* ให้ตรวจสอบ **Metrics**
+- หากต้องการทราบว่า *"เหตุใดคำขอหรือเซสชันรายการนี้จึงล้มเหลว?"* ให้ตรวจสอบ **Logs**
+- หากต้องการทราบว่า *"ขั้นตอนใดใช้เวลาไปถึง 3 วินาที?"* ให้ตรวจสอบ **Traces**
 
-#### Critical Synthesis Note
-All three pillars must be connected using the identical `trace_id`. Without a common trace identifier, observability data remains three isolated piles of information that cannot be correlated into a coherent incident timeline.
+#### ข้อพิจารณาสำคัญสูงสุด
+ทั้งสามเสาหลักต้องเชื่อมโยงกันด้วย `trace_id` เดียวกัน หากปราศจากรหัสเชื่อมโยงนี้ ข้อมูลที่ได้จะเป็นเพียงกองข้อมูลสามกองที่แยกขาดจากกัน และไม่สามารถนำมาประกอบเป็นภาพเรื่องราวเดียวกันได้
 
 ---
 
-## Section 2: Logs That Are Actually Usable
+## ส่วนที่ 2: บันทึกเหตุการณ์ที่ใช้งานได้จริง (Logs That Are Actually Usable)
 
-### Core Principle
-A log that reads nicely to human eyes but cannot be indexed or searched by machine is useless during an outage at 2:00 AM.
+### หลักการสำคัญ
+Log ที่มนุษย์อ่านแล้วไพเราะ แต่เครื่องจักรไม่สามารถสืบค้นได้ ย่อมไม่มีประโยชน์ใดๆ เมื่อเกิดเหตุขัดข้องขึ้นตอนตีสอง (A log that reads nicely but cannot be searched is useless at two in the morning)
 
-### Structured Logging: Write for the Machine
-Structured logging transforms arbitrary human prose into strongly typed, machine-parseable key-value pairs.
+### การบันทึก Log แบบมีโครงสร้าง (Structured Logging) - การเขียนเพื่อให้เครื่องจักรประมวลผล
+Structured Logging คือการเปลี่ยนข้อความอิสระของมนุษย์ให้กลายเป็นโครงสร้างข้อมูลที่มีแบบแผนชัดเจน (Key-Value Pairs)
 
-#### Comparison: Unsearchable vs. Searchable Formats
+#### การเปรียบเทียบรูปแบบข้อความทั่วไปกับรูปแบบมีโครงสร้าง
 
-- **Unsearchable Form (String Interpolation):**
+- **รูปแบบที่ไม่สามารถค้นหาได้ (Unsearchable Form - String Interpolation):**
   ```python
   logger.info(f"transcribe failed for {sid} after {ms}ms")
   ```
-  - Problem: During an incident at 2:00 AM, engineers must craft complex regular expressions to extract metrics, session IDs, and durations.
-  - Fragility: Any minor modification to text formatting or wording breaks existing parsing alerts and log ingestion pipelines.
+  - *ปัญหาในการปฏิบัติงาน:* เมื่อเกิดเหตุการณ์ฉุกเฉินตอนตีสอง วิศวกรต้องเขียน Regular Expression (Regex) ที่ซับซ้อนเพื่อแกะค่าตัวเลขและรหัสออกมา
+  - *ความเปราะบาง:* ทันทีที่มีการแก้ไขข้อความในสตริง เช่น เปลี่ยนคำเพียงเล็กน้อย ตัวกรอง (Filter) และระบบแจ้งเตือนทั้งหมดที่เขียนไว้จะใช้งานไม่ได้ทันที
 
-- **Searchable Form (Structured Event):**
+- **รูปแบบที่ค้นหาได้ง่าย (Searchable Form - Structured Event):**
   ```python
   logger.info("transcribe_failed", extra={
       "session_id": sid,
@@ -114,295 +114,278 @@ Structured logging transforms arbitrary human prose into strongly typed, machine
       "trace_id": ctx.trace_id
   })
   ```
-  - Benefit: Queries can filter directly on structured fields (e.g., `error = "gpu_timeout"`, `duration_ms > 2000`).
-  - Correlatability: The included `trace_id` allows immediate cross-navigation to distributed tracing waterfalls.
+  - *ประโยชน์ในการปฏิบัติงาน:* สามารถกรองข้อมูลจากฟิลด์ได้โดยตรง เช่น `error = "gpu_timeout"` หรือ `duration_ms > 2000`
+  - *การเชื่อมโยงระบบ:* สามารถนำ `trace_id` ไปสืบค้นต่อในระบบ Distributed Tracing ของคำขอนั้นได้ทันที
 
-### Three Essential Elements of Every Log Line
-1. **UTC Timestamp with Explicit Units:** Systems run across diverse hardware environments and timezones. Timestamps must be recorded in UTC with standard ISO 8601 formatting.
-2. **Trace Identifier (`trace_id`):** Allows an engineer to navigate instantly from a log error line to the complete trace context of that request.
-3. **Stable Event Identifier:** Use static, standardized machine tokens (such as `transcribe_failed`) rather than mutable prose sentences, ensuring downstream search queries and dashboards remain stable.
+### คุณสมบัติจำเป็น 3 ประการที่ทุกบรรทัด Log ต้องมี
+1. **เวลามาตรฐานสากลพร้อมระบุหน่วยชัดเจน (UTC Timestamp with Explicit Units):** เนื่องจากโฮสต์และบริการอาจตั้งอยู่ในเขตเวลา (Timezone) ที่แตกต่างกัน จึงต้องบันทึกเวลาเป็น UTC ตามมาตรฐานสากลเสมอ
+2. **รหัสการติดตาม (`trace_id`):** เพื่อให้วิศวกรสามารถกระโดดจากบรรทัด Log ที่พบข้อผิดพลาดไปยังเส้นทางการทำงาน (Trace) ทั้งหมดของคำขอดังกล่าวได้ทันที
+3. **ชื่อเหตุการณ์ที่เป็นมาตรฐานคงที่ (Stable Event Name):** ต้องใช้คีย์เวิร์ดคงที่ เช่น `transcribe_failed` แทนการใช้ประโยคที่เปลี่ยนแปลงได้ เพราะระบบตัวกรองและการแจ้งเตือนต้องพึ่งพาชื่อเหตุการณ์เหล่านี้
 
-### Log Levels and Volume Guidelines
-Assigning incorrect log levels drives log storage and ingestion costs up tenfold without operational benefit.
+### ระดับความสำคัญของ Log (Log Levels) และสัดส่วนที่เหมาะสม
+การกำหนดระดับความสำคัญผิดพลาดจะส่งผลให้ค่าใช้จ่ายในการจัดเก็บ Log พุ่งสูงขึ้น 10 เท่าโดยไม่เกิดประโยชน์ทางวิศวกรรม
 
-| Log Level | When to Use | Example in STT Service | Expected Share of Volume |
+| ระดับ (Level) | กรณีการใช้งานที่ถูกต้อง (Use when) | ตัวอย่างในบริการ STT (Example in STT) | สัดส่วนปริมาณที่เหมาะสม (Expected share) |
 | :--- | :--- | :--- | :--- |
-| `ERROR` | Work failed completely; requires human intervention | Model failed to load; unable to persist audio transcription result | Under 0.1% |
-| `WARN` | Abnormal situation occurred, but execution continued | Queue depth exceeded soft threshold resulting in dropped audio frames; retry triggered | Under 1% |
-| `INFO` | Significant lifecycle events that must be reconstructible later | Session started; session completed; transcription model loaded into memory | Approximately 5% to 10% |
-| `DEBUG` | Granular debugging details required solely for chasing a specific problem | Byte size of each audio chunk; exact parameters passed to inference model | Disabled in production environments |
+| **ERROR** | การทำงานล้มเหลวโดยสมบูรณ์ และต้องมีมนุษย์เข้ามาตรวจสอบแก้ไข | โมเดลไม่สามารถโหลดได้ (Model failed to load), ไม่สามารถบันทึกผลลัพธ์ลงฐานข้อมูลได้ | ต่ำกว่า 0.1% (< 0.1%) |
+| **WARN** | เกิดภาวะผิดปกติขึ้น แต่ระบบยังคงทำงานต่อไปได้ | คิวสะสมลึกเกินไปจนต้องทิ้งเฟรมเสียงบางส่วน (Dropped audio frames), มีการลองทำงานซ้ำ (Retry) | ต่ำกว่า 1% (< 1%) |
+| **INFO** | เหตุการณ์สำคัญในวงจรชีวิตระบบที่ต้องใช้สร้างลำดับเหตุการณ์ย้อนหลังได้ | เริ่มต้นเซสชัน (Session started), จบเซสชัน (Session ended), โหลดโมเดลเสร็จสิ้น | ประมาณ 5% ถึง 10% |
+| **DEBUG** | ข้อมูลละเอียดยิบย่อยที่ใช้สำหรับไล่หาสาเหตุเฉพาะจุดเท่านั้น | ขนาดของชิ้นข้อมูลเสียง (Chunk size), พารามิเตอร์ที่ส่งเข้าโมเดลคำนวณ | ปิดการใช้งานบนระบบจริง (Off in production) |
 
-#### Production Rule of Thumb
-If turning on `DEBUG` logging in production increases total log volume by more than tenfold, the debug statements are mislocated. The logging platform is not at fault; the code contains excessive diagnostic chatter.
+#### กฎเชิงปฏิบัติสำหรับสภาพแวดล้อมจริง (Production Rule of Thumb)
+หากการเปิดใช้งาน Log ระดับ `DEBUG` บนระบบ Production ส่งผลให้ปริมาณข้อมูล Log เพิ่มขึ้นเกินกว่า 10 เท่า แสดงว่าโค้ดมีการใส่คำสั่ง DEBUG ผิดตำแหน่งและไร้ระเบียบ ซึ่งเป็นปัญหาของการออกแบบแอปพลิเคชัน ไม่ใช่ความผิดพลาดของแพลตฟอร์มจัดเก็บ Log
 
 ---
 
-## Section 3: Loki and the Label Trap
+## ส่วนที่ 3: สถาปัตยกรรม Grafana Loki และกับดักของป้ายกำกับ (Loki and the Label Trap)
 
-### Core Architectural Principle
-Grafana Loki indexes metadata labels only; it never creates a full-text index of the message body.
+### หลักการสถาปัตยกรรมของ Grafana Loki
+Loki ทำการสร้างดัชนี (Index) เฉพาะป้ายกำกับ (Labels) เท่านั้น และไม่มีการทำดัชนีข้อความในเนื้อหาของ Log (Message Body)
 
-### Log Processing Pipeline
-```
-[ Application ]
-  - Emits JSON logs (one line per event)
-        |
-        v
-[ Agent (Grafana Alloy or Promtail) ]
-  - Tails log files and attaches stream labels
-        |
-        v
-[ Grafana Loki ]
-  - Indexes stream labels only
-  - Stores compressed log chunks in object storage
-        |
-        v
-[ Grafana UI ]
-  - Queries via LogQL
-  - Extracts fields at query time
-  - Deep-links to correlated traces via trace_id
-```
+### ขั้นตอนการส่งต่อและประมวลผล Log (Pipeline)
+1. **แอปพลิเคชัน (Application):** เขียน Log ออกมาในรูปแบบ JSON บรรทัดละหนึ่งเหตุการณ์ (JSON Lines)
+2. **ตัวแทนรับส่งข้อมูล (Agent: Grafana Alloy หรือ Promtail):** อ่านไฟล์ Log จากเครื่องปลายทาง และทำการแนบป้ายกำกับสตรีม (Stream Labels)
+3. **ระบบจัดเก็บ (Grafana Loki):** จัดทำดัชนีเฉพาะป้ายกำกับ ส่วนเนื้อความของ Log จะถูกบีบอัดเป็นก้อน (Chunks) แล้วเก็บลงใน Object Storage
+4. **ส่วนติดต่อผู้ใช้ (Grafana UI):** สั่งค้นหาข้อมูลผ่านภาษา LogQL ดึงค่าฟิลด์ออกมาประมวลผล และกระโดดไปยัง Trace ที่เกี่ยวข้องผ่าน `trace_id`
 
-### Label Safety: Safe Labels vs. Dangerous Labels
-Because Loki creates an independent stream index for every unique combination of label keys and values, label design rules in Loki mirror Prometheus cardinality constraints:
+### กับดักของป้ายกำกับ (The Label Trap): ป้ายกำกับที่ปลอดภัย vs ป้ายกำกับที่ทำให้ระบบล่ม
+เนื่องจาก Loki สร้างสตรีมข้อมูลแยกสำหรับทุกคู่ค่าของป้ายกำกับที่ไม่ซ้ำกัน กฎการออกแบบป้ายกำกับจึงเหมือนกับ Prometheus ทุกประการ:
 
-- **Safe Labels (Bounded Cardinality):**
-  - Examples: `service`, `env`, `level`, `engine`
-  - Characteristics: A small, finite set of predictable values.
-- **Dangerous Labels (High Cardinality - Crashes Loki):**
-  - Examples: `session_id`, `user_id`, `trace_id`, `request_path`
-  - Consequence: Unbounded values create millions of discrete streams, causing metadata index exhaustion and Out-Of-Memory (OOM) crashes.
+- **ป้ายกำกับที่ปลอดภัย (Safe Bounded Labels):**
+  - ตัวอย่าง: `service`, `env`, `level`, `engine`
+  - ลักษณะ: มีชุดค่าที่เป็นไปได้จำนวนจำกัดและคาดเดาได้ (Finite, low-cardinality)
+- **ป้ายกำกับที่ทำลายระบบ (High-Cardinality Labels - Crash Loki):**
+  - ตัวอย่าง: `session_id`, `user_id`, `trace_id`, `request_path`
+  - ผลลัพธ์: ค่าที่ไม่สิ้นสุด (Unbounded) จะสร้างสตรีมขึ้นมานับล้านสตรีม ส่งผลให้หน่วยความจำและดัชนีของ Loki เต็ม (Stream Exhaustion) จนระบบล่มทันที
 
-*The Rule:* High-cardinality values (`session_id`, `trace_id`) belong inside the JSON message payload, never in Loki stream labels. Filter them dynamically using LogQL string and JSON filters.
+*กฎเหล็ก:* ข้อมูลที่มีความแปรผันสูงอย่าง `session_id` และ `trace_id` ต้องอยู่ในเนื้อความ (Message Body) ของ Log เท่านั้น ห้ามนำมาทำเป็น Label โดยเด็ดขาด และให้ใช้ตัวกรองข้อความหรือตัวแยกโครงสร้างของ LogQL ในการค้นหา
 
-### Three Essential LogQL Query Patterns
+### สามรูปแบบคำสั่งภาษา LogQL ที่จำเป็นต้องใช้งานประจำ
 
-1. **Filter Text Within a Specific Service Stream:**
+1. **การค้นหาข้อความภายในบริการที่ระบุ (Search text within one service):**
    ```logql
    {service="live-stt", level="error"} |= "gpu_timeout"
    ```
-   - *Operational Guideline:* Always narrow the query stream using indexed labels first (`service`, `level`), then filter the payload text with the `|=` operator. Querying without stream constraints forces Loki to scan massive amounts of compressed chunk data.
+   - *คำแนะนำในการใช้งาน:* ต้องเลือกสตรีมด้วยป้ายกำกับก่อนเสมอ (`service`, `level`) แล้วจึงใช้ตัวดำเนินการ `|=` กรองข้อความในเนื้อหา หากเลือกขอบเขตสตรีมกว้างเกินไป Loki จะต้องอ่านข้อมูลที่บีบอัดไว้มหาศาลทำให้การสืบค้นล่าช้า
 
-2. **Parse JSON Payloads and Filter Numerically:**
+2. **การแปลงโครงสร้าง JSON และกรองข้อมูลเชิงตัวเลข (Parse JSON fields and filter numerically):**
    ```logql
    {service="live-stt"} | json | duration_ms > 2000
    ```
-   - *Operational Guideline:* Works seamlessly because the log lines are structured JSON. Unstructured prose requires fragile, compute-heavy regular expressions.
+   - *คำแนะนำในการใช้งาน:* การสืบค้นรูปแบบนี้ทำงานได้อย่างมีประสิทธิภาพเนื่องจาก Log ถูกบันทึกเป็น JSON แบบมีโครงสร้าง หากเป็นข้อความธรรมดาจะต้องเขียน Regex ซึ่งประมวลผลช้าและผิดพลาดได้ง่าย
 
-3. **Derive Metric Rates Directly from Logs:**
+3. **การแปลงข้อมูล Log ให้กลายเป็นอัตราการเกิดข้อผิดพลาด (Turn logs into an error rate):**
    ```logql
    sum by (error) (
      rate({service="live-stt"} | json | level="error" [5m])
    )
    ```
-   - *Operational Guideline:* LogQL allows real-time metric generation from log lines before formal instrumentation is written. However, if this metric is required permanently, migrate it to Prometheus metrics, which are far cheaper to store and query.
+   - *คำแนะนำในการใช้งาน:* LogQL สามารถคำนวณ Metrics ออกมาจาก Log ได้ทันที ซึ่งมีประโยชน์มากในระหว่างที่ระบบยังไม่ได้สร้าง Metrics นั้นขึ้นมา แต่หากต้องใช้ค่านี้เป็นประจำ ควรย้ายไปสร้างเป็น Prometheus Metric จริงตั้งแต่ต้น เพราะประหยัดทรัพยากรมากกว่าอย่างมหาศาล
 
 ---
 
-## Section 4: Distributed Tracing
+## ส่วนที่ 4: การติดตามแบบกระจายศูนย์ (Distributed Tracing)
 
-### Core Principle
-Metrics indicate that an operation is slow; logs provide sequential event details; distributed traces pinpoint exactly where the elapsed execution time was spent across service boundaries.
+### หลักการสำคัญ
+Metrics บอกว่า "ระบบช้า", Logs บอกว่า "เกิดอะไรขึ้น", แต่ Traces คือสิ่งเดียวที่บอกว่า "เวลาสูญเสียไปที่ขั้นตอนใด" (Metrics say it is slow, logs say what happened, traces say where the time went)
 
-### Distributed Tracing Vocabulary
-| Term | Definition |
-| :--- | :--- |
-| **Trace** | The end-to-end execution journey of a single incoming request across all systems, unified by a single globally unique `trace_id`. |
-| **Span** | A single contiguous unit of work within a trace, characterized by an operation name, start timestamp, finish timestamp, attributes, and its own unique `span_id`. |
-| **Parent Span** | The upstream span that initiated the current span, creating the parent-child relationship needed to reconstruct the call tree hierarchy. |
-| **Trace Context** | The metadata passed across network and process boundaries (primarily via the W3C standard `traceparent` HTTP header) containing `trace_id`, `parent_id`, and trace flags. |
+### ศัพท์เทคนิคพื้นฐาน 4 คำสำคัญ
+1. **Trace (ร่องรอยการทำงาน):** เรื่องราวการเดินทางทั้งหมดของคำขอหนึ่งคำขอ ตั้งแต่จุดเริ่มต้นจนสิ้นสุดกระบวนการ โดยร้อยเรียงเข้าด้วยกันด้วย `trace_id` เดียวกัน
+2. **Span (ช่วงเวลาการทำงาน):** หน่วยการทำงานย่อยหนึ่งหน่วยภายใน Trace มีชื่อการทำงาน (Name), จุดเริ่มต้น (Start time), จุดสิ้นสุด (End time) และรหัสประจำตัวของตนเอง (`span_id`)
+3. **Parent Span (สแปนแม่):** สแปนที่เป็นผู้เรียกใช้งานสแปนปัจจุบัน ซึ่งเป็นข้อมูลที่ทำให้ระบบสามารถนำสแปนย่อยๆ มาประกอบคืนร่างเป็นโครงสร้างต้นไม้ (Tree structure) ได้อย่างถูกต้อง
+4. **Trace Context (บริบทการติดตาม):** ชุดข้อมูลเมทาดาทาที่ถูกส่งต่อข้ามระหว่างไมโครเซอร์วิสผ่าน HTTP Header ชื่อ `traceparent` ตามมาตรฐานสากลของ W3C
 
-#### Propagation Failure Warning
-If trace context is not propagated across any single network hop or service boundary, the distributed trace breaks into disconnected fragments, rendering latency attribution impossible across that hop.
+*ข้อควรระวัง:* หากบริบทการติดตาม (Trace Context) ขาดการส่งต่อข้ามจุดเชื่อมต่อ (Hop) ใด ร่องรอยของ Trace จะแตกกระจายออกเป็นชิ้นเล็กชิ้นน้อย และเราจะไม่สามารถวิเคราะห์ได้เลยว่าเวลาสูญหายไปในเลเยอร์ใด
 
-### Case Study: STT Service Trace Waterfall Analysis
-Analysis of a 3.2-second streaming audio session from first audio frame to first partial transcript:
+### โครงสร้างของ W3C Trace Context Header (`traceparent`)
+ตามมาตรฐาน W3C Trace Context ข้อมูลจะถูกส่งต่อในรูปแบบ:
+`version-trace_id-parent_id-trace_flags`
+ตัวอย่าง: `00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01`
+
+### การวิเคราะห์แผนภาพ Waterfall จากบริการ STT
+กรณีศึกษาเซสชันการสตรีมเสียงความยาวรวม 3.2 วินาที (3,200 ms) นับตั้งแต่เฟรมเสียงแรกเดินทางมาถึง จนกระทั่งส่งผลการถอดความเบื้องต้นกลับไป:
 
 ```
-[ws.session] ------------------------------------------------------------------ 3200 ms
-  |-- [auth.verify] --- 128 ms
-  |-- [audio.buffer] ------ 290 ms
-  |-- [vad.filter] ---- 160 ms
-  |-- [model.transcribe] --------------------------------------------- 2180 ms
-  |     |-- [gpu.queue_wait] ************************************ 1660 ms
-  |     `-- [gpu.infer] ---------- 450 ms
-  |-- [post.punctuate] --- 150 ms
-  `-- [ws.send_partial] -- 90 ms
+ws.session (3,200 ms)
+├── auth.verify (128 ms)
+├── audio.buffer (290 ms)
+├── vad.filter (160 ms)
+├── model.transcribe (2,180 ms)
+│   ├── gpu.queue_wait (1,660 ms)  <-- คอขวดสำคัญ: 76% ของเวลาทั้งหมดหมดไปกับการรอคิว
+│   └── gpu.infer (450 ms)         <-- การประมวลผลคำนวณเสียงจริงใช้เวลาเพียงเล็กน้อย
+├── post.punctuate (150 ms)
+└── ws.send_partial (90 ms)
 ```
 
-#### Diagnostic Findings
-- **Latency Attribution:** 76% of total transaction duration (1660 ms out of 2180 ms in `model.transcribe`) was spent idle in `gpu.queue_wait`, rather than inside speech inference execution (`gpu.infer`, 450 ms).
-- **Engineering Decision:** A metrics histogram only indicates a p99 latency of 3.2 seconds. The distributed trace demonstrates that latency is solved by scaling worker capacity to relieve queue congestion, not by replacing the inference model with a smaller architecture.
+#### บทเรียนสำคัญจากกรณีศึกษา
+- เวลาถึง 76% ของการถอดเสียง (1.66 วินาทีจาก 2.18 วินาทีในโมเดล) สูญเสียไปกับ `gpu.queue_wait` ไม่ใช่การประมวลผลเสียงของตัวโมเดล
+- หากดูเฉพาะ Metrics เราจะทราบเพียงค่าสถิติ เช่น $p99 = 3.2\text{ s}$ แต่ Trace ชี้ชัดว่าปัญหาคือการขาดแคลน Worker รับงาน GPU
+- แนวทางแก้ไขที่ถูกต้องคือการปรับสเกลเพิ่มจำนวน GPU Worker ไม่ใช่การเสียเวลาไปปรับแต่งหรือเปลี่ยนโมเดลถอดเสียง
 
-### Trace Sampling Strategies
-Capturing 100% of production traces incurs prohibitive network, storage, and processing costs. Sampling determines which traces are retained.
+### กลยุทธ์การสุ่มเก็บข้อมูล Trace (Trace Sampling Strategies)
+ในระบบขนาดใหญ่ เราไม่สามารถบันทึก Trace ของทุกคำขอได้เนื่องจากข้อจำกัดด้านพื้นที่และแบนด์วิดท์ แต่การสุ่มตัวอย่างที่ไม่ดีจะทำให้เราพลาดคำขอที่เกิดปัญหา
 
-| Sampling Strategy | Mechanism | Key Advantage | Incurred Cost / Trade-off |
+| กลยุทธ์ (Approach) | กลไกการทำงาน (How it works) | ข้อดี (Advantage) | ข้อแลกเปลี่ยนที่ต้องยอมรับ (The cost you accept) |
 | :--- | :--- | :--- | :--- |
-| **Head Sampling** | Sampling decision is made at the root span upon request ingress (e.g., sample 1%). | Simple implementation, predictable storage and processing overhead. | Rare edge cases and failed requests are often dropped because the decision precedes the outcome. |
-| **Tail Sampling** | Spans are buffered in memory until the request completes; decision is made based on final status or duration. | Guarantees retention of slow requests, outliers, and failed transactions. | Demands significant memory buffering and complex collector infrastructure. |
-| **Rate Limiting** | Enforces a hard ceiling on maximum traces recorded per second per service. | Protects budget and storage capacity from being overwhelmed during traffic spikes. | Drops traces during major outages and traffic surges, precisely when diagnostic traces are most vital. |
+| **Head Sampling** | ตัดสินใจตั้งแต่สแปนแรกที่คำขอเข้ามา เช่น กำหนดสุ่มเก็บ 1% | กลไกเรียบง่าย และควบคุมค่าใช้จ่ายได้อย่างแม่นยำล่วงหน้า | คำขอที่ล้มเหลวมักจะไม่ถูกบันทึกไว้ เพราะการตัดสินใจเกิดขึ้นก่อนที่จะทราบผลลัพธ์ของคำขอ |
+| **Tail Sampling** | รอให้คำขอประมวลผลจนเสร็จสิ้นทั้งกระบวนการ แล้วจึงตัดสินใจจากผลลัพธ์ที่เกิดขึ้น | รับประกันว่าจะสามารถเก็บคำขอที่ทำงานช้าหรือคำขอที่ล้มเหลวไว้ได้อย่างแม่นยำ | จำเป็นต้องใช้หน่วยความจำในการพักข้อมูล (Buffering) และมีความซับซ้อนในการตั้งค่าสูง |
+| **Rate Limiting** | กำหนดเพดานจำนวน Trace สูงสุดที่อนุญาตให้บันทึกต่อวินาทีในแต่ละเซอร์วิส | ป้องกันค่าใช้จ่ายพุ่งสูงผิดปกติเมื่อเกิดทราฟฟิกกระชาก (Traffic Spikes) | ในช่วงเวลาที่ระบบเกิดวิกฤตร้ายแรงที่สุด จะเป็นช่วงที่ Trace สำคัญถูกตัดทิ้งมากที่สุด |
 
-#### Practical Implementation Baseline
-Deploy head sampling at 1% to 5% baseline traffic combined with an explicit rule to retain 100% of error states and HTTP 5xx responses. Transition to tail sampling once architectural complexity and business volume warrant dedicated collector infrastructure.
-
----
-
-## Section 5: Joining the Three Pillars
-
-Without unified linkage, monitoring data consists of three disparate repositories that cannot be synthesized into an operational narrative.
-
-### The Four Golden Integration Rules
-
-1. **Inject `trace_id` into Every Structured Log Line:**
-   - When reviewing an error in logs, an engineer can pivot instantly into the distributed trace waterfall for that exact request.
-
-2. **Attach Exemplars to Histogram Metrics:**
-   - OpenTelemetry and Prometheus support exemplars. Clicking an outlier data point on a latency histogram opens the exact trace responsible for that latency spike.
-
-3. **Enforce Consistent Service Naming:**
-   - The service identifier (`service.name`) must match identically across Prometheus metric labels, Loki log labels, and OpenTelemetry trace resources. Inconsistent naming prevents automatic cross-navigation.
-
-4. **Synchronize System Clocks Using NTP:**
-   - Sub-second or multi-second clock drift across nodes causes events to appear out of chronological sequence, resulting in erroneous incident post-mortems and misdiagnosed root causes.
+#### ข้อแนะนำเริ่มต้นสำหรับการปฏิบัติงานจริง
+แนวทางเริ่มต้นที่เหมาะสมในทางปฏิบัติ: ใช้ **Head Sampling ที่อัตรา 1% ถึง 5% ร่วมกับกฎพิเศษที่กำหนดให้บันทึกคำขอที่ล้มเหลว (Failed Requests) ไว้เสมอ** จากนั้นจึงพิจารณาย้ายไปใช้ **Tail Sampling** เมื่อระบบมีขนาดและความสำคัญคุ้มค่ากับการลงทุน
 
 ---
 
-## Section 6: Lab 5 - Installation Day
+## ส่วนที่ 5: การผสานสามเสาหลักแห่งการสังเกตการณ์เข้าด้วยกัน (Joining the Three Pillars)
 
-### Context
-Bill of Materials (BOM) verified; Change Request CR-01 approved; equipment is racked, cabled, powered, and verified in the containment rack.
+หากปราศจากการเชื่อมโยง ข้อมูลการสังเกตการณ์ทั้งสามชุดจะเป็นเพียงกองข้อมูลขยะที่ไม่สามารถนำมาปะติดปะต่อเป็นภาพเดียวกันได้ การผสานข้อมูลทำได้ผ่าน 4 แนวทางปฏิบัติหลัก:
 
-### Pre-Installation Prerequisites
-Installation cannot proceed if any prerequisite is unfulfilled.
+1. **ใส่ `trace_id` ลงใน Log ทุกบรรทัด (Put `trace_id` on every log line):**
+   เมื่อตรวจสอบพบ Log ผิดปกติ วิศวกรสามารถกดเปิดดู Trace ทั้งหมดของคำขอนั้นเพื่อดูลำดับขั้นตอนได้ทันที
+2. **ผูก Exemplars เข้ากับ Histogram Metrics (Attach exemplars to histogram metrics):**
+   เมื่อดูกราฟค่าความหน่วง (Latency) บน Grafana แล้วพบจุดผิดปกติ (Outlier) ผู้ดูแลระบบสามารถคลิกที่จุดนั้นบนกราฟเพื่อเปิดดู Trace ของคำขอที่ทำให้เกิดความล่าช้านั้นได้โดยตรง
+3. **ใช้ชื่อเซอร์วิสเดียวกันในทุกระบบอย่างเคร่งครัด (Use the same service name everywhere):**
+   ป้ายกำกับระบุชื่อบริการ (`service`) ต้องสะกดตรงกันทุกตัวอักษร ทั้งใน Prometheus, Loki และ Jaeger/Tempo มิฉะนั้นระบบจะไม่สามารถเชื่อมโยงข้อมูลข้ามกันได้
+4. **รักษาเวลาของทุกระบบให้ตรงกันด้วย NTP (Keep clocks in sync with NTP):**
+   ความคลาดเคลื่อนของเวลาของระบบ (Clock Skew) เพียง 2 วินาที จะทำให้ลำดับของเหตุการณ์สลับตำแหน่งกันอย่างสิ้นเชิง ส่งผลให้วิศวกรวิเคราะห์ลำดับสาเหตุผิดพลาดได้อย่างง่ายดาย ซึ่งเป็นปัญหาที่ดูเล็กน้อยแต่สร้างความเสียหายให้ทีมงานมานับไม่ถ้วน
 
-- **Approved Documentation Required on Site:**
-  - Signed Change Request (CR-01) detailing execution maintenance window and explicit rollback plan.
-  - Access Request (AR-01) approved for install day specifying all authorized personnel.
-  - Signed Power Verification Checklist (PWR-01) verifying capacity and phase balancing.
-  - Approved Rack Layout Diagram (RACK-01) defining target U allocations.
-  - Approved Cabling Schedule (CAB-01) complete with label codes and port mappings.
+---
 
-- **Materials Staged on Site:**
-  - Physical equipment pre-sorted, unpacked, and asset-tagged.
-  - Rack rail kits verified in exact quantities from the BOM.
-  - Power and data patch cables pre-cut and measured to required lengths.
-  - Cable labels pre-printed with standard TIA-606 identifiers.
-  - Blanking panels prepared for every unoccupied rack unit.
+## ส่วนที่ 6: ปฏิบัติการ Lab 5 - วันติดตั้งอุปกรณ์ (Lab 5 - Installation Day)
 
-- **Mandatory Operational Knowledge:**
-  - Bottom-up installation order and mechanical stability principles.
-  - Identification of heavy equipment requiring mandatory two-person lifting (> 20 kg).
-  - Staggered power-on sequencing procedure.
-  - All six formal acceptance criteria.
-  - Clear thresholds that mandate halting work and executing rollback.
+### สาระสำคัญของปฏิบัติการ
+การดำเนินงานตามรายการวัสดุและอุปกรณ์ (Bill of Materials: BOM) ที่ผ่านการตรวจสอบ และเอกสารขออนุมัติการเปลี่ยนแปลง (Change Request: CR-01) ที่ได้รับการอนุมัติอย่างเป็นทางการ เพื่อนำอุปกรณ์จริงเข้าติดตั้งในตู้แร็กแบบปิด (Containment Rack)
 
-### Installation Day Timeline Sequence
+### เงื่อนไขบังคับก่อนเริ่มลงมือปฏิบัติงาน (Pre-conditions)
+หากขาดข้อใดข้อหนึ่ง กลุ่มปฏิบัติการจะไม่ได้รับอนุญาตให้เริ่มต้นทำงาน:
+
+1. **เอกสารที่ต้องได้รับการลงนามอนุมัติครบถ้วน:**
+   - เอกสาร CR-01 ที่ระบุกรอบเวลาทำงาน (Maintenance Window) และแผนการย้อนกลับหากเกิดเหตุขัดข้อง (Rollback Plan)
+   - เอกสารขออนุญาตเข้าพื้นที่ (Access Request: AR-01) ที่ระบุรายชื่อผู้ปฏิบัติงานทุกคน
+   - เอกสารตรวจสอบระบบไฟฟ้า (Power Check: PWR-01) ที่ผ่านการคำนวณและลงนามรับรอง
+   - แบบผังตำแหน่งการติดตั้งในตู้แร็กที่ได้รับอนุมัติ (Approved RACK-01 Target Layout)
+   - ตารางการเดินสายสัญญาณพร้อมรหัสป้ายกำกับ (Cabling Schedule: CAB-01)
+2. **วัสดุและอุปกรณ์ที่ต้องพร้อม ณ จุดปฏิบัติงาน:**
+   - อุปกรณ์ฮาร์ดแวร์ได้รับการคัดแยกและติดป้ายทรัพย์สิน (Asset Tag) เรียบร้อย
+   - ชุดรางยึด (Rail Kits) มีจำนวนครบถ้วนถูกต้องตามเอกสาร BOM
+   - สายไฟและสายสัญญาณถูกตัดวัดความยาวล่วงหน้าอย่างพอดี
+   - ป้ายระบุสายสัญญาณ (Cable Labels) ถูกเขียนรหัสกำกับเตรียมไว้ล่วงหน้า
+   - แผ่นปิดช่องว่างในตู้แร็ก (Blanking Panels) จัดเตรียมไว้ครบทุกช่องว่างที่เหลือ
+3. **สิ่งที่ผู้ปฏิบัติงานทุกคนต้องเข้าใจก่อนเริ่มแตะต้องอุปกรณ์:**
+   - ลำดับการติดตั้งจากล่างขึ้นบน (Bottom-up Installation Order) และเหตุผลเชิงวิศวกรรม
+   - ทราบชัดเจนว่าอุปกรณ์ชิ้นใดมีน้ำหนักเกินและต้องใช้คนยกสองคน (Two-person lift)
+   - ลำดับการจ่ายไฟแบบสลับช่วงเวลา (Staggered Power-on Order) และเหตุผลทางวิศวกรรม
+   - เกณฑ์การตรวจรับงานทั้ง 6 ข้อ
+   - เงื่อนไขวิกฤตที่ต้องสั่งระงับการทำงานทันทีเพื่อดำเนินการย้อนกลับ (Rollback Trigger)
+
+### ลำดับขั้นตอนการปฏิบัติงานในวันติดตั้ง (Installation-Day Sequence)
 ```
-09:00 [Sign In & Briefing]
-      - Verify AR-01; sign LOG-01 visitor registry; meet facility escort.
-09:30 [Mount Rails]
-      - Fasten equipment rails strictly per RACK-01 diagram, moving bottom to top.
-10:30 [Rack Devices]
-      - Heavy hardware first; enforce mandatory two-person lift for units over 20 kg.
-12:00 [Cabling]
-      - Power cabling routed on left tray; data cabling routed on right tray.
-      - Apply pre-printed labels to both cable ends.
-14:00 [Power On]
-      - Stagger boot sequence: energize 4 units per batch, spaced 30 seconds apart.
-15:00 [Verification]
-      - Verify Prometheus reports up == 1 across all endpoints.
-      - Perform electrical checks per PWR-01; update inventory records in INV-01.
-15:40 [Close Out]
-      - Close out CR-01; perform tool accountability check; sign out of facility.
+[09:00] ลงชื่อและรับฟังบรรยายสรุป (Sign in & brief)
+        - ตรวจสอบความถูกต้องของ AR-01, ลงนามใน LOG-01 และรับผู้ควบคุมพื้นที่
+          |
+          v
+[09:30] ยึดรางอุปกรณ์ (Mount rails)
+        - ยึดรางตามผัง RACK-01 โดยติดตั้งจากชั้นล่างขึ้นชั้นบน
+          |
+          v
+[10:30] ติดตั้งอุปกรณ์เข้าตู้แร็ก (Rack devices)
+        - นำอุปกรณ์ที่มีน้ำหนักมากลงชั้นล่างก่อน อุปกรณ์ที่หนักเกิน 20 กก. ต้องใช้คนยกสองคนเสมอ
+          |
+          v
+[12:00] จัดการเดินสาย (Cable)
+        - แยกสายไฟฟ้าลงรางฝั่งซ้าย, เดินสายสัญญาณลงรางฝั่งขวา, ติดป้ายกำกับทั้งสองปลายสาย
+          |
+          v
+[14:00] เริ่มต้นจ่ายไฟ (Power on)
+        - ทยอยเปิดสวิตช์เครื่องครั้งละไม่เกิน 4 เครื่อง โดยเว้นระยะห่างกัน 30 วินาที
+          |
+          v
+[15:00] ตรวจสอบความถูกต้อง (Verify)
+        - ตรวจสอบสถานะ up = 1 ครบทุกเป้าหมายบน Prometheus, ตรวจวัดค่ากระแสบน PWR-01, อัปเดต INV-01
+          |
+          v
+[15:40] ปิดงานและส่งมอบพื้นที่ (Close out)
+        - ปิดเอกสาร CR-01, ตรวจนับเครื่องมือช่างออกจากพื้นที่, ลงชื่อออกจากห้องศูนย์ข้อมูล
 ```
 
-*Mandatory Safety and Governance Stop Gates:*
-- Never energize electrical circuits until PWR-01 has received full sign-off.
-- Never close out the maintenance window until Prometheus confirms `up == 1` for all targets.
+*ข้อห้ามเด็ดขาด:* ห้ามเริ่มจ่ายกระแสไฟฟ้าเด็ดขาดจนกว่าเอกสาร PWR-01 จะได้รับการลงนามครบถ้วน และห้ามปิดงานส่งมอบเด็ดขาดจนกว่าระบบมอนิเตอร์จะรายงานสถานะ `up = 1` ครบทุกเป้าหมาย
 
-### Why Installation Runs Bottom to Top
-A sequence that appears minor has critical engineering and safety implications:
-1. **Lowers Center of Gravity:** Mounting uninterruptible power supplies (UPS) and heavy storage units at the bottom minimizes rack tip-over risk during maintenance when slide rails are extended.
-2. **Ergonomic Safety:** Racking top units first would force heavy equipment to be lifted past already-mounted hardware, creating serious hazard and collision risks.
-3. **Preserving Reserved Slots:** Empty slots reserved for future server additions must remain unoccupied per plan; improperly filling them requires stripping and rebuilding the entire rack later.
-4. **Immediate Blanking Panel Placement:** Unoccupied U positions must be sealed with blanking panels immediately to maintain cold/hot aisle airflow containment. Leaving panels for later often results in unsealed bypasses.
-5. **Cabling After Hardware Mounting:** Running patch cables concurrently with equipment installation results in tangled bundles and risks snagging cables during adjacent device maintenance.
+### เหตุผลทางวิศวกรรมที่ต้องติดตั้งจากล่างขึ้นบน (Bottom-to-Top Order)
+1. **ของหนักต้องอยู่ด้านล่างสุดก่อน:** อุปกรณ์สำรองไฟ (UPS) และระบบจัดเก็บข้อมูล (Storage Array) มีน้ำหนักมากที่สุด ต้องอยู่ด้านล่างสุดของตู้แร็กเพื่อกดจุดศูนย์ถ่วง (Centre of Gravity) ให้ต่ำลง ป้องกันความเสี่ยงที่ตู้แร็กจะพลิกคว่ำขณะดึงรางอุปกรณ์ออกมาด้านหน้า
+2. **การทำงานไล่ระดับขึ้นด้านบน:** หากติดตั้งจากด้านบนก่อน เมื่อต้องติดตั้งอุปกรณ์หนักในภายหลัง ผู้ปฏิบัติงานจะต้องยกอุปกรณ์หนักข้ามอุปกรณ์ที่ติดตั้งไปแล้ว ซึ่งเสี่ยงต่อการเกิดอุบัติเหตุและการตกกระแทก
+3. **เว้นช่องว่างสำหรับอุปกรณ์ในอนาคตตามผัง RACK-01:** ช่องว่างที่เว้นไว้มีไว้เพื่อรองรับเครื่องเซิร์ฟเวอร์ที่จะมาส่งมอบในรอบถัดไป หากนำอุปกรณ์อื่นไปใส่แทน จะต้องรื้อตู้แร็กใหม่ทั้งหมดในภายหลัง
+4. **ติดแผ่นปิดช่องว่าง (Blanking Panels) ทันทีที่ทราบว่าช่องนั้นว่าง:** หากปล่อยทิ้งไว้โดยคิดว่าจะมาปิดทีหลัง มักจะไม่มีใครกลับมาทำ ซึ่งจะทำลายระบบควบคุมการไหลเวียนของลมเย็นและลมร้อน (Aisle Containment) ส่งผลให้อุณหภูมิในตู้แร็กสูงเกินเกณฑ์
+5. **เดินสายสัญญาณหลังจากติดตั้งอุปกรณ์ครบทุกชิ้นแล้วเท่านั้น:** การเดินสายคู่ขนานไปกับการยึดอุปกรณ์จะทำให้สายพันกันยุ่งเหยิง และเมื่อต้องถอดเปลี่ยนอุปกรณ์ชิ้นใดในอนาคต สายสัญญาณจะดึงรั้งอุปกรณ์ข้างเคียงจนหลุดเสียหาย
 
-### Acceptance Criteria Before Close-Out
-All six verification criteria must be formally confirmed before the change request can be closed:
+### เกณฑ์ตรวจรับมอบงาน 6 ข้อก่อนปิดงาน (Acceptance Criteria Before Close-out)
+การติดตั้งจะถือว่าเสร็จสมบูรณ์ได้ก็ต่อเมื่อผ่านเกณฑ์ทั้ง 6 ข้อนี้อย่างครบถ้วน:
 
-| ID | Criterion | Verification Sign-off Authority |
-| :--- | :--- | :--- |
-| AC-1 | Every hardware device sits at its designated U position matching RACK-01 | Technical Reviewer |
-| AC-2 | Every unoccupied rack unit (U) is sealed with an approved blanking panel | Safety Officer |
-| AC-3 | Every cable is labelled at both ends conforming to CAB-01 specifications | Inventory Lead |
-| AC-4 | Measured electrical current per PDU branch is within 80% of rated capacity | Electrical Staff |
-| AC-5 | Prometheus reports metric `up == 1` across all monitored endpoints | Change Owner |
-| AC-6 | Asset management database (INV-01) updated with final serials/locations and CR-01 signed closed | Change Owner |
+| ลำดับ | รายการตรวจสอบ | ผู้รับผิดชอบลงนามรับรอง |
+| :---: | :--- | :--- |
+| 1 | อุปกรณ์ทุกชิ้นได้รับการติดตั้งตรงตามตำแหน่งความสูง (U Position) ในแบบผัง RACK-01 ที่อนุมัติ | ผู้ตรวจทานเชิงเทคนิค (Technical Reviewer) |
+| 2 | ช่องว่างความสูง (U) ทุกช่องที่ไม่ได้ติดตั้งอุปกรณ์ ถูกปิดด้วยแผ่น Blanking Panel ครบถ้วน | เจ้าหน้าที่ความปลอดภัย (Safety Officer) |
+| 3 | สายสัญญาณและสายไฟทุกเส้นได้รับการติดป้ายระบุตัวตนทั้งสองปลาย และตรงกับตาราง CAB-01 | หัวหน้าฝ่ายบัญชีทรัพย์สิน (Inventory Lead) |
+| 4 | ค่าโหลดกระแสไฟฟ้าที่วัดได้จริงของแต่ละ PDU ต้องไม่เกิน 80% ของพิกัดรองรับสูงสุด | เจ้าหน้าที่ระบบไฟฟ้า (Electrical Staff) |
+| 5 | ระบบ Prometheus ต้องตรวจพบและรายงานค่าสถานะ `up = 1` ครบทุกโฮสต์และอุปกรณ์ | เจ้าของงานการเปลี่ยนแปลง (Change Owner) |
+| 6 | ทะเบียนทรัพย์สิน INV-01 ได้รับการปรับปรุงตำแหน่งใหม่ครบถ้วน และปิดเอกสารใบงาน CR-01 | เจ้าของงานการเปลี่ยนแปลง (Change Owner) |
 
-*Integration Note:* Criterion 5 bridges morning software observability with afternoon physical infrastructure: hardware installation is incomplete until telemetry systems can verify operational state.
+*ข้อคิดทางวิศวกรรม:* เกณฑ์ข้อที่ 5 คือสะพานเชื่อมระหว่างเนื้อหาช่วงเช้าและช่วงบ่ายเข้าด้วยกัน นั่นคือ "งานติดตั้งอุปกรณ์ยังไม่ถือว่าเสร็จสิ้น จนกว่าระบบสังเกตการณ์ (Monitoring) จะสามารถมองเห็นอุปกรณ์เหล่านั้นได้จริง"
 
-### ISO/IEC 27001:2022 Controls Applied on Installation Day
-Physical and operational controls governing installation activities:
+### มาตรการควบคุมความมั่นคงปลอดภัยตาม ISO/IEC 27001:2022
+การปฏิบัติงานในวันติดตั้งคือการปฏิบัติตามแผนงานที่ผ่านการอนุมัติอย่างเป็นทางการ ไม่ใช่การตัดสินใจเฉพาะหน้า:
 
-| Control ID | Control Name | Specific Implementation Requirement |
-| :--- | :--- | :--- |
-| A.8.32 | Change Management | Work strictly within approved CR-01 window; any deviation requires formal re-approval. |
-| A.7.2 | Physical Entry Control | Access governed under approved AR-01; escorted throughout data centre floor. |
-| A.7.8 | Equipment Siting and Protection | Mount hardware strictly per RACK-01 specifications; no ad-hoc location changes. |
-| A.7.11 | Supporting Utilities | Measure real-time current draw post power-on and record on PWR-01. |
-| A.7.12 | Cabling Security | Route power and signal cables on separate containment trays; label both ends. |
-| A.5.9 | Inventory of Assets | Update device physical location, serial numbers, and rack elevation in INV-01 on install day. |
+- **A.8.32 การจัดการการเปลี่ยนแปลง (Change Management):** ต้องปฏิบัติงานภายในกรอบเวลาที่ระบุไว้ใน CR-01 เท่านั้น หากมีความจำเป็นต้องปรับเปลี่ยนแผนงาน ต้องยื่นขออนุมัติใหม่อย่างเป็นทางการ
+- **A.7.2 การควบคุมการเข้าถึงทางกายภาพ (Physical Entry Control):** เข้าพื้นที่ได้เฉพาะผู้ที่มีรายชื่อใน AR-01 และต้องมีผู้ควบคุมพื้นที่ดูแลตลอดเวลา
+- **A.7.8 การจัดวางและการปกป้องอุปกรณ์ (Equipment Siting and Protection):** ติดตั้งอุปกรณ์ตามแบบผัง RACK-01 โดยเด็ดขาด ห้ามสลับตำแหน่งหน้างาน
+- **A.7.11 ระบบสาธารณูปโภคสนับสนุน (Supporting Utilities):** ต้องวัดค่าการใช้กระแสไฟฟ้าจริงหลังจ่ายไฟ และบันทึกผลลงในเอกสาร PWR-01
+- **A.7.12 ความปลอดภัยของการเดินสายสัญญาณ (Cabling Security):** แยกรางสายไฟฟ้าและสายสัญญาณออกจากกันอย่างเด็ดขาด และติดป้ายระบุตัวตนที่ปลายสายทั้งสองด้าน
+- **A.5.9 การจัดทำบัญชีทรัพย์สิน (Inventory of Assets):** บันทึกปรับปรุงข้อมูลตำแหน่งใหม่ของทรัพย์สินทุกชิ้นลงในระบบ INV-01 ภายในวันเดียวกัน
 
 ---
 
-## Assignments and Next Week
+## งานที่ได้รับมอบหมายและการเตรียมตัวสำหรับสัปดาห์ถัดไป (Assignments and Next Week)
 
-### Group Deliverables (Due in 5 Days)
-- High-resolution photographic documentation of the completed rack (front and rear elevations).
-- Fully updated INV-01 asset inventory containing final hardware locations.
-- Completed PWR-01 form documenting measured electrical loads under active power.
-- Closed CR-01 document containing retrospective summary of deviations or incidents.
+หัวข้อประจำสัปดาห์ที่ 6: การแจ้งเตือนและการเข้าเวรดูแลระบบ (Alerting and On-call)
 
-### Individual Deliverables (Before Next Session)
-- Read *Observability Engineering* (Majors, Fong-Jones, & Miranda), Chapters 6 and 7 (Structured Events).
-- Complete Pre-Class Quiz 5 on LMS.
-- Instrument the sample application with at least three structured log events including `trace_id`.
-- Submit waterfall trace screenshot demonstrating at least three nested levels of spans.
+### งานกลุ่ม (กำหนดส่งภายใน 5 วัน)
+1. ถ่ายภาพตู้แร็กที่ติดตั้งเสร็จสมบูรณ์ ทั้งด้านหน้าและด้านหลังตู้
+2. เอกสาร INV-01 ที่ปรับปรุงข้อมูลตำแหน่งอุปกรณ์ใหม่ครบทุกชิ้น
+3. เอกสาร PWR-01 พร้อมผลการตรวจวัดค่ากระแสไฟฟ้าจริงหลังเปิดเครื่อง
+4. เอกสาร CR-01 ที่ลงนามปิดงาน พร้อมสรุปประเด็นที่ไม่เป็นไปตามแผนงาน (ถ้ามี)
 
-### Preparation for Week 6: Alerting and On-Call
-- Integrate Alertmanager into the Week 4 Prometheus/Grafana monitoring stack.
-- Draft initial alert definitions for service SLIs.
-- Formulate criteria distinguishing actionable paging alerts from informational tickets.
-- *Opening Question for Week 6:* "An alert fires at 2:00 AM and requires no immediate operational action - should it be deleted, or kept just in case?"
+### งานเดี่ยว (กำหนดส่งก่อนเริ่มเรียนคาบถัดไป)
+1. ศึกษาหนังสือ *Observability Engineering* บทที่ 6-7 ในหัวข้อ Structured Events
+2. ทำแบบทดสอบก่อนเรียน (Pre-class Quiz 5) บนระบบจัดการเรียนรู้ (LMS)
+3. เพิ่มโค้ดบันทึก Log แบบมีโครงสร้าง (Structured Log) อย่างน้อย 3 จุดในแอปพลิเคชันตัวอย่าง โดยต้องมีฟิลด์ `trace_id` กำกับอยู่ด้วย
+4. ส่งภาพถ่ายหน้าจอ (Screenshot) ของ Trace จำนวน 1 ร่องรอย ที่มีลำดับชั้นของ Span ลึกลงไปอย่างน้อย 3 ระดับ
 
----
-
-## References and Standards
-
-### Lecture References
-- Majors, C., Fong-Jones, L., & Miranda, G. (2022). *Observability Engineering*. O'Reilly Media. Chapters 4–8.
-- OpenTelemetry Documentation: Tracing specifications, context propagation, and sampling models.
-- W3C Recommendation: *Trace Context - W3C Recommendation* (traceparent and tracestate headers).
-- Grafana Labs: *Loki Best Practices: Label Design and Scalability*.
-- Sigelman, B. H., et al. (2010). *Dapper, a Large-Scale Distributed Systems Tracing Infrastructure*. Google Technical Report.
-
-### Field Lab References
-- ISO/IEC 27001:2022 Information Security Management System - Annex A Controls:
-  - A.5.9 (Inventory of assets)
-  - A.7.2 (Physical entry)
-  - A.7.8 (Equipment siting and protection)
-  - A.7.11 (Supporting utilities)
-  - A.7.12 (Cabling security)
-  - A.8.32 (Change management)
-- Manufacturer Technical Guides: Server chassis, rail mounting, and containment rack specifications.
-- Course Operations Pack: CR-01, AR-01, PWR-01, RACK-01, CAB-01, INV-01 forms.
-- Approved Group Bill of Materials (BOM) and capacity calculations from Week 4.
+### การเตรียมตัวสำหรับสัปดาห์ถัดไป
+1. ติดตั้งส่วนขยาย Alertmanager เพิ่มเติมลงในสแตกการทำงานของสัปดาห์ที่ 4
+2. ยกร่างเงื่อนไขการแจ้งเตือน (Alerts) ที่คิดว่าบริการของกลุ่มตนเองควรมี
+3. เตรียมมุมมองและแนวคิดเพื่อร่วมอภิปรายในคำถาม: *"การแจ้งเตือนแบบใดที่คุ้มค่าพอที่จะปลุกวิศวกรขึ้นมาตอนตีสอง?"*
+4. คำถามเปิดประเด็นในสัปดาห์หน้า: *"หากมี Alert ดังเตือนขึ้นมาตอนตีสอง แต่เหตุการณ์นั้นไม่จำเป็นต้องลงมือทำอะไรเลย เราควรลบ Alert นั้นทิ้ง หรือควรเก็บมันไว้เผื่อกรณีฉุกเฉิน?"*
 
 ---
 
-## Summary: Today in Three Sentences
-1. Metrics announce that a problem exists, logs explain what happened, and distributed traces reveal where time was spent - none can substitute for another.
-2. Loki label design enforces the exact same rules as Prometheus: high-cardinality values (`session_id`, `trace_id`) belong in the log payload, never in index labels.
-3. Hardware installation is not complete until observability systems actively monitor the newly racked equipment (`up == 1`).
+## เอกสารอ้างอิงและมาตรฐานที่เกี่ยวข้อง (References and Standards)
+
+### สำหรับเนื้อหาการบรรยายเชิงทฤษฎี
+- Majors, C., Fong-Jones, L., & Miranda, G. (2022). *Observability Engineering*. O'Reilly Media. (บทที่ 4-8)
+- เอกสารคู่มือ OpenTelemetry: หัวข้อ Traces, Context Propagation และ Sampling Strategies
+- ข้อกำหนดและคำแนะนำมาตรฐาน W3C Trace Context: รูปแบบโครงสร้างส่วนหัว `traceparent`
+- เอกสารแนวปฏิบัติที่ดีที่สุดของ Grafana Labs: Best practices on label design in Grafana Loki
+- Sigelman, B. H. et al. (2010). *Dapper, a Large-Scale Distributed Systems Tracing Infrastructure*. Google Technical Report.
+
+### สำหรับการปฏิบัติงานภาคสนาม
+- มาตรฐานความมั่นคงปลอดภัยข้อมูล ISO/IEC 27001:2022 - Annex A: A.5.9, A.7.2, A.7.8, A.7.11, A.7.12, A.8.32
+- คู่มือการติดตั้งของผู้ผลิตสำหรับตู้แร็กและโครงเครื่องเบลดเซิร์ฟเวอร์ (Blade Chassis) ที่ใช้งานจริง
+- ชุดแบบฟอร์มการควบคุมมาตรฐานรายวิชา: CR-01, AR-01, PWR-01, RACK-01, CAB-01, INV-01
+- รายการวัสดุและอุปกรณ์ (BOM) ของแต่ละกลุ่มที่ผ่านการตรวจสอบกำลังความจุจากสัปดาห์ที่ 4
+
+---
+
+## บทสรุป 3 ประโยคสำคัญประจำวัน (Today in Three Sentences)
+
+1. **Metrics บอกว่าระบบมีปัญหา, Logs บอกว่าเกิดอะไรขึ้น, Traces บอกว่าเวลาสูญเสียไปที่ใด ข้อมูลทั้งสามอย่างไม่สามารถใช้ทดแทนกันได้**
+2. **ป้ายกำกับของ Loki มีกฎเหล็กเช่นเดียวกับ Prometheus นั่นคือ `session_id` และ `trace_id` ต้องอยู่ในเนื้อความของ Log เท่านั้น ห้ามนำไปตั้งเป็น Label โดยเด็ดขาด**
+3. **งานติดตั้งอุปกรณ์ในตู้แร็กช่วงบ่ายนี้จะยังไม่เสร็จสิ้น จนกว่าระบบสังเกตการณ์จะสามารถมองเห็นเครื่องเซิร์ฟเวอร์ทุกเครื่องที่ติดตั้งลงไป**

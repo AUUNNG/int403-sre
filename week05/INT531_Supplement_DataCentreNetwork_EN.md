@@ -1,352 +1,323 @@
-# INT531: Site Reliability Engineering - Supplement
-## Preparing the Network for the Data-Centre Room and the Containment Rack
+# เอกสารเสริม INT531: วิศวกรรมความน่าเชื่อถือของระบบ (Site Reliability Engineering)
+## การจัดเตรียมระบบเครือข่ายสำหรับห้องศูนย์ข้อมูลและตู้แร็กแบบปิด (Preparing the Network for the Data-Centre Room and the Containment Rack)
 
-School of Information Technology, King Mongkut's University of Technology Thonburi  
-Supplement to Weeks 2 through 5 | 3-Hour Module or Modular Delivery | Content Updated: 2026  
-
----
-
-## Table of Contents
-1. [Overview and Learning Outcomes](#overview-and-learning-outcomes)
-2. [Section 1: Cable Plant Architecture](#section-1-cable-plant-architecture)
-3. [Section 2: Cable and Connector Types](#section-2-cable-and-connector-types)
-4. [Section 3: Racks, Containment, and Cabling Discipline](#section-3-racks-containment-and-cabling-discipline)
-5. [Section 4: Top of Rack (ToR) Switches and Uplink Design](#section-4-top-of-rack-tor-switches-and-uplink-design)
-6. [Section 5: VLANs and IP Address Design](#section-5-vlans-and-ip-address-design)
-7. [Section 6: Internet Path, Redundancy, and Acceptance](#section-6-internet-path-redundancy-and-acceptance)
-8. [Applicable ISO/IEC 27001:2022 Security Controls](#applicable-isoiec-270012022-security-controls)
-9. [Standards and Technical References](#standards-and-technical-references)
-10. [Summary: This Supplement in Three Sentences](#summary-this-supplement-in-three-sentences)
+คณะเทคโนโลยีสารสนเทศ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี  
+เอกสารประกอบการเรียนรู้สัปดาห์ที่ 2 ถึง 5 | ระยะเวลาการสอน: 3 ชั่วโมง หรือแบ่งตามหัวข้อย่อย | ปรับปรุงเนื้อหาล่าสุด: 2026  
+แนวคิดหลัก: ระบบสายสัญญาณทางกายภาพ (Cable plant) ติดตั้งเพียงครั้งเดียวและใช้งานต่อเนื่องยาวนานนับสิบปี
 
 ---
 
-## Overview and Learning Outcomes
+## สารบัญ
+1. [ภาพรวมและผลลัพธ์การเรียนรู้](#ภาพรวมและผลลัพธ์การเรียนรู้)
+2. [ส่วนที่ 1: สถาปัตยกรรมระบบสายสัญญาณ (Cable Plant Architecture)](#ส่วนที่-1-สถาปัตยกรรมระบบสายสัญญาณ-cable-plant-architecture)
+3. [ส่วนที่ 2: มาตรฐานสายสัญญาณและหัวต่อ (Cable and Connector Types)](#ส่วนที่-2-มาตรฐานสายสัญญาณและหัวต่อ-cable-and-connector-types)
+4. [ส่วนที่ 3: ตู้แร็ก การกั้นลมเย็น และระเบียบวินัยการเดินสาย (Racks, Containment, and Cabling)](#ส่วนที่-3-ตู้แร็ก-การกั้นลมเย็น-และระเบียบวินัยการเดินสาย-racks-containment-and-cabling)
+5. [ส่วนที่ 4: สวิตช์ ToR และการออกแบบ Uplink (ToR Switches and Uplink Design)](#ส่วนที่-4-สวิตช์-tor-และการออกแบบ-uplink-tor-switches-and-uplink-design)
+6. [ส่วนที่ 5: การออกแบบ VLAN และการจัดสรรหมายเลข IP (VLANs and IP Design)](#ส่วนที่-5-การออกแบบ-vlan-และการจัดสรรหมายเลข-ip-vlans-and-ip-design)
+7. [ส่วนที่ 6: เส้นทางเชื่อมต่ออินเทอร์เน็ตและการตรวจรับงาน (Internet Path and Acceptance)](#ส่วนที่-6-เส้นทางเชื่อมต่ออินเทอร์เน็ตและการตรวจรับงาน-internet-path-and-acceptance)
+8. [มาตรการควบคุมความมั่นคงปลอดภัยตาม ISO/IEC 27001:2022](#มาตรการควบคุมความมั่นคงปลอดภัยตาม-isoiec-270012022)
+9. [เอกสารอ้างอิงและมาตรฐานสากล (References and Standards)](#เอกสารอ้างอิงและมาตรฐานสากล-references-and-standards)
+10. [บทสรุป 3 ประโยคสำคัญของเอกสารเสริม (This Supplement in Three Sentences)](#บทสรุป-3-ประโยคสำคัญของเอกสารเสริม-this-supplement-in-three-sentences)
 
-This curriculum supplement covers physical layer cabling, access switch placement, thermal considerations, uplink oversubscription calculations, IP scheme design, and formal acceptance testing. Modules are structured in sequence from the hardest components to alter post-installation to the easiest:
+---
 
-1. Cable Plant Architecture
-2. Cable and Connector Types
-3. Racks, Containment, and Cabling
-4. ToR Switches and Uplinks
-5. VLANs and IP Design
-6. Internet Path and Acceptance
+## ภาพรวมและผลลัพธ์การเรียนรู้
 
-### Supplement Learning Outcomes (SLO)
-| Outcome Code | Description | Mapped Course Learning Outcome (CLO) |
+เนื้อหาของเอกสารเสริมฉบับนี้เรียงลำดับจากโครงสร้างส่วนที่ "แก้ไขเปลี่ยนแปลงได้ยากที่สุดในภายหลัง" ไปสู่ส่วนที่ "แก้ไขได้ง่ายที่สุด":
+1. สถาปัตยกรรมระบบสายสัญญาณทางกายภาพ (Cable plant architecture)
+2. ชนิดของสายสัญญาณและหัวต่อ (Cable and connector types)
+3. ตู้แร็ก โครงสร้างกั้นลม และการจัดระเบียบสาย (Racks, containment and cabling)
+4. การเลือกสวิตช์ ToR และการออกแบบสายสัญญาณอัปลิงก์ (ToR switches and uplinks)
+5. การออกแบบ VLAN และแผนผังการกำหนดหมายเลข IP (VLANs and IP design)
+6. เส้นทางเชื่อมต่ออินเทอร์เน็ตและเกณฑ์การตรวจรับงาน (Internet path and acceptance)
+
+### ผลลัพธ์การเรียนรู้ประจำเอกสารเสริม (Supplement Learning Outcomes: SLO)
+| รหัสผลลัพธ์ (SLO) | คำอธิบายรายละเอียด | ความเชื่อมโยงกับผลลัพธ์รายวิชา (CLO) |
 | :--- | :--- | :--- |
-| SLO N.1 | Explain standard cabling layers and choose a switch placement suited to room geometry | CLO4 |
-| SLO N.2 | Select cable and connector types to match distance, transmission speed, and budget | CLO4 |
-| SLO N.3 | Explain how airflow direction and cable dressing affect data centre cooling efficiency | CLO4, CLO5 |
-| SLO N.4 | Compute uplink oversubscription ratios and evaluate operational acceptability | CLO5 |
-| SLO N.5 | Design an integrated VLAN scheme and addressing plan for both IPv4 and IPv6 | CLO4 |
-| SLO N.6 | Formally accept network installations against measurable criteria rather than link status lights | CLO4, CLO7 |
+| **SLO N.1** | สามารถอธิบายลำดับชั้นมาตรฐานของระบบสายสัญญาณ และเลือกตำแหน่งติดตั้งสวิตช์ที่เหมาะสมกับห้องศูนย์ข้อมูลได้ | CLO4 |
+| **SLO N.2** | สามารถเลือกประเภทสายสัญญาณและหัวเชื่อมต่อ ให้สอดคล้องกับระยะทาง ความเร็วในการส่งข้อมูล และงบประมาณได้ | CLO4 |
+| **SLO N.3** | สามารถอธิบายความสัมพันธ์ระหว่างทิศทางการไหลเวียนของอากาศ การจัดระเบียบสายสัญญาณ และประสิทธิภาพในการระบายความร้อนได้ | CLO4, CLO5 |
+| **SLO N.4** | สามารถคำนวณอัตราส่วนการใช้ช่องสัญญาณเกินพิกัด (Uplink Oversubscription Ratio) และประเมินความยอมรับได้ในเชิงวิศวกรรม | CLO5 |
+| **SLO N.5** | สามารถออกแบบผัง VLAN และผังการจัดสรรหมายเลข IP ทั้งสำหรับ IPv4 และ IPv6 ได้อย่างเป็นระบบ | CLO4 |
+| **SLO N.6** | สามารถดำเนินการตรวจรับมอบงานโครงข่ายตามเกณฑ์ชี้วัดเชิงปริมาณ แทนการมองเพียงไฟสถานะของพอร์ต | CLO4, CLO7 |
 
 ---
 
-## Section 1: Cable Plant Architecture
+## ส่วนที่ 1: สถาปัตยกรรมระบบสายสัญญาณ (Cable Plant Architecture)
 
-### Core Principle
-Physical structured cabling is installed once and maintained for a decade, whereas compute servers are replaced every 3 to 5 years. Cabling architecture must be rigorously planned before physical installation begins.
+### หลักการสำคัญ
+ระบบสายสัญญาณโครงสร้างพื้นฐาน (Cable plant) ติดตั้งครั้งเดียวและมีอายุการใช้งานยาวนานนับทศวรรษ (10 ปี) ในขณะที่เครื่องเซิร์ฟเวอร์จะถูกเปลี่ยนรอบอัปเกรดทุกๆ 3 ถึง 5 ปี ดังนั้น วิศวกรต้องคิดและวางแผนอย่างรอบคอบที่สุดก่อนเริ่มลงมือติดตั้ง
 
-### Standard Cabling Hierarchy (TIA-942 and ISO/IEC 11801-5)
-Standardized cabling architecture isolates structural trunk lines from localized server churn.
+### ลำดับชั้นมาตรฐานของระบบสายสัญญาณ (TIA-942 และ ISO/IEC 11801-5)
+มาตรฐาน ANSI/TIA-942 และ ISO/IEC 11801-5 กำหนดโครงสร้างการแบ่งเลเยอร์ของการเดินสายสัญญาณในศูนย์ข้อมูลไว้ดังนี้:
 
-| Layer Code | Standard Name | Functional Responsibility | Lab Facility Implementation (CB-201) |
+| ระดับชั้น (Layer) | ชื่อเต็มตามมาตรฐาน (Full name) | บทบาทหน้าที่ทางวิศวกรรม (What it does) | ตำแหน่งจริงในห้องปฏิบัติการ CB-201 |
 | :--- | :--- | :--- | :--- |
-| **ER** | Entrance Room | Point where external provider cabling enters the building; establishes provider demarcation point. | Building central communications room |
-| **MDA** | Main Distribution Area | Central aggregation hub of the data centre room; houses primary routers, core switches, and backbone patch fields. | Central core rack in room CB-201 |
-| **HDA** | Horizontal Distribution Area | Intermediate distribution point for a specific server row; houses horizontal cross-connect patch panels. | Patch rack positioned at row end |
-| **EDA** | Equipment Distribution Area | Server racks housing end equipment; serves servers via short in-rack patch runs. | Containment rack |
-| **ZDA** | Zone Distribution Area | Optional consolidation point between HDA and EDA used when floor layouts fluctuate. | Not utilized in current deployment phase |
+| **ER** | Entrance Room | จุดที่สายสัญญาณภายนอกอาคารเชื่อมต่อเข้ามา และเป็นจุดแบ่งขอบเขตความรับผิดชอบกับผู้ให้บริการโครงข่าย (Demarcation Point) | ห้องสื่อสารหลักประจำอาคาร (The building's comms room) |
+| **MDA** | Main Distribution Area | จุดศูนย์รวมโครงข่ายหลักของห้องศูนย์ข้อมูล ซึ่งเป็นที่ตั้งของเร้าเตอร์และสวิตช์แกนหลัก (Core Switches) | ตู้แร็กหลักของห้อง (The core rack in CB-201) |
+| **HDA** | Horizontal Distribution Area | จุดกระจายสัญญาณประจำแถวของตู้แร็ก ซึ่งเป็นที่ติดตั้งแผงกระจายสายสัญญาณแนวนอน (Patch Panels) | ตู้กระจายสายบริเวณหัวแถว (The patch rack at the row end) |
+| **EDA** | Equipment Distribution Area | ตู้แร็กที่ใช้ติดตั้งเครื่องเซิร์ฟเวอร์จริง โดยเชื่อมต่อผ่านสายแพตช์คอร์ดสั้นๆ ภายในตู้ | ตู้แร็กแบบปิดของเรา (Our containment rack) |
+| **ZDA** | Zone Distribution Area | จุดพักรวมสายสัญญาณกึ่งกลางทางเลือก สำหรับกรณีที่ผังห้องยังไม่มีการจัดวางแบบถาวร | ไม่ได้ใช้งานในโครงการระยะนี้ (Not used in this phase) |
 
-#### Architectural Advantage of Layering
-Modular cabling layering ensures that server reconfigurations, rack additions, or equipment upgrades affect only short EDA patch runs. Permanent trunk cabling between MDA and HDA remains completely undisturbed.
+#### ประโยชน์เชิงวิศวกรรมของการแบ่งระดับชั้น (Layering Benefits)
+การแบ่งชั้นสัญญาณทำให้การเคลื่อนย้ายตู้แร็กหรือการเพิ่ม/เปลี่ยนเครื่องเซิร์ฟเวอร์ใหม่ ส่งผลกระทบเฉพาะสายแพตช์ในระดับ EDA เท่านั้น โดยไม่รบกวนสายสัญญาณหลัก (Trunk Cabling) ที่เดินถาวรระหว่าง MDA และ HDA เลยแม้แต่น้อย
 
-### Access Switch Placement Strategies
-The placement of the access layer switch dictates the copper-to-fiber ratio, cable tray congestion, and switch port utilization across the facility.
+### ทางเลือกตำแหน่งการวางสวิตช์กระจายสัญญาณ (Switch Placement Strategies)
+การตัดสินใจวางสวิตช์กระจายสัญญาณ (Access Switch) เพียงข้อเดียว จะเป็นตัวกำหนดปริมาณการใช้สายทองแดงทั้งหมดในห้องศูนย์ข้อมูล:
 
-| Placement Model | Description and Topology | Key Advantages | Trade-offs and Disadvantages | Ideal Use Case |
+| รูปแบบการติดตั้ง | ลักษณะโทโพโลยี | ข้อดีสำคัญ | ข้อจำกัดและข้อแลกเปลี่ยน | ความเหมาะสมในการใช้งาน |
 | :--- | :--- | :--- | :--- | :--- |
-| **Top of Rack (ToR)** | Dedicated access switches reside inside each server rack. | Extremely short copper patch cables contained within the rack; only 2 to 4 high-speed fiber uplinks leave the rack. | Lower port utilization if racks are partially filled; higher total switch count and management endpoints. | Rooms with consistently dense, fully populated racks. |
-| **End of Row (EoR)** | Centralized high-density modular switches reside in a dedicated rack at the end of each row. | Maximum port utilization across the entire row; rack failure does not affect network switching infrastructure. | High-volume copper cable bundles running across overhead trays between racks; difficult cable maintenance. | Facilities with sparsely populated racks or heterogeneous hardware. |
-| **Middle of Row (MoR)** | Centralized switches reside in the middle rack of the row. | Shorter average copper cable distances compared to EoR; preserves high port utilization. | Complex cable management; middle rack must accommodate significant cable convergence. | Balanced compromise between ToR and EoR for long server rows. |
+| **Top of Rack (ToR)** | ติดตั้งสวิตช์กระจายสัญญาณไว้ภายในตู้แร็กเดียวกันกับเครื่องเซิร์ฟเวอร์ | สายทองแดงเชื่อมต่อสั้นมากและอยู่ภายในตู้ทั้งหมด มีเพียงสายไฟเบอร์อัปลิงก์ 2-4 เส้นเท่านั้นที่เดินออกจากตู้ | หากใส่เซิร์ฟเวอร์ไม่เต็มตู้ จะเหลือพอร์ตที่ไม่ได้ใช้งานสิ้นเปลือง มีจำนวนสวิตช์ที่ต้องบริหารจัดการมาก | เหมาะสมกับห้องศูนย์ข้อมูลที่ตู้แร็กแต่ละตู้มีการติดตั้งอุปกรณ์หนาแน่นและสม่ำเสมอ |
+| **End of Row (EoR)** | รวมสวิตช์ขนาดใหญ่ไว้ที่ตู้แร็กปลายแถวเพียงจุดเดียว | ใช้จำนวนพอร์ตของสวิตช์ได้คุ้มค่าที่สุดเพราะแชร์ทั้งแถว ตู้เซิร์ฟเวอร์ตู้ใดมีปัญหาจะไม่กระทบต่อสวิตช์ | ต้องเดินสายทองแดงข้ามตู้จำนวนมหาศาล รางสายสัญญาณด้านบนหนาแน่นและจัดการยาก | เหมาะสำหรับห้องที่แต่ละตู้มีเครื่องเซิร์ฟเวอร์จำนวนไม่มาก หรืออุปกรณ์มีความหลากหลาย |
+| **Middle of Row (MoR)** | วางตู้สวิตช์ไว้ที่กึ่งกลางของแถวตู้แร็ก | ระยะทางเฉลี่ยของสายทองแดงสั้นกว่าแบบ EoR และยังคงใช้พอร์ตได้คุ้มค่าเช่นเดียวกัน | รางสายสัญญาณและจุดรวมสายบริเวณตู้กลางมีความซับซ้อนกว่าแบบ ToR | เป็นทางสายกลางที่ประนีประนอมระหว่าง ToR และ EoR สำหรับแถวตู้แร็กที่มีขนาดยาว |
 
-#### Design Decision for CB-201 Containment Rack
-The facility implements the **Top of Rack (ToR)** architecture:
-- 20 distinct student laboratory groups require explicit physical and logical port isolation.
-- All high-speed server copper patch cabling terminates locally within the containment rack.
-- Only redundant optical fiber trunks exit the containment rack to reach the core MDA rack.
+#### เหตุผลที่ห้องปฏิบัติการ CB-201 เลือกใช้สถาปัตยกรรม Top of Rack (ToR)
+ห้องปฏิบัติการของเรามีกลุ่มนักศึกษาจำนวน 20 กลุ่ม ซึ่งต้องการการแยกพอร์ตเครือข่ายออกจากกันอย่างชัดเจน และมีความต้องการให้สายทองแดงทั้งหมดจบการเชื่อมต่ออยู่ภายในตู้แร็กเดียวกัน เพื่อลดความยุ่งเหยิงของรางสายสัญญาณด้านนอก ทำให้มีเพียงสายใยแก้วนำแสง (Fiber) อัปลิงก์ความเร็วสูงเท่านั้นที่เดินออกจากตู้แร็ก
 
 ---
 
-## Section 2: Cable and Connector Types
+## ส่วนที่ 2: มาตรฐานสายสัญญาณและหัวต่อ (Cable and Connector Types)
 
-### Copper Twisted-Pair Cabling
-Copper cabling selection is governed by channel length (including patch leads at both ends) and target transmission bandwidth.
+### สายทองแดงคู่เกลียว (Copper Twisted-Pair)
+การเลือกสายทองแดงต้องพิจารณาจากระยะทางและความเร็วที่มาตรฐานรองรับ โดยระยะทางสูงสุดหมายถึงความยาวช่องสัญญาณรวม (Maximum Channel Length) ซึ่งนับรวมสายแพตช์คอร์ดที่ปลายทั้งสองด้านแล้ว:
 
-| Specification | Supported Speeds | Maximum Channel Length | Application Guideline |
+| ประเภทสาย (Type) | ความเร็วที่รองรับ (Speeds supported) | ระยะทางสูงสุด (Maximum length) | ข้อแนะนำในการนำไปใช้งาน (When to use it) |
 | :--- | :--- | :--- | :--- |
-| **Cat5e** | 1 Gbps | 100 m | Obsolete for data centre environments; do not deploy in new installations. |
-| **Cat6** | 1 Gbps at 100 m<br>10 Gbps limited to 37–55 m | 100 m (at 1 Gbps) | General low-bandwidth management workloads without 10 Gbps requirements. |
-| **Cat6A** | 10 Gbps | 100 m | The standard recommended default for all modern copper infrastructure installations. |
-| **Cat8** | 25 Gbps and 40 Gbps | 30 m | Short in-rack or adjacent-rack ToR server interconnects only. |
+| **Cat5e** | 1 Gbps | 100 เมตร | ล้าสมัยแล้ว ไม่ควรนำมาติดตั้งใหม่ในศูนย์ข้อมูลโดยเด็ดขาด |
+| **Cat6** | 1 Gbps (ที่ระยะ 100 ม.)<br>10 Gbps (จำกัดที่ 37–55 ม.) | 100 เมตร (สำหรับการทำงานที่ 1 Gbps) | ใช้งานทั่วไปในระบบที่ไม่มีความต้องการความเร็วระดับ 10 Gbps |
+| **Cat6A** | 10 Gbps | 100 เมตร | เป็นมาตรฐานเริ่มต้นที่สมเหตุสมผลที่สุดสำหรับการติดตั้งใหม่ทุกกรณี |
+| **Cat8** | 25 Gbps และ 40 Gbps | 30 เมตร | ใช้สำหรับเชื่อมต่อระยะสั้นภายในตู้แร็ก หรือระหว่างตู้ข้างเคียงสำหรับสวิตช์ ToR เท่านั้น |
 
-#### The Cat6 Limitation Caveat
-While Cat6 is marketed as supporting 10 Gbps, its transmission distance is limited to 37–55 meters and is highly susceptible to alien crosstalk (electromagnetic coupling from adjacent twisted pairs in dense cable trays). Deploy **Cat6A** for guaranteed 10 Gbps transmission up to the full 100-meter channel limit.
+#### ข้อจำกัดสำคัญของสาย Cat6 (The Cat6 Caveat)
+แม้สเปกของ Cat6 จะระบุว่ารองรับความเร็ว 10 Gbps แต่ในความเป็นจริงสามารถทำระยะได้เพียง 37–55 เมตรเท่านั้น และความเร็วจะตกทันทีหากเกิดสัญญาณรบกวนข้ามคู่สายระหว่างสายที่วางมัดรวมกัน (Alien Crosstalk) ดังนั้น หากต้องการใช้งาน 10 Gbps เต็มระยะ 100 เมตร ต้องเลือกใช้สาย **Cat6A** เท่านั้น
 
-### Optical Fiber Standards
-Fiber selection is determined primarily by link distance, followed by transceiver budget.
+### สายใยแก้วนำแสงและหัวต่อ (Optical Fiber and Connectors)
+การเลือกสายใยแก้วนำแสงให้พิจารณาจากระยะทางเป็นอันดับแรก แล้วจึงพิจารณางบประมาณของตัวแปลงสัญญาณ (Transceiver):
 
-| Fiber Standard | Core Type | Standard Jacket Color | Distance Reach (10G / 100G) | Operational Application |
-| :--- | :--- | :--- | :--- | :--- |
-| **OM3** | Multimode (50/125 µm) | Aqua | 300 m (10G) / 70 m (100G SR4) | Intra-room interconnects under 100 meters. |
-| **OM4** | Multimode (50/125 µm) | Violet (Erika Violet) | 400 m (10G) / 100 m (100G SR4) | Most widely deployed standard for data centre horizontal runs. |
-| **OM5** | Multimode (50/125 µm) | Lime Green | Similar to OM4; optimized for multi-wavelength SWDM | Environments planning Short Wavelength Division Multiplexing. |
-| **OS2** | Singlemode (9/125 µm) | Yellow | 10 km to 40 km+ (10G LR / 100G LR4) | Inter-building campus backbones and external provider connections. |
-
-#### Optical Connector Standards
-- **LC Connector (Lucent Connector):** Small form-factor duplex connector utilizing a 1.25 mm ferrule. Standard interface for 1G, 10G, and 25G bidirectional transmission over a single fiber pair. Primary interface inside server racks.
-- **MPO / MTP Connector (Multi-Fiber Push-On):** High-density array connector housing 8, 12, or 24 optical fibers in a single ferrule. Standard interface for 40GBASE-SR4 and 100GBASE-SR4 optics requiring 4 parallel transmit and 4 parallel receive lanes.
-- **Transceiver Matching Rule:** Every optical run requires matching transceivers at both ends (e.g., 10GBASE-SR must terminate to 10GBASE-SR with identical wavelength specifications).
-
-### Server-to-Switch Interconnect Technologies
-Three technological approaches exist for connecting server NICs to the Top-of-Rack switch:
-
-| Technology | Effective Distance | Relative Cost | Mechanical and Operational Constraints |
+| ประเภทไฟเบอร์ | สีปลอกหุ้มมาตรฐาน (Jacket Colour) | ระยะทำการที่ 10G / 100G (Reach) | ความเหมาะสมในการใช้งาน (Suited to) |
 | :--- | :--- | :--- | :--- |
-| **DAC (Direct Attach Copper)** | Up to 3–5 m (passive) | Lowest cost | Heavy, thick, and rigid; difficult to dress neatly; strict minimum bend radius. |
-| **AOC (Active Optical Cable)** | 3 m to 30 m | Moderate cost | Connectors and optical transceivers permanently fixed; cannot detach or field-replace transceivers. |
-| **Discrete Fiber + Transceivers** | 100 m to kilometers | Highest cost | Maximum routing flexibility; requires two transceivers per run verified for switch compatibility. |
+| **OM3** (Multimode) | สีฟ้าเทอร์ควอยซ์ (Aqua) | 300 ม. (ที่ 10G) / 70 ม. (ที่ 100G SR4) | เชื่อมต่อภายในห้องเดียวกัน ที่มีระยะห่างไม่เกิน 100 เมตร |
+| **OM4** (Multimode) | สีม่วงไวโอเลต (Violet) | 400 ม. (ที่ 10G) / 100 ม. (ที่ 100G SR4) | ทางเลือกมาตรฐานที่นิยมใช้งานมากที่สุดในห้องศูนย์ข้อมูล |
+| **OM5** (Multimode) | สีเขียวมะนาว (Lime green) | ใกล้เคียงกับ OM4 แต่รองรับหลายช่วงคลื่นแสง | เหมาะสำหรับระบบที่มีแผนจะอัปเกรดไปใช้เทคโนโลยี SWDM ในอนาคต |
+| **OS2** (Singlemode) | สีเหลือง (Yellow) | 10 กิโลเมตรขึ้นไป (มาตรฐาน LR) | ใช้เดินเชื่อมต่อระหว่างอาคาร หรือเชื่อมต่อออกไปยังผู้ให้บริการภายนอก |
 
-#### Containment Rack Implementation
-- **In-Rack Server Interconnects:** Deploy passive Direct Attach Copper (DAC) cables due to short physical distances (< 2 m) and significant cost savings.
-- **ToR Uplinks:** Deploy discrete optical fiber with modular transceivers to support long-distance routing out of the containment rack to the central facility MDA.
+#### รูปแบบหัวเชื่อมต่อสายไฟเบอร์ (Fiber Connectors)
+- **หัวต่อแบบ LC (LC Duplex Connector):** หัวเชื่อมต่อขนาดเล็กแบบคู่ ใช้สำหรับการส่งสัญญาณระดับ 1G, 10G และ 25G ผ่านใยแก้ว 1 คู่ (2 เส้น) เป็นหัวต่อที่พบมากที่สุดภายในตู้แร็ก
+- **หัวต่อแบบ MPO (MPO Array Connector):** รวมใยแก้วนำแสงหลายเส้นไว้ในหัวต่อเดียว เช่น มาตรฐาน 40G SR4 และ 100G SR4 ซึ่งต้องใช้ใยแก้วนำแสงพร้อมกัน 8 เส้น
+- **ข้อกำหนดของโมดูลแปลงสัญญาณ:** สายใยแก้วนำแสงทุกเส้นต้องติดตั้งโมดูลรับส่งสัญญาณ (Transceiver) ที่ปลายทั้งสองด้าน และทั้งสองฝั่งต้องเป็นโมดูลประเภทเดียวกันที่ทำงานเข้ากันได้เสมอ
 
----
+### การเปรียบเทียบสื่อเชื่อมต่อระหว่างเซิร์ฟเวอร์กับสวิตช์ ToR (DAC vs AOC vs Fiber)
+การเชื่อมต่อเครื่องเซิร์ฟเวอร์เข้ากับสวิตช์ประจำตู้แร็ก มีทางเลือก 3 รูปแบบที่มีความแตกต่างกันทั้งด้านต้นทุนและคุณสมบัติ:
 
-## Section 3: Racks, Containment, and Cabling Discipline
-
-### Core Principle
-Rigorous cable management is not an aesthetic preference; it is a fundamental thermodynamic requirement for equipment cooling.
-
-### Rear-of-Rack Cabling Discipline
-The rear chassis space determines whether a rack functions reliably for a decade or degrades into thermal failure within six months.
-
-```
-       +-----------------------------------------+
-       |             REAR RACK ELEVATION         |
-       |                                         |
- LEFT  | [Power Tray]               [Data Tray]  | RIGHT
- TRAY  |   - PDU A Cabling            - DACs     | TRAY
-       |   - PDU B Cabling            - Cat6A    |
-       |                              - Fiber    |
-       |                                         |
-       |     ===============================     |
-       |     [ SERVER EXHAUST AIR PATH ]         |
-       |     (Keep Completely Unobstructed)      |
-       |     ===============================     |
-       +-----------------------------------------+
-```
-
-#### Four Rules of Cable Dressing
-1. **Physical Segregation of Power and Data Trays:**
-   - Power distribution runs exclusively on the left vertical cable tray; data and signal cables run exclusively on the right vertical tray.
-   - Mitigates electromagnetic induction and allows technicians to service or replace power supplies without disturbing sensitive data lines.
-2. **Precision Length Management:**
-   - Pre-measure cables to exact lengths. Excess slack requires coiling, which consumes rack depth and severely restricts hot air exhaust discharge.
-3. **Strict Adherence to Minimum Bend Radius:**
-   - Copper cables: Minimum bend radius is 4 times the cable outer diameter.
-   - Optical fiber: Minimum bend radius is 10 times the cable outer diameter.
-   - Exceeding bend limits induces immediate insertion loss, packet corruption, or micro-fractures in glass cores.
-4. **Two-Ended Identification Tagging (ANSI/TIA-606-C):**
-   - Both ends of every patch cable must be labelled with source and destination rack, device, and port identifiers.
-   - A single-ended label is functionally useless during troubleshooting when tracing disconnected leads.
-
-#### Critical Airflow Warning
-Never allow cables to drape horizontally across the rear exhaust vents of server chassis. Horizontal cable bundles act as thermal dams, trapping hot air inside the chassis, recirculating exhaust heat, and completely defeating containment infrastructure investments.
-
-### Switch Airflow Direction
-Network equipment airflow configuration is the most commonly overlooked detail during physical switch installation.
-
-- **Port-Side Intake vs. Port-Side Exhaust:**
-  - Standard servers pull cold air from the front aisle and exhaust heated air into the rear hot aisle.
-  - If a switch with port-side intake is mounted facing the rear hot aisle, it ingests 35–45 degree C server exhaust air, triggering fan runaways, thermal throttling, and hardware failure.
-- **Procurement Requirement:**
-  - Airflow orientation is determined at purchase. Vendors manufacture Front-to-Back (Back-to-Front / Port-to-Power / Power-to-Port) variants under distinct part numbers. The ordered model must match the containment orientation.
-- **Pre-Mounting Verification:**
-  - Inspect chassis airflow directional arrows before securing mounting brackets. If an incorrect airflow unit is deployed, install the manufacturer-approved airflow ducting conversion kit rather than operating out of specification.
-
----
-
-## Section 4: Top of Rack (ToR) Switches and Uplink Design
-
-### Pre-Procurement Checklist for ToR Switches
-Eight mandatory technical criteria to verify prior to procurement:
-
-1. **Access Port Density and Speed:** Total server count multiplied by NIC ports per server, plus a minimum of 20% reserved expansion headroom.
-2. **Uplink Port Bandwidth:** Calculate required oversubscription ratio first; size uplink bandwidth to satisfy target.
-3. **Airflow Direction:** Airflow orientation must match hot/cold aisle containment architecture.
-4. **Dual Redundant Power Supplies (PSU):** Two hot-swappable power supplies connected to independent PDU circuits (PDU A and PDU B).
-5. **Chassis Depth Clearance:** Physical chassis depth must not obstruct vertical rear cable management channels.
-6. **Dedicated Out-of-Band (OOB) Management Port:** Physical management interface completely isolated from data plane switching ASICs.
-7. **Comprehensive IPv6 Feature Support:** Wire-speed IPv6 routing, Router Advertisement (RA) Guard, and DHCPv6 Snooping.
-8. **Telemetry and Metric Streaming:** Native support for SNMP or gNMI telemetry streaming for automated scraping by Prometheus.
-
-### Uplink Oversubscription Calculations
-Oversubscription defines the ratio between total theoretical server access capacity and total uplink capacity connecting to the core network.
-
-$$\text{Oversubscription Ratio} = \frac{\sum \text{Access Bandwidth}}{\sum \text{Uplink Bandwidth}}$$
-
-#### Containment Rack Worked Calculation
-- **Server-Side Access Bandwidth:**
-  $$\text{Capacity}_{\text{server}} = 20 \text{ servers} \times 2 \text{ ports/server} \times 25 \text{ Gbps} = 1{,}000 \text{ Gbps}$$
-- **Uplink Bandwidth:**
-  $$\text{Capacity}_{\text{uplink}} = 2 \text{ ToR switches} \times 2 \text{ uplinks/switch} \times 100 \text{ Gbps} = 400 \text{ Gbps}$$
-- **Calculated Ratio:**
-  $$\text{Ratio} = \frac{1{,}000 \text{ Gbps}}{400 \text{ Gbps}} = 2.5 : 1$$
-
-#### Workload Evaluation
-- General data centre workloads comfortably tolerate an oversubscription ratio of approximately **3:1**.
-- High-throughput, storage-intensive, or distributed AI/ML workloads demand ratios under **2:1**.
-- A ratio of **2.5:1** is acceptable for general instructional workloads.
-
-#### Redundancy and Failure Mode Analysis ($N-1$ Scenario)
-If one ToR switch suffers catastrophic failure, available uplink capacity drops by 50% (from 400 Gbps to 200 Gbps). The effective oversubscription ratio jumps to:
-
-$$\text{Degraded Ratio} = \frac{1{,}000 \text{ Gbps}}{200 \text{ Gbps}} = 5 : 1$$
-
-System architects must verify that degraded operations under single-switch failure remain acceptable to running workloads without inducing buffer collapse.
-
----
-
-## Section 5: VLANs and IP Address Design
-
-### Core Principle
-An effective addressing architecture is self-documenting: observing an IP address or VLAN ID should immediately convey network tier, role, and tenant ownership without consulting a database.
-
-### Room-Level VLAN and Addressing Allocation
-
-| VLAN ID | Designated Purpose | Allocated IPv4 Subnet | Allocated IPv6 Subnet | Routing Profile |
-| :--- | :--- | :--- | :--- | :--- |
-| **101–120** | Student Workgroups 1 through 20 | `10.20.G.0/24` *(where G = group ID 1–20)* | `2001:db8:a:1xx::/64` *(e.g., VLAN 101 = 2001:db8:a:101::/64)* | Routed to internal core |
-| **250** | Network Infrastructure Management | `10.20.250.0/24` | `2001:db8:a:250::/64` | Restricted; internal ACL only |
-| **251** | High-Speed Storage Network | `10.20.251.0/24` | `2001:db8:a:251::/64` | Non-routed; intra-rack only |
-| **254** | Out-of-Band Management (OOB / IPMI) | `10.20.254.0/24` | `fd00:20:254::/64` *(Unique Local Address)* | Completely isolated |
-| **999** | Unused Ports (Blackhole / Parking) | *Unassigned* | *Unassigned* | Administrative shutdown |
-
-#### Switch Port Security Hygiene
-Every unused physical switch port must be assigned to **VLAN 999** and placed in an administrative shutdown state (`shutdown`). Leaving unassigned ports active in a default VLAN (such as VLAN 1) creates an unmonitored physical ingress point into the production network.
-
-### IPv4 Subnet Sizing Architecture
-Subnet sizing must account for bare-metal hosts, management interfaces, hypervisors, and container instances.
-
-1. **Host Capacity Projection per Workgroup:**
-   - 1 physical server + 1 management interface + ~20 container/virtual instances = approximately 25 IP addresses.
-2. **Subnet Prefix Selection:**
-   - A `/27` subnet provides 30 usable host addresses. While sufficient mathematically, it offers negligible headroom for expansion.
-   - Selecting `/24` (254 usable addresses) provides ample headroom, standardizes subnet masks, and simplifies firewall rule definitions.
-3. **Room Allocation Strategy:**
-   - Supernet block `10.20.0.0/16` is partitioned into `/24` subnets.
-   - Workgroups 1 to 20 map to `10.20.1.0/24` through `10.20.20.0/24`.
-   - Core infrastructure reserves `10.20.250.0/24` to `10.20.254.0/24`.
-   - Subnets `10.20.21.0/24` through `10.20.249.0/24` remain reserved for unallocated growth.
-
-*The Golden Sizing Rule:* Always size subnets one power of two larger than initial calculations suggest. Resizing an active subnet post-deployment requires whole-room re-addressing and routing table updates.
-
-### IPv6 Addressing Architecture
-IPv6 design departs from IPv4 conservation patterns and emphasizes hierarchical alignment:
-
-- **Universal `/64` Allocation:** Every VLAN receives a `/64` subnet. This prefix length is mandatory for Stateless Address Autoconfiguration (SLAAC; RFC 4862). Subnetting smaller than `/64` breaks core IPv6 operational features.
-- **Faculty `/48` Supernet Allocation:** The university network assigns a `/48` prefix, providing 65,536 discrete `/64` subnets—more than sufficient for enterprise scaling.
-- **Deterministic Subnet-to-VLAN Mapping:** Subnet identifiers mirror VLAN tags directly:
-  - VLAN 101 maps to `2001:db8:a:101::/64`
-  - VLAN 120 maps to `2001:db8:a:120::/64`
-  - An engineer reading the IPv6 prefix immediately identifies the VLAN.
-- **Unique Local Addresses (ULA):** Use ULA prefixes (`fd00::/8`; RFC 4193) strictly on non-routed management tiers such as the Out-of-Band IPMI network. Production networks must utilize routable Global Unicast Addresses (GUA) without network address translation (NAT).
-- **Address Assignment Strategy:**
-  - Servers and switches: Static address assignment.
-  - Ephemeral client nodes: Stateless Address Autoconfiguration (SLAAC).
-  - Controlled enterprise endpoints: Stateful DHCPv6 for audit trails and lease logging.
-
-#### Mandatory IPv6 Layer 2 Security
-Every IPv6 interface automatically configures a link-local address (`fe80::/10`) upon link initialization, even if IPv6 is not actively configured. Switches must enforce:
-- **Router Advertisement (RA) Guard:** Drops rogue or unauthorized RA packets originating from untrusted access ports to prevent rogue default gateway attacks.
-- **DHCPv6 Snooping:** Intercepts unauthorized DHCPv6 server advertisements across access edge ports.
-
-### Out-of-Band (OOB) Management Architecture
-The management network is the recovery tool required when the primary network fails.
-
-- **Physical Isolation:** The OOB network utilizes physically separate switching hardware, isolated patch panels, and distinct cabling channels from the data plane.
-- **Connected Interfaces:** Server IPMI / iDRAC / BMC ports, network switch console and management ports, serial console terminal servers, and switched smart PDUs.
-- **Security Posture:** Access must be restricted via tight access control lists (ACLs), mandatory multi-factor authentication, and continuous session audit logging.
-
----
-
-## Section 6: Internet Path, Redundancy, and Acceptance
-
-### Campus Core Interconnect Specifications
-Five architectural parameters must be formally ratified with campus network engineering:
-
-1. **Egress Redundancy and Diverse Routing:** Single uplink paths represent critical single points of failure (SPOF). Ensure dual egress links exit the facility via physically separate wall penetrations and non-overlapping underground conduits.
-2. **NAT Translation Boundaries:** Identify precisely which upstream routing layer performs Network Address Translation. Unrecorded NAT boundaries complicate distributed trace context analysis and IP audit logs.
-3. **Firewall Perimeter Placement:** Establish whether inter-VLAN communications are routed locally at the ToR/core switch or forced across a stateful firewall inspection engine, which may bottleneck intra-rack east-west throughput.
-4. **Committed Bandwidth SLAs:** Secure documented upstream bandwidth guarantees validated through empirical load testing rather than shared verbal assumptions.
-5. **Authoritative DNS and NTP Infrastructure:** Establish shared, highly available campus NTP sources to prevent cross-system clock skew and preserve incident log chronology.
-
-### Measurable Network Acceptance Criteria
-Network installation cannot be accepted based merely on green physical link lights. Eight empirical criteria must pass verification:
-
-| Check ID | Verification Criterion | Verification Methodology | Responsible Authority |
+| รูปแบบการเชื่อมต่อ | ระยะทางใช้งานจริง (Usable distance) | ต้นทุนเปรียบเทียบ (Relative cost) | ข้อจำกัดสำคัญที่ต้องทราบ (The limitation to know) |
 | :--- | :--- | :--- | :--- |
-| **NAC-1** | Permanent link certification passed | Cable analyzer certification report exported and archived in project repository | Cabling Contractor |
-| **NAC-2** | Port speed and duplex auto-negotiation | Switch CLI confirms full speed (e.g., 25G / 100G) and full-duplex operation on all active ports | Technical Reviewer |
-| **NAC-3** | Zero interface error counters | Switch interface counters confirm 0 CRC errors, 0 input drops, and 0 frame alignment errors after 24 hours of sustained operation | Technical Reviewer |
-| **NAC-4** | VLAN segmentation and isolation | Positive connectivity tests verify intra-VLAN traffic; negative connectivity tests confirm isolated VLANs cannot communicate without routing | Change Owner |
-| **NAC-5** | IPv4 and IPv6 plan compliance | Network endpoints, gateways, and switches verify IP allocation matching approved design document | Change Owner |
-| **NAC-6** | Out-of-band network resilience | Primary data path physically disconnected; verify OOB network maintains complete remote management access | Safety Officer |
-| **NAC-7** | NTP time synchronization | All switches, servers, and hypervisors synchronize to authoritative NTP with clock offset under 1.0 second | Technical Reviewer |
-| **NAC-8** | Automated metric ingestion | Prometheus successfully scrapes switch SNMP/gNMI targets with telemetry reporting metric `up == 1` | Change Owner |
+| **DAC** (Direct Attach Copper) | ไม่เกิน 3–5 เมตร (แบบ Passive) | ประหยัดที่สุด (Cheapest) | สายมีความหนาและแข็ง จัดโค้งงอได้ยาก และมีรัศมีดัดโค้งจำกัด |
+| **AOC** (Active Optical Cable) | ประมาณ 3–30 เมตร | ปานกลาง (Middle) | ตัวแปลงสัญญาณหล่อติดตายกับปลายสาย ไม่สามารถถอดแยกเปลี่ยนโมดูลได้ |
+| **Discrete Fiber + Transceivers** | ตั้งแต่ 100 เมตรจนถึงหลายกิโลเมตร | สูงที่สุด และยืดหยุ่นที่สุด | ต้องใช้โมดูล Transceiver 2 ตัวต่อหนึ่งลิงก์ และต้องตรวจสอบความเข้ากันได้กับสวิตช์ |
 
-#### The Importance of Error Counter Audits (NAC-3)
-A damaged optical fiber or poorly terminated Cat6A cable will frequently illuminate physical link lights and transmit baseline traffic, while silently dropping packets under load and accumulating Cyclic Redundancy Check (CRC) errors. Rigorous acceptance requires auditing interface error counters after a continuous 24-hour test period.
+#### การเลือกใช้งานจริงในตู้ Containment Rack ของ CB-201
+- **การเชื่อมต่อระหว่างเซิร์ฟเวอร์กับสวิตช์ ToR:** เลือกใช้ **สาย DAC** เนื่องจากอุปกรณ์ทั้งหมดติดตั้งอยู่ภายในตู้แร็กเดียวกัน ระยะทางสั้น และช่วยประหยัดงบประมาณได้สูงสุด
+- **การเชื่อมต่ออัปลิงก์ออกจากตู้ ToR:** เลือกใช้ **สาย Fiber ร่วมกับโมดูล Transceiver** เนื่องจากสายสัญญาณต้องเดินข้ามห้องไปยังตู้หลัก MDA
 
 ---
 
-## Applicable ISO/IEC 27001:2022 Security Controls
+## ส่วนที่ 3: ตู้แร็ก การกั้นลมเย็น และระเบียบวินัยการเดินสาย (Racks, Containment, and Cabling)
 
-Network architecture and cabling operations must conform to international information security standards:
+### หลักการสำคัญ
+การจัดระเบียบสายสัญญาณให้เรียบร้อยไม่ใช่เพียงเรื่องของความสวยงาม แต่เป็นเรื่องของ **การไหลเวียนของอากาศเพื่อระบายความร้อน (Airflow Dynamics)**
 
-| Control Identifier | Control Title | Implementation Requirement in Data Centre Network |
-| :--- | :--- | :--- |
-| **A.8.20** | Networks Security | Network infrastructure is actively monitored, controlled, and protected; configuration logs are centralized and retained. |
-| **A.8.21** | Security of Network Services | Upstream service agreements, egress capacity, and routing boundaries are formally documented with the provider. |
-| **A.8.22** | Segregation of Networks | Student group VLANs, storage networks, production traffic, and out-of-band management networks are strictly segmented. |
-| **A.7.12** | Cabling Security | Telecommunications and power cabling are physically protected against interception, physical damage, and inductive interference. |
-| **A.8.16** | Monitoring Activities | Continuous monitoring of network traffic volumes, error rates, and security telemetry for anomalous operational behavior. |
-| **A.5.14** | Information Transfer | Rules, cryptographic mechanisms, and operational procedures protecting data transmission in transit across network segments. |
+### วินัยการจัดระเบียบสายด้านหลังตู้แร็ก (Cable Discipline Behind the Rack)
+การจัดระเบียบสายที่ดีจะทำให้ตู้แร็กใช้งานได้อย่างมีเสถียรภาพยาวนานนับ 10 ปี หากละเลยจะต้องรื้อทำใหม่ภายใน 6 เดือน:
+
+1. **แยกรางสายไฟฟ้ากับรางสายสัญญาณออกจากกันอย่างเด็ดขาด:**
+   - ติดตั้งสายไฟฟ้าทาง **ฝั่งซ้าย** และสายสัญญาณทาง **ฝั่งขวา**
+   - ช่วยลดสัญญาณรบกวนจากการเหนี่ยวนำแม่เหล็กไฟฟ้า (Electromagnetic Induction: EMI)
+   - ช่วยให้สามารถซ่อมบำรุงหรือถอดสายฝั่งใดฝั่งหนึ่งได้โดยไม่รบกวนอีกฝั่งหนึ่ง
+2. **เผื่อความยาวสายให้พอดี ไม่ยาวจนเกินไป:**
+   - สายที่ยาวเกินไปจะต้องม้วนขดเก็บไว้ด้านหลัง ซึ่งกินพื้นที่และกลายเป็นกำแพงขวางทางลมร้อนที่ระบายออกจากเครื่อง
+3. **รักษารัศมีการดัดโค้งขั้นต่ำ (Minimum Bend Radius):**
+   - สายทองแดง: รัศมีดัดโค้งต้องไม่น้อยกว่า **4 เท่า** ของเส้นผ่านศูนย์กลางสาย
+   - สายใยแก้วนำแสง: รัศมีดัดโค้งต้องไม่น้อยกว่า **10 เท่า** ของเส้นผ่านศูนย์กลางสาย
+   - หากดัดสายโค้งงอเกินเกณฑ์ ค่าการสูญเสียสัญญาณ (Attenuation / Insertion Loss) จะพุ่งสูงขึ้นทันทีจนเกิดข้อผิดพลาดในการรับส่งข้อมูล
+4. **ติดป้ายระบุตัวตนที่ปลายสายทั้งสองด้านตามมาตรฐาน TIA-606:**
+   - ป้ายกำกับที่ติดไว้เพียงปลายด้านเดียวถือเป็นป้ายที่ไร้ประโยชน์ เพราะวิศวกรต้องสามารถระบุต้นทางและปลายทางได้จากทั้งสองฝั่งของสาย
+5. **ข้อห้ามวิกฤต (Strict Prohibition):**
+   - **ห้ามปล่อยให้สายสัญญาณหรือสายไฟห้อยพาดขวางด้านหลังตู้แร็กโดยเด็ดขาด** เพราะเป็นการปิดกั้นทางระบายลมร้อน ส่งผลให้ระบบกั้นช่องลมเย็น/ลมร้อน (Aisle Containment) ที่ลงทุนไปสูญเปล่าทั้งหมด
+
+### ทิศทางการไหลเวียนของลมในอุปกรณ์เครือข่าย (Airflow Direction)
+รายละเอียดที่มักถูกมองข้ามมากที่สุดในการติดตั้งสวิตช์ คือทิศทางการไหลเวียนของลมระบายความร้อน:
+
+- **สวิตช์บางรุ่นดูดอากาศเข้าจากฝั่งพอร์ตเชื่อมต่อ (Port-side Intake):** หากนำไปติดตั้งโดยหันพอร์ตออกไปยังช่องลมร้อน (Hot Aisle) สวิตช์จะดูดลมร้อนที่ปล่อยออกจากเซิร์ฟเวอร์เข้าไปในตัวเครื่อง ส่งผลให้เครื่องร้อนจัดจนพังเสียหายภายในไม่กี่เดือน
+- **ทิศทางลมเป็นเรื่องที่ต้องตัดสินใจตั้งแต่ขั้นตอนการสั่งซื้อ:** ผู้ผลิตจะจำหน่ายสวิตช์เป็น 2 รุ่นย่อยตามทิศทางลม คือ Front-to-Back และ Back-to-Front ภายใต้รหัสสินค้า (Part Number) ที่แตกต่างกันอย่างชัดเจน ซึ่งต้องเลือกให้ตรงกับทิศทางลมของตู้แร็ก
+- **ตรวจสอบก่อนขันสกรูยึด:** ตรวจสอบป้ายสัญลักษณ์ทิศทางลมบนตัวเครื่องสวิตช์เสมอ และเปรียบเทียบกับทิศทางลมของตู้แร็กก่อนยึดอุปกรณ์
+- **แนวทางแก้ไขฉุกเฉิน:** หากหลีกเลี่ยงไม่ได้และได้สวิตช์ที่มีทิศทางลมผิดมาใช้งาน ต้องสั่งซื้อชุดดัดแปลงทิศทางลม (Airflow Conversion Kit / Reverse Fan Modules) จากผู้ผลิตมาติดตั้ง ห้ามปล่อยให้ใช้งานในสภาพทิศทางลมผิดเด็ดขาด
 
 ---
 
-## Standards and Technical References
+## ส่วนที่ 4: สวิตช์ ToR และการออกแบบ Uplink (ToR Switches and Uplink Design)
 
-### Cabling and Data Centre Infrastructure Standards
-- **ANSI/TIA-942-B:** *Telecommunications Infrastructure Standard for Data Centers*.
-- **ISO/IEC 11801-5:** *Information technology — Generic cabling for customer premises — Part 5: Data centres*.
-- **ANSI/TIA-568-D:** *Balanced Twisted-Pair Telecommunications Cabling and Components Standard*.
-- **ANSI/TIA-606-C:** *Administration Standard for Telecommunications Infrastructure* (Labelling standards).
-- **EN 50174-2:** *Information technology — Cabling installation — Part 2: Installation planning and practices inside buildings*.
+### หลักการสำคัญ
+จำนวนพอร์ตและความจุของสวิตช์ต้องเกิดจากการคำนวณทางวิศวกรรม ไม่ใช่การคาดเดาตามความรู้สึก (Whether the ports are enough is a calculation, not a feeling)
 
-### Internet Protocol and Network Security Standards
-- **RFC 4291:** *IP Version 6 Addressing Architecture*.
-- **RFC 4193:** *Unique Local IPv6 Unicast Addresses (ULA)*.
-- **RFC 6434 / RFC 8504:** *IPv6 Node Requirements*.
-- **RFC 7454:** *BGP Operations and Security* (Edge routing security guidelines).
-- **RFC 3849:** *IPv6 Address Prefix Reserved for Documentation* (Use of `2001:db8::/32`).
-- **ISO/IEC 27001:2022:** *Information security, cybersecurity and privacy protection — Information security management systems*.
+### รายการตรวจสอบ 8 ข้อก่อนการสั่งซื้อสวิตช์ ToR (Pre-procurement Checklist)
+1. **จำนวนและความเร็วของ Access Port:** คำนวณจาก (จำนวนเซิร์ฟเวอร์สูงสุดต่อตู้ $\times$ จำนวนพอร์ตต่อเซิร์ฟเวอร์) พร้อมบวกพื้นที่เผื่อขยาย (Headroom) อย่างน้อย 20%
+2. **จำนวนและความเร็วของพอร์ต Uplink:** กำหนดค่าอัตราส่วน Oversubscription Ratio ที่ยอมรับได้ก่อน แล้วจึงคำนวณย้อนกลับมาหาความจุของอัปลิงก์
+3. **ทิศทางการไหลเวียนของลม (Airflow Direction):** ต้องตรงกับทิศทางลมของตู้แร็ก และต้องระบุรหัสทิศทางลมในใบสั่งซื้ออย่างชัดเจน
+4. **จำนวนพาวเวอร์ซัพพลาย (PSU Count):** ต้องมี PSU แบบ Redundant จำนวน 2 ชุด เสียบเข้ากับ PDU สายจ่ายไฟ A/B แยกกัน
+5. **ความลึกของตัวถังสวิตช์ (Chassis Depth):** สวิตช์บางรุ่นมีความลึกมากจนชนกับรางจัดสายด้านหลังตู้ ต้องตรวจสอบระยะความลึกของตู้แร็กจริงเสมอ
+6. **พอร์ตบริหารจัดการแยกต่างหาก (Dedicated Management Port):** ต้องเป็นพอร์ต Out-of-Band (OOB) ที่แยกทางกายภาพจากพอร์ตข้อมูล เพื่อให้เข้าถึงได้แม้ระบบเครือข่ายหลักล่ม
+7. **การรองรับ IPv6 อย่างสมบูรณ์ (Full IPv6 Support):** ต้องรองรับ IPv6 Routing, DHCPv6 Snooping และ RA Guard ในระดับฮาร์ดแวร์ ไม่ใช่เพียงแค่ถือหมายเลข IPv6 ได้
+8. **ความสามารถในการส่งออกค่าสถิติ (Metric Exporting):** ต้องรองรับโพรโทคอล SNMP หรือ gNMI เพื่อให้ระบบ Prometheus สามารถดึงข้อมูลมาตรวัดไปตรวจสอบได้
+
+### การคำนวณอัตราส่วนการใช้ช่องสัญญาณเกินพิกัด (Uplink Oversubscription Ratio)
+ตัวอย่างการคำนวณจริงจากตู้แร็กห้องปฏิบัติการ CB-201:
+
+#### ข้อมูลตั้งต้นของระบบ
+- จำนวนเซิร์ฟเวอร์: $20$ เครื่อง
+- จำนวนพอร์ตข้อมูลต่อเซิร์ฟเวอร์: $2$ พอร์ต พอร์ตละ $25\text{ Gbps}$
+- จำนวนสวิตช์ ToR: $2$ ตัว
+- จำนวนพอร์ต Uplink ต่อสวิตช์ ToR: $2$ พอร์ต พอร์ตละ $100\text{ Gbps}$
+
+#### ขั้นตอนการคำนวณ
+
+1. **คำนวณแบนด์วิดท์รวมฝั่งเซิร์ฟเวอร์ (Server-side Bandwidth):**
+   $$ \text{Server Bandwidth} = 20 \text{ เครื่อง} \times 2 \text{ พอร์ต} \times 25\text{ Gbps} = 1000\text{ Gbps} $$
+
+2. **คำนวณแบนด์วิดท์รวมของสายอัปลิงก์ (Uplink Bandwidth):**
+   $$ \text{Uplink Bandwidth} = 2 \text{ ตัว} \times 2 \text{ พอร์ต} \times 100\text{ Gbps} = 400\text{ Gbps} $$
+
+3. **คำนวณอัตราส่วน Oversubscription Ratio ในสภาวะปกติ:**
+   $$ \text{Oversubscription Ratio} = \frac{1000\text{ Gbps}}{400\text{ Gbps}} = 2.5 : 1 $$
+
+4. **ประเมินความสอดคล้องกับเกณฑ์มาตรฐาน:**
+   - ภาระงานทั่วไป (General Workloads): ยอมรับได้ที่อัตราส่วนประมาณ $3 : 1$
+   - ภาระงานที่ใช้เครือข่ายหนาแน่น (Network-heavy): ต้องการอัตราส่วนต่ำกว่า $2 : 1$
+   - *ผลการประเมิน:* ค่า $2.5 : 1$ อยู่ในเกณฑ์ที่ยอมรับได้สำหรับศูนย์ข้อมูลทั่วไป
+
+#### กรณีเกิดเหตุขัดข้องของสวิตช์ (The Catch: N-1 Switch Failure)
+หากสวิตช์ ToR เกิดความเสียหายไป 1 ตัว ความสามารถในการส่งข้อมูลของสายอัปลิงก์จะลดลงครึ่งหนึ่งทันที เหลือเพียง $200\text{ Gbps}$ ทำให้อัตราส่วนพุ่งสูงขึ้นเป็น:
+$$ \text{Degraded Oversubscription Ratio} = \frac{1000\text{ Gbps}}{200\text{ Gbps}} = 5 : 1 $$
+วิศวกรผู้ออกแบบระบบจะต้องยอมรับประสิทธิภาพที่ลดลงในอัตราส่วน $5:1$ ให้ได้ในระหว่างที่เกิดเหตุขัดข้องชั่วคราว
 
 ---
 
-## Summary: This Supplement in Three Sentences
-1. Structural cabling infrastructure is laid once and remains in service for a decade while compute nodes turn over every five years; design the cable plant with greater capacity headroom than initial calculations suggest.
-2. Rear-of-rack cable dressing is an operational airflow imperative rather than cosmetic tidiness; improper cable bundles obstructing hot air exhaust undermine the entire containment cooling infrastructure.
-3. A resilient VLAN and IP addressing architecture is self-documenting and provides sufficient subnet headroom so that room growth never mandates a whole-room network re-architecture.
+## ส่วนที่ 5: การออกแบบ VLAN และการจัดสรรหมายเลข IP (VLANs and IP Design)
+
+### หลักการสำคัญ
+การออกแบบที่ดีคือการที่ **เพียงแค่อ่านหมายเลข IP ก็สามารถทราบได้ทันทีว่าเป็นของใคร** โดยออกแบบเพียงครั้งเดียวและใช้งานได้ตลอดทั้งปีการศึกษา
+
+### แผนผัง VLAN และการกำหนดช่วง IP ประจำห้องปฏิบัติการ
+
+| หมายเลข VLAN | วัตถุประสงค์การใช้งาน | ช่วงที่อยู่ IPv4 | ช่วงที่อยู่ IPv6 |
+| :---: | :--- | :--- | :--- |
+| **101–120** | กลุ่มนักศึกษา กลุ่มที่ 1 ถึง 20 (Student Groups 1–20) | `10.20.G.0/24`<br>*(โดยที่ $G$ คือหมายเลขกลุ่ม 1–20)* | `2001:db8:a:1xx::/64`<br>*(เช่น กลุ่ม 1 คือ `2001:db8:a:101::/64`)* |
+| **250** | ระบบจัดการอุปกรณ์เครือข่าย (In-Band Management) | `10.20.250.0/24` | `2001:db8:a:250::/64` |
+| **251** | เครือข่ายระบบจัดเก็บข้อมูล (Storage Network) | `10.20.251.0/24` | `2001:db8:a:251::/64` |
+| **254** | ระบบควบคุมนอกแถบสัญญาณ (Out-of-Band / IPMI) | `10.20.254.0/24` | `fd00:20:254::/64` (ULA) |
+| **999** | พอร์ตที่ยังไม่ได้ใช้งาน (Blackhole VLAN) | ไม่กำหนด IP | ไม่กำหนด IP |
+
+#### กฎความมั่นคงปลอดภัยสำหรับพอร์ตที่ไม่ได้ใช้งาน (Security Rule)
+พอร์ตบนสวิตช์ทุกพอร์ตที่ยังไม่ได้เสียบสายใช้งาน ต้องถูกกำหนดให้อยู่ใน **VLAN 999 (Blackhole) และต้องสั่งปิดพอร์ต (Shutdown/Disable)** ไว้เสมอ เพราะพอร์ตที่เปิดทิ้งไว้ใน VLAN ปกติ คือช่องทางบุกรุกเข้าสู่เครือข่ายที่ไม่มีใครเฝ้าระวัง
+
+### การออกแบบและจัดสรรหมายเลข IPv4
+การกำหนดขนาดของ Subnet ต้องคำนึงถึงจำนวนโฮสต์จริงและอัตราการเติบโต:
+
+1. **นับจำนวนโฮสต์จริงต่อกลุ่ม:** 1 เซิร์ฟเวอร์หลัก + 1 พอร์ตบริหารจัดการ IPMI + โควตาสำรองสำหรับ Container ประมาณ 20 ตัว รวมเป็นประมาณ 25 หมายเลข IP
+2. **เลือกขนาด Subnet ที่เหมาะสม:** ซับเน็ตขนาด `/27` รองรับได้ 30 หมายเลข ซึ่งคับแคบเกินไปและเสี่ยงต่อการหมดลง จึงเลือกกำหนดเป็น `/24` (254 หมายเลขใช้งานได้) เพื่อความคล่องตัว
+3. **จัดสรรช่วง IP ในห้อง:** นำบล็อก `10.20.0.0/16` มาซอยย่อยเป็น `10.20.G.0/24` สำหรับกลุ่มที่ 1 ถึง 20 (`10.20.1.0/24` ถึง `10.20.20.0/24`)
+4. **สำรองช่วงพิเศษไว้ท้ายสุด:** จัดสรร `10.20.250.0/24` สำหรับ Management, `251` สำหรับ Storage และ `254` สำหรับ OOB
+5. **พื้นที่รองรับการขยายตัว:** ช่วง `10.20.21.0/24` ถึง `10.20.249.0/24` ถูกกันไว้สำหรับการขยายตัวในอนาคต
+
+*กฎทองของวิศวกรเครือข่าย:* จงเลือกขนาด Subnet ให้ใหญ่กว่าที่คำนวณได้จริง 1 ขั้นเสมอ เพราะการกลับมาขยายขนาด Subnet ในภายหลัง หมายถึงการต้องตั้งค่าเครือข่ายใหม่ทั้งห้องศูนย์ข้อมูล
+
+### การออกแบบและจัดสรรหมายเลข IPv6
+IPv6 ไม่ใช่แค่ IPv4 ที่ยาวขึ้น แต่ต้องใช้แนวคิดในการจัดสรรที่แตกต่างออกไป:
+
+- **กำหนดขนาด `/64` ให้กับทุก VLAN โดยไม่มีข้อยกเว้น:** ไม่จำเป็นต้องประหยัดหมายเลข IP เพราะ `/64` เป็นขนาดมาตรฐานบังคับสำหรับระบบการตั้งค่าที่อยู่อัตโนมัติ (Stateless Address Autoconfiguration: SLAAC) การซอยย่อยขนาดเล็กกว่า `/64` จะทำให้ฟีเจอร์มาตรฐานของ IPv6 ทำงานผิดพลาด
+- **ขอรับการจัดสรรบล็อก `/48` จากเครือข่ายมหาวิทยาลัย:** บล็อก `/48` เพียงบล็อกเดียว สามารถแบ่ง Subnet ขนาด `/64` ได้มากถึง $65,536$ วง ซึ่งเพียงพอต่อการใช้งานของทั้งคณะ
+- **ผูกหมายเลข Subnet เข้ากับ VLAN ID แบบ Deterministic:** เช่น VLAN 101 จะได้รับหมายเลข `2001:db8:a:101::/64` ทันที ทำให้เพียงแค่มองหมายเลข IP ก็ทราบได้ทันทีว่าเป็นทราฟฟิกของ VLAN ใด
+- **ใช้ที่อยู่แบบ ULA เฉพาะเครือข่ายที่ไม่มีการเชื่อมต่อออกสู่ภายนอก:** ใช้ช่วง `fd00::/8` (เช่น `fd00:20:254::/64`) สำหรับเครือข่าย OOB เท่านั้น ส่วนเครือข่ายงานทั่วไปต้องใช้ Global Unicast Address จริงโดยไม่ต้องทำ NAT
+- **การกำหนดหมายเลขเครื่อง:** เครื่องเซิร์ฟเวอร์กำหนดค่าแบบคงที่ (Static), โฮสต์ทั่วไปใช้ SLAAC และใช้ DHCPv6 ในจุดที่ต้องการบันทึกประวัติว่าอุปกรณ์ใดได้รับ IP หมายเลขใดไป
+
+#### ข้อควรระวังด้านความปลอดภัยในระบบ IPv6
+อุปกรณ์ทุกตัวจะเปิดใช้งานที่อยู่ Link-local (`fe80::/10`) โดยอัตโนมัติแม้จะไม่ได้ตั้งค่า IPv6 ก็ตาม ดังนั้น **ต้องเปิดใช้งาน RA Guard และ DHCPv6 Snooping บนสวิตช์เสมอ** เพื่อป้องกันไม่ให้มีใครนำอุปกรณ์ไม่พึงประสงค์มาประกาศตัวเป็นเราเตอร์หลักของเครือข่าย
+
+### เครือข่ายบริหารจัดการนอกแถบสัญญาณ (Out-of-Band: OOB Management Network)
+เครือข่าย OOB คือระบบเครือข่ายที่ **ต้องยังคงทำงานได้ ในวันที่เครือข่ายหลักล่มทั้งหมด**
+
+- **เหตุผลที่ต้องแยกทางกายภาพ (Physically Separate):** หากนำพอร์ตบริหารจัดการไปเสียบไว้บนสวิตช์เดียวกับข้อมูล และสวิตช์ตัวนั้นเกิดค้างหรือเสียหาย จะไม่มีช่องทางใดๆ ให้วิศวกรสามารถเชื่อมต่อเข้าไปแก้ไขปัญหาได้เลย
+- **อุปกรณ์ที่ต้องอยู่บนเครือข่าย OOB:** พอร์ต IPMI/iDRAC/BMC ของเซิร์ฟเวอร์ทุกเครื่อง, พอร์ต Management ของสวิตช์, ตู้อุปกรณ์ Console Terminal Server และปลั๊กไฟอัจฉริยะที่สั่งเปิดปิดได้ (Switchable PDUs)
+- **การควบคุมการเข้าถึงอย่างเข้มงวด:** เนื่องจากเครือข่าย OOB สามารถควบคุมฮาร์ดแวร์ได้ถึงระดับลึกที่สุด จึงต้องแยก VLAN เฉพาะ กำหนดรายการควบคุมการเข้าถึง (ACL) อย่างรัดกุม และบันทึกประวัติการล็อกอินทุกเซสชัน
+- **การปฏิบัติตามมาตรฐานสากล:** สอดคล้องตามข้อกำหนด ISO/IEC 27001:2022 การควบคุมหมายเลข **A.8.22 (Segregation of Networks)** ที่ระบุว่าเครือข่ายบริหารจัดการต้องแยกขาดจากเครือข่ายผู้ใช้อย่างชัดเจน
+
+---
+
+## ส่วนที่ 6: เส้นทางเชื่อมต่ออินเทอร์เน็ตและการตรวจรับงาน (Internet Path and Acceptance)
+
+### หลักการสำคัญ
+งานเครือข่ายจะถือว่าเสร็จสิ้นเมื่อผ่านการตรวจวัดเชิงปริมาณเรียบร้อยแล้ว ไม่ใช่เพียงแค่เห็นหลอดไฟสีเขียวติดสว่าง (Network work is done when it is measured, not when the lights are green)
+
+### 5 ข้อตกลงสำคัญที่ต้องทำร่วมกับทีมเครือข่ายมหาวิทยาลัย (Decisions to Settle)
+ประเด็นทั้ง 5 ข้อต้องจัดทำเป็นเอกสารข้อตกลงและลงนามร่วมกันเป็นลายลักษณ์อักษร ห้ามสรุปด้วยวาจา:
+
+1. **จำนวนเส้นทางออกสู่อินเทอร์เน็ต (Egress Paths):** การมีเส้นทางเดียวถือเป็นจุดล้มเหลวเดี่ยว (Single Point of Failure: SPOF) หากมี 2 เส้นทาง ต้องตรวจสอบยืนยันว่าท่อร้อยสายทางกายภาพไม่ได้วิ่งอยู่ในท่อเดียวกัน
+2. **จุดที่ทำการแปลงที่อยู่ IP (NAT Location):** ต้องทราบจุดที่มีการทำ NAT อย่างชัดเจน เพราะการแปลง IP มีผลต่อการสืบค้นย้อนกลับใน Log และ Trace
+3. **ตำแหน่งการวางไฟร์วอลล์ (Firewall Placement):** ต้องตรวจสอบว่าทราฟฟิกระหว่าง VLAN ต้องวิ่งข้ามไฟร์วอลล์หรือไม่ เพราะส่งผลต่อ Throughput และขั้นตอนการขอกฎอนุญาตผ่านไฟร์วอลล์
+4. **ขนาดแบนด์วิดท์ที่ได้รับการจัดสรรจริง (Allocated Bandwidth):** ต้องเป็นตัวเลขความเร็วที่ได้รับการยืนยันอย่างเป็นทางการ และมีการทดสอบวัดความเร็วเป็นระยะ
+5. **ระบบ DNS และ NTP ที่กำหนดให้ใช้งาน:** หากเวลาของระบบเครือข่ายและเซิร์ฟเวอร์ไม่ตรงกัน เหตุการณ์ใน Log และ Trace จะสลับลำดับเวลา ทำให้ไม่สามารถค้นหาสาเหตุของปัญหาได้
+
+### เกณฑ์ตรวจรับมอบงานระบบเครือข่าย 8 ข้อ (Network Acceptance Criteria)
+การส่งมอบงานเครือข่ายต้องผ่านการทดสอบตามเกณฑ์เชิงตัวเลขทั้ง 8 ข้อดังต่อไปนี้:
+
+| ลำดับ | เกณฑ์การตรวจรับมอบงานเชิงปริมาณ | ผู้รับผิดชอบลงนามรับรอง |
+| :---: | :--- | :--- |
+| 1 | สายสัญญาณทุกเส้นผ่านการทดสอบมาตรฐานการเชื่อมต่อ (Cable Certification Test) พร้อมมีไฟล์ผลทดสอบแนบ | ผู้รับเหมาเดินสาย (Cabling Contractor) |
+| 2 | พอร์ตเชื่อมต่อทุกพอร์ตเจรจาความเร็วได้สูงสุดและทำงานแบบ Full Duplex ครบถ้วน | ผู้ตรวจทานเชิงเทคนิค (Technical Reviewer) |
+| 3 | ตัวนับข้อผิดพลาด (Error Counters เช่น CRC, Packet Drops) บนทุกพอร์ตต้องมีค่าเป็น **ศูนย์ (Zero) อย่างต่อเนื่องหลังจากเปิดใช้งาน 24 ชั่วโมง** | ผู้ตรวจทานเชิงเทคนิค (Technical Reviewer) |
+| 4 | แต่ละ VLAN สามารถเชื่อมต่อถึงเป้าหมายที่อนุญาตได้ถูกต้อง และ VLAN ที่แยกกันต้องไม่สามารถคุยข้ามกันได้จริง | เจ้าของงานการเปลี่ยนแปลง (Change Owner) |
+| 5 | หมายเลข IPv4 และ IPv6 บนเครื่องเซิร์ฟเวอร์และอุปกรณ์เครือข่าย ตรงตามแผนผังที่ได้รับอนุมัติ | เจ้าของงานการเปลี่ยนแปลง (Change Owner) |
+| 6 | เครือข่าย OOB ต้องสามารถเชื่อมต่อเข้าไปควบคุมได้ตามปกติ ในขณะที่สายอัปลิงก์หลักถูกจงใจตัดขาด | เจ้าหน้าที่ความปลอดภัย (Safety Officer) |
+| 7 | อุปกรณ์ทุกตัวในศูนย์ข้อมูลเทียบเวลาผ่าน NTP ตรงกันภายในกรอบความคลาดเคลื่อนไม่เกิน 1 วินาที | ผู้ตรวจทานเชิงเทคนิค (Technical Reviewer) |
+| 8 | ระบบ Prometheus สามารถดึงข้อมูลมาตรวัดจากสวิตช์ได้สำเร็จ และรายงานสถานะ `up = 1` | เจ้าของงานการเปลี่ยนแปลง (Change Owner) |
+
+*ความสำคัญของเกณฑ์ข้อที่ 3:* เกณฑ์การตรวจสอบตัวนับ Error ให้เป็นศูนย์ต่อเนื่อง 24 ชั่วโมง คือตัวแบ่งแยกระหว่าง "สายสัญญาณที่เข้าหัวได้มาตรฐานสมบูรณ์" กับ "สายสัญญาณที่แค่ใช้งานได้ชั่วคราว" เพราะสายที่เข้าหัวไม่ดีอาจจะยังส่งผ่านข้อมูลได้ แต่ตัวนับค่า Error จะค่อยๆ ไต่ระดับสูงขึ้นอย่างต่อเนื่อง
+
+---
+
+## มาตรการควบคุมความมั่นคงปลอดภัยตาม ISO/IEC 27001:2022
+
+การปฏิบัติงานโครงข่ายศูนย์ข้อมูลต้องสอดคล้องตามข้อกำหนดความมั่นคงปลอดภัยสารสนเทศ ISO/IEC 27001:2022 ดังนี้:
+
+- **A.8.20 ความมั่นคงปลอดภัยของเครือข่าย (Networks Security):** มีการควบคุม ดูแล และตรวจสอบระบบเครือข่ายอย่างสม่ำเสมอ พร้อมทั้งเก็บบันทึกเหตุการณ์ (Logs) ของอุปกรณ์เครือข่ายไว้ตามระยะเวลาที่กำหนด
+- **A.8.21 ความมั่นคงปลอดภัยของบริการเครือข่าย (Security of Network Services):** กำหนดระดับการให้บริการ (SLA) และกลไกความปลอดภัยร่วมกับผู้ให้บริการเครือข่ายอย่างเป็นทางการ
+- **A.8.22 การแยกส่วนเครือข่าย (Segregation of Networks):** มีการแบ่งแยก VLAN ของกลุ่มนักศึกษา, ระบบจัดการ, ระบบจัดเก็บข้อมูล และเครือข่าย OOB ออกจากกันอย่างเด็ดขาด
+- **A.7.12 ความปลอดภัยของการเดินสายสัญญาณ (Cabling Security):** สายสัญญาณได้รับการปกป้องจากการดักรับข้อมูลและความเสียหายทางกายภาพ มีการแยกรางสายไฟฟ้าและสายสัญญาณออกจากกัน
+- **A.8.16 กิจกรรมการติดตามตรวจตรา (Monitoring Activities):** มีการมอนิเตอร์ปริมาณทราฟฟิกเครือข่าย และเฝ้าระวังพฤติกรรมการรับส่งข้อมูลที่ผิดปกติ
+- **A.5.14 การถ่ายโอนสารสนเทศ (Information Transfer):** กำหนดนโยบายและมาตรการเข้ารหัสเพื่อปกป้องข้อมูลในระหว่างการส่งผ่านโครงข่าย
+
+---
+
+## เอกสารอ้างอิงและมาตรฐานสากล (References and Standards)
+
+### มาตรฐานระบบสายสัญญาณและศูนย์ข้อมูล
+- **ANSI/TIA-942:** Telecommunications Infrastructure Standard for Data Centers
+- **ISO/IEC 11801-5:** Generic Cabling Systems for Data Centres
+- **ANSI/TIA-568 Series:** Balanced Twisted-Pair and Optical Fibre Cabling Standards
+- **ANSI/TIA-606-C:** Administration Standard for Telecommunications Infrastructure (การติดป้ายระบุสายและบันทึกข้อมูล)
+- **EN 50174-2:** Information Technology - Cabling Installation (ระยะห่างความปลอดภัยระหว่างสายไฟฟ้าและสายสัญญาณ)
+
+### มาตรฐานระบบไอพีและความมั่นคงปลอดภัย
+- **RFC 4291:** IP Version 6 Addressing Architecture
+- **RFC 4193:** Unique Local IPv6 Unicast Addresses (ULA)
+- **RFC 6434:** IPv6 Node Requirements
+- **RFC 7454:** BGP Operations and Security
+- **RFC 3849:** IPv6 Address Prefix Reserved for Documentation
+- **ISO/IEC 27001:2022 Annex A:** มาตรการควบคุม A.5.14, A.7.12, A.8.16, A.8.20, A.8.21, A.8.22
+
+---
+
+## บทสรุป 3 ประโยคสำคัญของเอกสารเสริม (This Supplement in Three Sentences)
+
+1. **ระบบสายสัญญาณทางกายภาพติดตั้งเพียงครั้งเดียวแต่อยู่ยาวนานนับทศวรรษ ในขณะที่เซิร์ฟเวอร์เปลี่ยนทุก 5 ปี ดังนั้นจงออกแบบระบบสายสัญญาณโดยเผื่อความจุไว้ให้มากกว่าที่จำเป็นเสมอ**
+2. **การจัดระเบียบสายด้านหลังตู้แร็กไม่ใช่เรื่องของความสวยงาม แต่เป็นช่องทางระบายความร้อนของลมร้อน การปล่อยให้สายห้อยขวางทางลมจะทำลายประสิทธิภาพของระบบกั้นช่องลมทั้งหมดที่ลงทุนไป**
+3. **การออกแบบ VLAN และแผนผัง IP ที่ดี ต้องอ่านแล้วทราบเจ้าของได้ทันที และมีพื้นที่เผื่อการขยายตัวมากพอ จนไม่ต้องกลับมารื้อระบบเครือข่ายของศูนย์ข้อมูลใหม่อีกเลย**
