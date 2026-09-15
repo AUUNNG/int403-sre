@@ -1,646 +1,414 @@
-# INT 403 / INT 531: Site Reliability Engineering
+# INT 403 / INT 531: วิศวกรรมความน่าเชื่อถือของระบบ (Site Reliability Engineering)
 
-## Week 1: Introduction to SRE and the Idea of Reliability
+## สัปดาห์ที่ 1: บทนำสู่วิชา SRE และแนวคิดเรื่องความน่าเชื่อถือของระบบ (Introduction to SRE and the Idea of Reliability)
 
-- Course: INT 403 / INT 531 Site Reliability Engineering
-- Focus: Designing, measuring and running systems that stay up
-- Institution: School of Information Technology, King Mongkut's University of Technology Thonburi
-- Format: Lecture 2 h + Lab 2 h | Content updated 2026
-
----
-
-## Session Learning Outcomes (SLOs)
-
-By the end of this session you will be able to:
-
-- SLO 1.1: Explain where SRE came from and why it emerged at large-system scale (CLO1)
-- SLO 1.2: Compare SRE, DevOps, Platform Engineering, and classic system administration (CLO1)
-- SLO 1.3: Define toil, sort work into toil or engineering, and explain the 50% ceiling (CLO1)
-- SLO 1.4: Explain in economic terms why 100% reliability is the wrong target (CLO1)
-- SLO 1.5: Produce an infrastructure change plan that references a recognised security standard (CLO3, CLO7)
+- รายวิชา: INT 403 / INT 531 Site Reliability Engineering
+- ขอบเขตเนื้อหา: การออกแบบ การวัดผล และการดูแลระบบปฏิบัติการจริงให้ทำงานต่อเนื่องโดยไม่ล่ม (Designing, measuring and running systems that stay up)
+- สถาบัน: คณะเทคโนโลยีสารสนเทศ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี (School of Information Technology, KMUTT)
+- รูปแบบการเรียนรู้: บรรยาย 2 ชั่วโมง + ปฏิบัติการ 2 ชั่วโมง (เนื้อหาปรับปรุงล่าสุดปี 2026)
 
 ---
 
-## Course Structure, Teaching Philosophy, and Evaluation
+## ผลลัพธ์การเรียนรู้ประจำสัปดาห์ (Session Learning Outcomes: SLOs)
 
-### Lecturer Commentary / Practical Context: Pedagogical Approach vs. Prerequisite Courses
+เมื่อสิ้นสุดการเรียนการสอนในสัปดาห์นี้ นักศึกษาจะมีความสามารถดังนี้:
 
-1. Distinction from Prerequisite Networking Courses:
-   - In compulsory introductory networking courses, pedagogy is structured in sequential, guided steps (step 1, step 2, step 3).
-   - In INT 403 / INT 531 SRE, the format transitions entirely to real-world engineering and self-directed problem-solving.
-   - SRE is broad and multidisciplinary, encompassing systems, data centre physical facilities, networks, software architecture, release engineering, and business operations. Students must investigate, read documentation, and resolve ambiguous issues independently.
-
-2. Assessment Breakdown:
-   - Three Modular Evaluation Slots: Conducted approximately every 5 weeks (15% per slot = 45% total).
-   - Practical Lab Examination: 15%.
-   - Continuous Assessment (Assignments, Project Setup, Class Activities): 40%.
-
-3. Oral Examination Protocol (Video Defense):
-   - Formal evaluations are NOT written tests and do NOT permit copying/pasting from AI prompts or external materials.
-   - Evaluation format: Students sit in front of a camera with screen recording enabled. Technical questions and operational scenarios appear on-screen sequentially.
-   - Students must articulate, reason through, and verbally explain the concepts and system architectures directly into the camera in real time.
-   - Audio recordings are transcribed and evaluated (using automated transcription and instructor/AI grading). Incoherent answers, memorized buzzwords without underlying logic, or evasive responses receive zero credit.
-   - Rationale: Real-world engineering requires clear verbal communication during live production incidents, postmortems, and stakeholder briefings.
+- SLO 1.1: อธิบายจุดกำเนิดของวิศวกรรมความน่าเชื่อถือของระบบ (SRE) และเหตุผลที่แนวคิดนี้จำเป็นต้องเกิดขึ้นเมื่อระบบมีขนาดใหญ่ (Large-system Scale) [สอดคล้องกับ CLO1]
+- SLO 1.2: เปรียบเทียบความแตกต่างระหว่าง Traditional Ops, DevOps, SRE และ Platform Engineering ได้อย่างถูกต้อง [สอดคล้องกับ CLO1]
+- SLO 1.3: นิยามความหมายของงานไร้คุณค่า (Toil), จำแนกประเภทของงานระหว่าง Toil กับงานวิศวกรรมแท้จริง (Engineering Work) และอธิบายกฎเหล็กเพดาน Toil 50% ได้ [สอดคล้องกับ CLO1]
+- SLO 1.4: อธิบายด้วยหลักการทางเศรษฐศาสตร์ว่าเหตุใดเป้าหมายความพร้อมใช้งาน 100% จึงเป็นเป้าหมายที่ผิด [สอดคล้องกับ CLO1]
+- SLO 1.5: จัดทำแผนการเปลี่ยนแปลงโครงสร้างพื้นฐาน (Infrastructure Change Plan) ที่สอดคล้องและอ้างอิงกับมาตรฐานความมั่นคงปลอดภัยระดับสากล ISO/IEC 27001 ได้ [สอดคล้องกับ CLO3, CLO7]
 
 ---
 
-## Industry Job Market and Hardware Economics in 2026
+## กำหนดการและภาพรวมเนื้อหา (Agenda Overview)
 
-### Lecturer Commentary / Practical Context: The 2026 Employment and Infrastructure Landscape
-
-1. Structural Shifts in IT Employment:
-   - Historical baseline: Two years prior (before widespread generative AI deployment), senior IT graduates enjoyed a 90% to 99% employment rate prior to graduation.
-   - 2026 baseline: Approximately 40% of recent graduates are currently unemployed.
-   - AI impact on junior developers: Enterprises have sharply reduced hiring for standard junior programmers who only write basic boilerplate or prompt AI chat interfaces. AI has increased delivery throughput, meaning companies require fewer entry-level coders.
-   - AI impact on UX/UI designers: Entry-level UX/UI positions have diminished significantly. Business Analysts (BAs) and product engineers use generative design systems to rapidly produce customer-facing mockups and prototypes directly from business requirements. UX/UI practitioners must pivot toward deep business analysis and technical product ownership.
-   - How students must adapt: Strong foundational systems knowledge (computer architecture, networking, distributed systems, error budgets, telemetry) combined with business domain understanding is the single most defensible career profile.
-
-2. Hardware Market Economics and Supply Chain Volatility:
-   - GPU / AI compute distortion: Semiconductor wafer manufacturing capacity is overwhelmingly directed toward high-margin AI GPUs and specialized accelerators rather than consumer/server RAM and enterprise SSDs.
-   - Price inflation: Enterprise M.2 NVMe SSDs that previously cost approximately 2,000 THB escalated to 5,000 THB and reached 8,000 THB within months.
-   - Procurement reality: Hardware vendors no longer guarantee quotation prices for the standard 30-to-90-day institutional purchase cycle. Price validity has shrunk to as little as 7 days, with international memory chip orders priced only upon physical collection.
-   - University notebook leasing constraint: Student laptop fleets leased under fixed 3-year contracts (~800 THB/month per machine) face procurement deadlocks because market replacement costs have exceeded budget ceilings by over 60%, making hardware preservation mandatory.
-
-3. The Data Centre Boom vs. Actual Employment Reality in Thailand:
-   - Massive hyperscaler and multinational investments in Thailand (e.g., Eastern Economic Corridor / Chonburi hyperscale facilities, urban carrier-neutral facilities like Telehouse Rama 9, and the 4-billion THB land development at Makkasan).
-   - Misconception: Data centres do NOT create thousands of continuous manual jobs like manufacturing assembly plants.
-   - Operational reality: Physical construction and initial equipment deployment require short-term contract labor (often executed by foreign turnkey engineering firms). Once operational, modern hyperscale facilities are managed by minimal staff and extensive software automation.
-   - Industry benchmark: Meta manages hundreds of thousands of network switches worldwide with an engineering team of approximately three dedicated switch automation engineers. Operational staff are only needed for physical component swapping.
+1. ทำไม SRE ถึงจำเป็น (Why SRE Exists): ศึกษากรณีระบบล่มจริง รัศมีความเสียหาย และมูลค่าความสูญเสียทางธุรกิจ
+2. นิยามและตัวตนที่แท้จริงของ SRE (What SRE Actually Is): ความหมาย หลักการพื้นฐาน และความแตกต่างระหว่าง DevOps กับการดูแลระบบแบบดั้งเดิม
+3. การวัดความน่าเชื่อถือของระบบ (How Reliability Gets Measured): ต้นทุนของเลข 9 แต่ละตัว และเหตุผลที่เป้าหมาย 100% ไม่ควรมีอยู่จริง
+4. งานไร้คุณค่า (Toil) และภาระงานที่ต้องถูกกำจัด: บททดสอบ 6 ประการเพื่อคัดแยก Toil และกฎเหล็กเพดาน 50%
+5. บริบทของ SRE ในปี 2026 และสายอาชีพ Forward Deployed Engineer (FDE): 5 แนวโน้มสำคัญ และบทบาทงานที่อุตสาหกรรมเทคโนโลยีกำลังต้องการสูงสุด
+6. ปฏิบัติการ Lab 1 การวางแผนย้ายตู้ Rack เข้าสู่ระบบกักเก็บลมร้อน-เย็น (Moving Racks into Containment): การวางแผนหน้างานจริงในศูนย์ข้อมูล (Data Center) ตามกรอบมาตรฐาน ISO/IEC 27001
 
 ---
 
-## Agenda Overview
+## ส่วนที่ 1: ทำไม SRE ถึงจำเป็น (Why SRE Exists)
 
-1. Why SRE exists: A real outage, its blast radius, and what failure costs
-2. What SRE actually is: Definition, principles, and how it differs from DevOps and classic ops
-3. How reliability gets measured: The price of each nine, and why 100% is the wrong target
-4. Toil and the work that should disappear: The six tests, and the 50% ceiling on operational work
-5. SRE in 2026 and the FDE career: Five trends, plus the Forward Deployed Engineer role
-6. Lab 1 — Moving racks into containment: Planning real work in the data centre against ISO/IEC 27001
+ความน่าเชื่อถือของระบบ (Reliability) ไม่ใช่สิ่งที่จะได้มาโดยไม่มีต้นทุน (Reliability is never free) ในระบบกระจายศูนย์ขนาดใหญ่ ข้อผิดพลาดหรือจุดบกพร่องเล็กๆ เพียงจุดเดียวสามารถลุกลามจนกลายเป็นวิกฤตการณ์ระดับโลกได้
 
----
+### กรณีศึกษา: เหตุการณ์ระบบล่มของ AWS us-east-1 วันที่ 20 ตุลาคม 2025
 
-## Prerequisite Context: Active Learning and Data Centre Baseline
+ข้อบกพร่องทางซอฟต์แวร์เพียงจุดเดียวกลายเป็นวิกฤตที่สร้างผลกระทบต่อระบบอินเทอร์เน็ตทั่วโลก
 
-Photos and lab activities from previous coursework demonstrate the baseline physical infrastructure environment:
-- Physical server racks in the Taxila Room.
-- Hardware unboxing, physical server rack assembly, server installation (Lenovo console terminal), and cable routing.
-- Airflow dynamics: Understanding cold aisle and hot aisle layouts, identifying where hot air exhausts and recirculates, and planning containment structures.
+#### สถิติและตัวเลขสำคัญของเหตุการณ์
+- ระยะเวลาการกู้คืนระบบทั้งหมด (Recovery Time): ประมาณ 15 ชั่วโมง จึงจะสามารถกู้คืนทุกบริการให้กลับมาทำงานได้อย่างสมบูรณ์
+- จำนวนบริการที่ได้รับผลกระทบ (Affected Services): มากกว่า 140 บริการภายในเครือข่าย AWS
+- สาเหตุของข้อผิดพลาด (Root Cause): จุดบกพร่องเพียง 1 จุด เกิดจากภาวะแย่งชิงทรัพยากร (Race Condition) ในระบบบริหารจัดการโดเมนเนมอัตโนมัติ (Automated DNS Management)
+- มูลค่าความเสียหาย (Estimated Insured Losses): มีการประเมินความเสียหายที่ครอบคลุมโดยประกันภัยสูงถึงประมาณ 581 ล้านดอลลาร์สหรัฐ ($581M)
 
----
+#### ลำดับเหตุการณ์ตามเวลา (Timeline of Failure)
 
-## Section 01: Why SRE Exists
+- 23:48 น. ระบบอัตโนมัติที่ทำหน้าที่จัดการระเบียนข้อมูล DNS ของ DynamoDB เกิดสภาวะเขียนทับตัวเอง ส่งผลให้ระเบียนข้อมูล DNS (Service Endpoints) ของ DynamoDB ถูกลบหายไปทั้งหมด
+- 00:38 น. ทีมวิศวกรสามารถระบุข้อผิดพลาดของระบบ DNS ได้ แต่เนื่องจากระบบทำงานอัตโนมัติ (Automation) ไม่มีกลไกในการซ่อมแซมตัวเอง วิศวกรจึงต้องแก้ไขและกู้คืนข้อมูลระเบียน DNS ด้วยมือทีละส่วน (Fixed by hand)
+- 02:25 น. บริการ DynamoDB เริ่มฟื้นตัวกลับมาทำงานได้ แต่ระบบและบริการอื่นๆ ที่ต้องพึ่งพา DynamoDB กลับเกิดการล่มต่อเนื่องเป็นลูกโซ่ (Cascading Failure)
+- 14:20 น. ทุกบริการสามารถฟื้นฟูกลับสู่ภาวะปกติอย่างสมบูรณ์ ระยะเวลาที่ใช้ในการระบายงานที่คั่งค้าง (Backlogs) และกู้คืนระบบทั้งหมด ยาวนานกว่าเวลาที่ใช้แก้ไขตัวต้นเหตุ (Root Cause) หลายเท่าตัว
 
-Reliability is never free. Large-scale software systems face cascading failures where a tiny defect triggers global outages.
+ที่มาของข้อมูล: รายงานสรุปเหตุการณ์ของ AWS (AWS Post-event Summary), บทวิเคราะห์โดย ThousandEyes (AWS Outage Analysis, ตุลาคม 2025), และการประเมินความเสียหายโดย CyberCube
 
-### Case Study: The AWS us-east-1 Outage of 20 October 2025
+### 4 บทเรียนสำคัญของ SRE จากเหตุการณ์ระบบล่ม (Four Key Lessons)
 
-One small defect turned into a global event.
+บทเรียนเหล่านี้เป็นหัวใจสำคัญที่จะถูกนำมาศึกษาและฝึกฝนตลอดทั้งภาคการศึกษา:
 
-#### Key Metrics
-
-| Metric | Value | Details |
-| :--- | :--- | :--- |
-| Recovery Duration | ~15 hours | Time until every service was fully recovered |
-| Scope of Impact | 140+ AWS services | Wide blast radius affecting internal tools and external customers |
-| Root Cause | 1 bug | A race condition in automated DNS management |
-| Financial Impact | ~$581M | Estimated insured losses |
-
-#### Timeline of Events
-
-- 23:48: Automated DNS management for DynamoDB overwrote itself, wiping the DNS records for the service endpoints.
-- 00:38: Engineers identified the DNS fault, but the automation could not repair itself; records had to be fixed manually by hand.
-- 02:25: DynamoDB returned to service, but services that depended on it kept failing in a cascading chain.
-- 14:20: Everything recovered. The time spent recovering was several times the time spent fixing the root cause.
-
-Sources: AWS post-event summary; ThousandEyes, AWS Outage Analysis (Oct 2025); CyberCube (loss estimate).
-
-### Lecturer Commentary / Practical Context: Anatomy of Cascading Failures and Recovery Delays
-
-1. Why Did Recovery Require 15 Hours When the Bug Was Fixed in Under 3 Hours?
-   - The root defect (overwritten DynamoDB DNS endpoints) was diagnosed and manually rectified by 02:25.
-   - However, DNS is a globally distributed, cached protocol. Inconsistent and corrupted DNS records had propagated across recursive resolvers and caches worldwide.
-   - Client applications and intermediate caches continued serving stale or negative responses according to Time-to-Live (TTL) cycles.
-   - Furthermore, when DynamoDB endpoints reappeared, thousands of disconnected upstream services attempted simultaneous reconnection, causing massive thundering herd problems, connection pool exhaustion, and message queue backups that required over 12 additional hours to drain safely.
-
-2. Local Educational Parallel: Domain Migration at SIT KMUTT:
-   - When the SIT faculty migrated its learning management system from `elearning.sit.kmutt.ac.th` to `newlearning.sit.kmutt.ac.th`, the authoritative internal DNS records were updated in minutes.
-   - However, external consumer ISPs across Thailand (True, AIS, 3BB / Triple T Broadband) updated their recursive resolver caches at differing intervals. Some providers took weeks to propagate the new domain, preventing students from accessing course materials from home unless they explicitly switched their local device resolvers to public DNS (e.g., Google 8.8.8.8).
-   - This illustrates the core SRE principle: Fixing the server does not mean the user's service is restored.
-
-3. Control-Plane and Circular Dependencies:
-   - AWS engineers attempting to remediate the outage encountered broken internal tooling because internal AWS orchestration, authentication, and monitoring platforms themselves depended on DynamoDB and Route 53 endpoints.
-   - When your recovery tools depend on the system that is down, you cannot automate recovery and are forced into slow, high-risk manual interventions.
-
-4. Blameless Culture vs. The Cover-Up Mentality:
-   - In traditional legacy IT environments, incident responses frequently involve secrecy, evasive claims ("the server just hung, we rebooted it"), or shifting blame to protect individuals from termination or salary cuts.
-   - In mature SRE practice, transparency is mandatory. AWS released an exhaustive, public post-event summary detailing the exact race condition, the failure of automated rollbacks, and concrete mitigation steps.
-   - Blameless postmortems operate on the assumption that engineers make decisions in good faith based on available data. If an engineer triggers a bug, the systemic design, testing harness, and safety boundaries failed, not the person.
-   - Concealing root causes prevents organizational learning and guarantees the recurrence of catastrophic downtime.
-
-### Four Lessons That Recur Across the Curriculum
-
-1. Dependencies fail in chains (Weeks 3 and 12)
-   - AWS's own internal services depended on DynamoDB, so the tools needed to fix the outage were broken too.
-   - Core concepts: Cascading failure and control-plane dependency.
-2. Automation that cannot repair itself (Week 7)
-   - Automation without safety guards does damage faster than a human can.
-   - The team had to disable automated systems and repair DNS records manually.
-3. Recovery is harder than the original failure (Week 15)
-   - The root cause was fixed in approximately 3 hours, but it took another 12 hours to drain queued backlogs, handle thundering herds, and restore all dependent systems.
-4. Transparency builds trust (Week 16)
-   - AWS published a detailed public post-event summary and analysis, allowing the industry to learn from the failure.
-   - Core concept: Blameless postmortem.
-
-### The Landscape in 2026: The Pressure is Rising
-
-Data and forecasts as of mid-2026:
-
-- Outages recorded in H1 2026: 30,246 across 1,082 providers spanning cloud, SaaS, AI, payments, and observability tooling (Source: IncidentHub).
-- 2026 Forecast: Forrester expects at least two multi-day hyperscaler outages this year, as cloud providers shift capital expenditure toward AI data centres and away from maintaining older infrastructure.
-- Daily AI usage among developers: 90%. DORA 2025 found that AI increases delivery throughput, but simultaneously raises delivery instability.
-
-#### Failure Modes Unique to 2026
-
-- Physical and geopolitical risk: AWS reported that data centres in the Middle East took physical damage from regional conflict.
-- AI providers became critical production dependencies: A single LLM outage disrupted education platforms, developer tooling, and customer support channels simultaneously.
-- Provider's own automation as the failure cause: An automated account suspension erroneously triggered, leaving an enterprise customer with almost nothing running.
-- Cloud concentration risk: Now viewed as a regulatory and systemic compliance concern, not just an architectural/technical issue.
+1. การพึ่งพากันทำให้ระบบล่มต่อเนื่องเป็นลูกโซ่ (Dependencies Fail in Chains - สัปดาห์ที่ 3 และ 12):
+   บริการภายในของ AWS หลายตัวต้องพึ่งพา DynamoDB ในการทำงาน ดังนั้นเมื่อ DynamoDB ใช้งานไม่ได้ เครื่องมือและระบบควบคุม (Control-plane) ที่วิศวกรต้องใช้ในการแก้ไขปัญหาก็ล่มตามไปด้วย ทำให้ไม่สามารถเข้าถึงเครื่องมือซ่อมแซมได้
+2. ระบบอัตโนมัติที่ไม่สามารถซ่อมแซมตัวเองได้ (Automation That Cannot Repair Itself - สัปดาห์ที่ 7):
+   ระบบอัตโนมัติที่ขาดระบบป้องกันความปลอดภัย (Safety Guards) หรือขาดลิมิตการทำงาน จะสร้างความเสียหายได้รวดเร็วและเป็นวงกว้างยิ่งกว่าความผิดพลาดของมนุษย์หลายเท่า เมื่อเกิดข้อผิดพลาด ทีมงานต้องสั่งปิดระบบอัตโนมัติและกลับมาจัดการระเบียนข้อมูลด้วยมือ
+3. การฟื้นฟูระบบยากกว่าการแก้ปัญหาที่ต้นเหตุ (Recovery Is Harder Than the Original Failure - สัปดาห์ที่ 15):
+   การแก้ปัญหาข้อบกพร่องที่ต้นเหตุ (Root Cause) ใช้เวลาประมาณ 3 ชั่วโมง แต่ต้องใช้เวลาต่ออีกถึง 12 ชั่วโมงเพื่อระบายคำขอและคิวงานที่ค้างสะสม (Drain Backlogs) ตลอดจนการจัดการกับปัญหา Thundering Herd Problem ก่อนที่ทุกบริการจะกลับมาให้บริการได้
+4. ความโปร่งใสสร้างความน่าเชื่อถือ (Transparency Builds Trust - สัปดาห์ที่ 16):
+   AWS เผยแพร่เอกสารวิเคราะห์ข้อบกพร่องอย่างละเอียดต่อสาธารณะ เพื่อให้อุตสาหกรรมทั้งหมดได้เรียนรู้จากความผิดพลาดร่วมกัน ซึ่งนี่คือหัวใจของวัฒนธรรมการวิเคราะห์หลังเกิดเหตุโดยไม่กล่าวโทษบุคคล (Blameless Postmortem)
 
 ---
 
-## Section 02: What SRE Actually Is
+## ส่วนที่ 2: สภาพแวดล้อมและความกดดันของ SRE ในปี 2026 (SRE in 2026: The Pressure Is Rising)
 
-Moving from operations executed manually by hand to an engineering problem solved with software, code, and data.
+ข้อมูลและสถิติคลังคาดการณ์ ณ กลางปี 2026 ชี้ให้เห็นว่าระบบอินฟราสตรัคเจอร์ทั่วโลกกำลังเผชิญหน้ากับความท้าทายรูปแบบใหม่:
 
-### Origin and Definition
+### ตัวเลขสถิติสำคัญในปี 2026
+- สถิติระบบขัดข้องในครึ่งปีแรกของ 2026 (H1 2026 Outages): บันทึกเหตุการณ์ขัดข้อง 30,246 ครั้ง ครอบคลุมผู้ให้บริการ 1,082 ราย ทั้งในกลุ่มคลาวด์, SaaS, ผู้ให้บริการโมเดล AI, ระบบประมวลผลการชำระเงิน และเครื่องมือสังเกตการณ์ระบบ (Observability Tooling) [ข้อมูลจาก IncidentHub]
+- การคาดการณ์ของผู้ให้บริการคลาวด์ระดับโลก (The 2026 Forecast): Forrester คาดการณ์ว่าในปีนี้จะเกิดเหตุการณ์ที่ระบบของผู้ให้บริการคลาวด์ยักษ์ใหญ่ (Hyperscaler) ขัดข้องยาวนานต่อเนื่องหลายวัน (Multi-day Outage) อย่างน้อย 2 เหตุการณ์ เนื่องจากงบประมาณถูกเปลี่ยนทิศทางไปลงทุนสร้างศูนย์ข้อมูล AI (AI Data Centres) แทนการบำรุงรักษาโครงสร้างพื้นฐานเดิม
+- นักพัฒนาใช้งาน AI ประจำวันสูงถึง 90% (Developers Using AI Daily): รายงาน DORA 2025 พบว่า AI ช่วยเพิ่มอัตราการส่งมอบงานของนักพัฒนา (Delivery Throughput) ให้เร็วขึ้นอย่างมีนัยสำคัญ แต่ในขณะเดียวกันก็นำมาซึ่งความไม่เสถียรในการส่งมอบงาน (Delivery Instability) ที่เพิ่มขึ้นเป็นเงาตามตัว
 
-Formulated at Google in 2003 by Ben Treynor Sloss:
+### รูปแบบความล้มเหลวใหม่ที่เพิ่งปรากฏขึ้นชัดเจนในปี 2026 (New Failure Modes in 2026)
 
-> Ben Treynor Sloss described SRE as what you get when software engineers design and run the operations function, instead of hiring more system administrators as the system grows.
+1. ความเสี่ยงทางกายภาพและภูมิรัฐศาสตร์ (Physical and Geopolitical Risk): AWS รายงานว่าศูนย์ข้อมูลในภูมิภาคตะวันออกกลางได้รับความเสียหายทางกายภาพอันเป็นผลกระทบจากความขัดแย้งระดับภูมิภาค
+2. ผู้ให้บริการ AI กลายมาเป็นจุดพึ่งพาในระบบงานจริง (AI Providers as Production Dependencies): การล่มของระบบ Large Language Model (LLM) เพียงระบบเดียว สามารถส่งผลกระทบต่อเนื่องให้แพลตฟอร์มการศึกษา, เครื่องมือสนับสนุนนักพัฒนา และระบบบริการลูกค้าองค์กรหยุดชะงักไปพร้อมกันทันที
+3. ระบบอัตโนมัติของผู้ให้บริการเป็นต้นเหตุแห่งความล้มเหลว (Provider Automation as Failure Cause): ระบบอัตโนมัติของคลาวด์ที่ระงับบัญชีผู้ใช้งานผิดพลาด (Automated Account Suspension) ส่งผลให้โครงสร้างพื้นฐานทั้งหมดของลูกค้าหยุดทำงานเกือบทั้งหมด
+4. ความเสี่ยงจากการกระจุกตัวของคลาวด์ (Cloud Concentration Risk): การพึ่งพาคลาวด์เพียงไม่กี่รายไม่ได้เป็นเพียงปัญหาเชิงเทคนิคอีกต่อไป แต่ได้กลายเป็นประเด็นสำคัญทางข้อกำหนดและกฎหมายควบคุม (Regulatory Compliance) ที่องค์กรต้องปฏิบัติตาม
 
-### Lecturer Commentary / Practical Context: SRE Competency and Shared Alignment
+---
 
-1. SREs Must Be Capable Software Engineers:
-   - An effective SRE possesses software engineering competencies on par with core product developers. An SRE can write production code, understand distributed data structures, and contribute directly to the application codebase.
-   - The fundamental difference is domain focus: SREs apply engineering discipline to reliability, operability, scalability, and automated fault recovery.
+## ส่วนที่ 3: นิยามและจุดกำเนิดของ SRE (What SRE Actually Is)
 
-2. Eliminating Adversarial Silos:
-   - Traditional Ops vs. Dev dynamics:
-     * Dev goal: Ship features rapidly; rewarded for deployment volume.
-     * Ops goal: Keep servers online; rewarded for zero changes, leading to gatekeeping and conflict.
-     * When failures occur, Ops blames bad code; Dev blames server misconfiguration ("it ran fine on localhost, the code hasn't changed in months, so it must be your infrastructure").
-   - SRE eliminates this conflict by uniting both groups under shared ownership of the **End-User Experience**.
+### จุดกำเนิดจาก Google ในปี 2003 โดย Ben Treynor Sloss
 
-3. The Metric That Matters: End-User Success:
-   - Server metrics alone (CPU load, memory consumption, interface packet rates) do NOT determine service health.
-   - Example: A university registration system may report 0% CPU utilization and 100% web server uptime, yet thousands of students cannot register because the payment API integration is returning 504 gateway timeouts. From the user's standpoint, the service is 100% down.
-   - SRE forces engineers to define and measure health from the boundary where the user interacts with the system.
+Ben Treynor Sloss (ผู้ก่อตั้งทีม SRE ที่ Google ในปี 2003) ให้นิยามของ SRE ไว้ว่า:
 
-4. Preventing On-Call Burnout:
-   - Historical context: System administrators traditionally carried on-call pagers 24/7 without structured limits, waking up at 03:00 AM or 05:00 AM in constant paranoia over unmonitored failures.
-   - SRE establishes explicit operational limits: alert thresholds must be actionable, paging must only trigger for genuine user-impacting emergencies, and on-call rotations are strictly capped. If a system consumes too much operational time, production ownership is pushed back to the product developers until reliability improves.
+> "SRE คือสิ่งที่จะเกิดขึ้นเมื่อคุณนำวิศวกรซอฟต์แวร์ (Software Engineers) มาออกแบบและดูแลงานสายปฏิบัติการ (Operations Function) แทนที่จะแก้ปัญหาด้วยการจ้างผู้ดูแลระบบ (System Administrators) เพิ่มขึ้นเรื่อยๆ เมื่อระบบเติบโต"
 
-### The Problem, The Mindset, and The Target State
+### ปัญหาที่ต้องแก้ไข (The Problem to Solve)
+- ระบบขยายขนาดขึ้น 10 เท่า แต่จำนวนบุคลากร (Headcount) ไม่สามารถเพิ่มตามได้ 10 เท่า
+- งานปฏิบัติการที่ทำด้วยมือ (Manual Operations Work) จะขยายตัวเป็นเส้นตรง (Scales Linearly) ตามปริมาณโหลดของระบบ
+- ฝ่ายพัฒนาซอฟต์แวร์ (Dev) และฝ่ายปฏิบัติการ (Ops) มีเป้าหมายที่ขัดแย้งกันอย่างรุนแรง: ฝ่าย Dev ต้องการปล่อยฟีเจอร์ใหม่ให้เร็วที่สุด ในขณะที่ฝ่าย Ops ต้องการความมั่นคงและต่อต้านการเปลี่ยนแปลง
 
-| Dimension | Description |
-| :--- | :--- |
-| The Problem to Solve | - System load and scale grow tenfold, while headcount cannot.<br>- Manual operations work scales linearly with load.<br>- Development teams (incentivized to push changes) and operations teams (incentivized to maintain stability) are pulled toward opposing goals. |
-| How SRE Thinks | - Treat running production systems as a software engineering problem.<br>- Make operational decisions based on objective data and metrics, not intuition or seniority.<br>- Accept risk at an explicit, calculated level established in advance. |
-| What Good Looks Like | - Operational overhead grows sublinearly relative to system scale.<br>- Developers and SREs share common reliability targets via Service Level Objectives (SLOs) and Error Budgets.<br>- Sustainable on-call rotations that prevent engineering burnout. |
+### กรอบความคิดของ SRE (How SRE Thinks)
+- ปฏิบัติต่อการรันระบบให้เหมือนกับเป็น "ปัญหาทางวิศวกรรมซอฟต์แวร์" (Treat running systems as a software engineering problem)
+- ตัดสินใจบนพื้นฐานของตัวเลขและข้อมูลจริง (Data-driven Decisions) ไม่ใช่ใช้สัญชาตญาณหรือระดับความอาวุโส
+- ยอมรับความเสี่ยงที่ผ่านการคำนวณและประเมินไว้ล่วงหน้าแล้ว (Accept calculated risk)
 
-### Comparative Analysis: Traditional Ops, DevOps, SRE, and Platform Engineering
+### ภาพของความสำเร็จ (What Good Looks Like)
+- ภาระงานปฏิบัติการเติบโตช้ากว่าอัตราการเติบโตของระบบอย่างมีนัยสำคัญ
+- ฝ่ายพัฒนาและฝ่ายปฏิบัติการมีเป้าหมายร่วมกันเป็นตัวเลขชุดเดียว (Shared Target ผ่าน SLO และ Error Budget)
+- ทีมงานสามารถดูแลระบบได้อย่างยั่งยืน โดยไม่ต้องเผชิญภาวะหมดไฟจากการเข้าเวรรับแจ้งเตือนปัญหา (On-call Burnout)
 
-None of these paradigms replaces the others; they answer different questions within the organization.
+---
 
-| Dimension | Traditional Ops | DevOps | SRE | Platform Engineering |
+## ส่วนที่ 4: เปรียบเทียบ 4 สายงานด้านระบบและปฏิบัติการ (Comparing the Four Disciplines)
+
+ในองค์กรสมัยใหม่ บทบาทเหล่านี้ไม่ได้มาเพื่อทดแทนกัน แต่ตอบคำถามคนละมิติและส่งมอบผลลัพธ์ที่แตกต่างกัน:
+
+| มิติการเปรียบเทียบ | Traditional Ops (ผู้ดูแลระบบดั้งเดิม) | DevOps | SRE (วิศวกรรมความน่าเชื่อถือ) | Platform Engineering (วิศวกรรมแพลตฟอร์ม) |
 | :--- | :--- | :--- | :--- | :--- |
-| Core Question | Is the system still up? | How do we ship faster and more often? | Is the system reliable enough, and how do we know? | How do we let other teams do this themselves? |
-| Nature / Structure | A culture and set of operational practices | A culture and set of collaboration practices | A specific job title and defined engineering role | A job title and internal product team |
-| Headline Metric | Uptime and ticket resolution counts | The four DORA metrics (Deployment Frequency, Lead Time for Changes, Change Failure Rate, Failed Deployment Recovery Time) | SLOs and error budgets | Developer Experience (DevEx) and platform adoption rate |
-| What Gets Delivered | Firefighting manual fixes | CI/CD delivery pipelines and shared cultural alignment | Code, production automation, and SLO frameworks | Internal Developer Platform (IDP) and self-service capabilities |
+| **คำถามหลัก (Core Question)** | ระบบยังเปิดทำงานอยู่หรือไม่? (Is the system still up?) | เราจะส่งมอบโค้ดได้เร็วขึ้นและบ่อยขึ้นได้อย่างไร? (How do we ship faster and more often?) | ระบบมีความน่าเชื่อถือเพียงพอหรือไม่ และเรารู้ได้อย่างไร? (Is the system reliable enough, and how do we know?) | เราจะทำให้ทีมอื่นทำสิ่งเหล่านี้ได้ด้วยตนเองได้อย่างไร? (How do we let other teams do this themselves?) |
+| **นิยามและสถานะ (What It Is)** | วัฒนธรรมและแนวปฏิบัติด้านงานระบบดั้งเดิม | วัฒนธรรม ปรัชญา และชุดแนวปฏิบัติการทำงาน | ตำแหน่งงานทางวิศวกรรมและบทบาทหน้าที่จริง | ตำแหน่งงานวิศวกรรมและทีมพัฒนาผลิตภัณฑ์ภายในองค์กร |
+| **ตัววัดผลหลัก (Headline Metric)** | เวลาทำงานต่อเนื่อง (Uptime) และจำนวนตั๋วงานที่ปิดได้ (Ticket Counts) | ตัวชี้วัด 4 ตัวของ DORA (Deployment Frequency, Lead Time, CFR, MTTR) | เป้าหมายระดับการให้บริการ (SLOs) และงบประมาณความผิดพลาด (Error Budgets) | ประสบการณ์ของนักพัฒนา (Developer Experience - DevEx) และอัตราการใช้งานแพลตฟอร์ม (Adoption Rate) |
+| **ผลลัพธ์ที่ส่งมอบ (What Gets Delivered)** | การไล่แก้ปัญหาเฉพาะหน้าแบบดับเพลิง (Firefighting Fixes) | ท่อส่งมอบงานอัตโนมัติ (Pipelines) และวัฒนธรรมการทำงานร่วมกัน | ซอร์สโค้ด, ระบบอัตโนมัติ (Automation) และกรอบวัดผล SLOs | แพลตฟอร์มสำหรับนักพัฒนาภายในองค์กร (Internal Developer Platform - IDP) เพื่อบริการตนเอง (Self-Service) |
 
-*Conceptual Note:* "Class SRE implements DevOps" — SRE provides concrete, programmatic, and measurable mechanisms to implement the cultural philosophy of DevOps. DevOps describes *what* needs to be achieved culturally; SRE provides the programmatic mechanisms (*how*) to execute and measure it.
-
-### The Seven Principles of SRE
-
-| Principle | Core Concept | Curriculum Reference |
-| :--- | :--- | :--- |
-| 1. Embracing Risk | Take calculated, quantified risks rather than pursuing unattainable perfection. | Week 2 |
-| 2. Service Level Objectives (SLOs) | Establish reliability targets measured from the user's perspective, not purely internal server-side telemetry. | Week 2 |
-| 3. Eliminating Toil | Replace manual, repetitive operational tasks with software and automation. | Week 7 |
-| 4. Monitoring & Observability | If you cannot observe and explain system behavior, you cannot reliably operate it. | Weeks 4–5 |
-| 5. Automation | Automation requires bounded limits, rate limiting, and emergency stop mechanisms. | Week 7 |
-| 6. Release Engineering | Software releases must be repeatable, verifiable, and quickly reversible (rollback). | Week 10 |
-| 7. Simplicity | Unnecessary architectural complexity constitutes reliability debt. | Week 12 |
-
-#### The Hard Line: The 50% Rule
-
-An SRE team spends no more than 50% of its working time on operational toil (tickets, manual tasks, repetitive maintenance). The remaining 50% must be dedicated to engineering work (writing code, building automation, architectural improvements) that systematically eliminates future toil.
-
-*Operational Reality:* The 50% ceiling is difficult to maintain in practice because legacy organizations measure operations by tickets closed rather than tickets eliminated or prevented.
+> หมายเหตุเชิงแนวคิด: มีคำกล่าวในวงการว่า `class SRE implements DevOps` ซึ่งหมายความว่า หาก DevOps คือแนวคิดหรืออินเทอร์เฟซเชิงปรัชญา SRE ก็คือการนำแนวคิดนั้นมาอิมพลีเมนต์ให้เกิดขึ้นจริงอย่างเป็นรูปธรรมและวัดผลได้ในเชิงวิศวกรรม
 
 ---
 
-## Section 03: How Reliability is Measured
+## ส่วนที่ 5: 7 หลักการสำคัญของ SRE (The Seven Principles of SRE)
 
-Before improving reliability, stakeholders must agree on an objective standard for what constitutes "good enough."
+แนวคิดของ SRE วางอยู่บนเสาหลักทางวิศวกรรม 7 ประการ:
 
-### The Cost of Each Nine: Downtime Allowance
+1. **การยอมรับความเสี่ยง (Embracing Risk):** ยอมรับความเสี่ยงในระดับที่คำนวณและประเมินไว้แล้ว แทนที่จะวิ่งไล่ตามความสมบูรณ์แบบที่เป็นไปไม่ได้
+2. **เป้าหมายระดับการให้บริการ (Service Level Objectives - SLO):** กำหนดเป้าหมายความน่าเชื่อถือที่สามารถวัดได้จากฝั่งมุมมองของผู้ใช้งานจริง (User-centric) ไม่ใช่ยึดตามตัวเลขของเครื่องเซิร์ฟเวอร์
+3. **การกำจัดงานไร้คุณค่า (Eliminating Toil):** งานที่ทำซ้ำๆ ต้องถูกทดแทนด้วยการเขียนโค้ดและระบบอัตโนมัติ ไม่ใช่แก้ไขด้วยการจ้างคนมาทำงานมือเพิ่มขึ้น
+4. **การตรวจวัดและการสังเกตการณ์ระบบ (Monitoring & Observability):** หากคุณไม่สามารถอธิบายได้ว่าระบบกำลังทำอะไรอยู่ภายใน คุณก็ไม่สามารถบริหารจัดการหรือรันระบบนั้นได้
+5. **การสร้างระบบอัตโนมัติ (Automation):** ระบบอัตโนมัติจำเป็นต้องมีขอบเขตการทำงาน มีกลไกป้องกัน (Safety Limits) และต้องมีสวิตช์หยุดฉุกเฉิน (Emergency Stop) เสมอ
+6. **วิศวกรรมการส่งมอบระบบ (Release Engineering):** กระบวนการ Release และ Deploy ซอฟต์แวร์ต้องสามารถทำซ้ำได้ (Repeatable), ตรวจสอบความถูกต้องได้ (Verifiable) และสามารถย้อนกลับได้ทันทีเมื่อเกิดปัญหา (Reversible)
+7. **ความเรียบง่ายของระบบ (Simplicity):** ความซับซ้อนที่ไม่จำเป็นในสถาปัตยกรรมระบบ คือ "หนี้ความน่าเชื่อถือ" (Reliability Debt) ที่จะย้อนกลับมาทำลายระบบในอนาคต
 
-Downtime budget per 30-day window across availability tiers:
+### กฎเหล็กเพดาน Toil 50% (The Hard Line: The 50% Rule)
 
-| Availability Target ("Nines") | Allowed Downtime per 30 Days | Typical Target Systems |
-| :--- | :--- | :--- |
-| 99% (Two Nines) | 7.2 hours | Internal, non-critical background systems |
-| 99.9% (Three Nines) | 43.2 minutes | General-purpose business services |
-| 99.95% | 21.6 minutes | Customer-facing systems with external users |
-| 99.99% (Four Nines) | 4.3 minutes | High-value payments and financial transaction systems |
-| 99.999% (Five Nines) | 26 seconds | Critical telecommunications and carrier infrastructure |
+ทีม SRE จะต้องใช้เวลาทำงานไม่เกิน 50% ไปกับงานปฏิบัติการหรืองาน Toil ส่วนเวลาที่เหลืออย่างน้อย 50% จะต้องถูกทุ่มเทให้กับการพัฒนางานวิศวกรรม (Engineering Projects) เพื่อสร้างเครื่องมือและระบบอัตโนมัติที่จะทำให้ Toil ในเดือนถัดไปลดลงอย่างแท้จริง
 
-### Lecturer Commentary / Practical Context: Real-World Nuances of Availability Metrics
-
-1. Time-of-Day and Contextual Impact:
-   - A raw statistical percentage does not reflect business damage:
-     * 43.2 minutes of total downtime occurring at 03:00 AM on a Sunday morning is generally invisible and acceptable for university administrative services.
-     * Conversely, 3 minutes of downtime at 09:00 AM on the opening morning of course registration causes thousands of students to lose course slots and triggers widespread public criticism.
-   - SRE SLOs must be time-aware and context-sensitive rather than simple 30-day flat averages.
-
-2. Physical Datacenter Siting and Carrier Interconnections:
-   - Why do facilities like Telehouse Rama 9 or Makkasan build on land costing over 4 billion THB in central Bangkok instead of cheap rural land?
-   - Telecom Carrier Density: Central Bangkok hosts all domestic telecommunications carriers and internet exchange nodes (True, AIS, NT). Cross-connects between operators can be provisioned with minimal latency and high resilience without running long-haul terrestrial dark fiber.
-   - Power Grid Stability: In Thailand, the Metropolitan Electricity Authority (MEA) business district grid in central Bangkok is strictly protected from the heavy load swings and voltage dips typical of industrial manufacturing estates in outer provinces.
-
-3. The Fallacy of 100% Target:
-   - Chasing 100% availability requires multiplying every component across hardware, dual PDU feeds, redundant UPS strings, multi-carrier BGP links, and distributed multi-region databases.
-   - Mathematical serial reliability degradation:
-     $$A_{\text{total}} = A_1 \times A_2 \times A_3$$
-     If a user flow depends sequentially on three services, each running at 99.9% availability:
-     $$0.999 \times 0.999 \times 0.999 \approx 0.997003 \text{ (99.7\%)}$$
-     Allowed monthly downtime triples from 43.2 minutes to over 2 hours and 9 minutes.
-   - SREs design graceful degradation (e.g., caching, static fallback pages, asynchronous queueing) so a failure in one dependent component does not take down the entire user transaction.
-
-4. The Error Budget Concept:
-   - Error Budget is defined as:
-     $$\text{Error Budget} = 100\% - \text{SLO}$$
-   - For a 99.9% SLO, the error budget is 0.1% allowed failure.
-   - An error budget gives development teams an explicit quota to deploy new features and take calculated architectural risks. If the budget is exhausted, releases are halted, and engineering capacity shifts entirely to reliability hardening.
-
-### Why 100% Reliability is the Wrong Target
-
-- Fact 1: Users never experience 100% reliability.
-  The connection path between user and backend includes smartphones, local Wi-Fi, ISP transit, mobile networks, and recursive DNS. If client-side network reliability is 99.6%, engineering backend reliability from 99.99% to 99.999% provides zero perceptible benefit to the user.
-- Fact 2: The final nine consumes resources needed for product innovation.
-  Engineering time, infrastructure budget, and personnel are finite. Squeezing out the last fraction of a percent diverts engineering hours away from developing high-impact product features. Reliability is a balanced business decision, not an exercise in technical perfectionism.
-
-#### Differentiated Reliability Targets within an Organization
-
-| System | Availability Target | Business & Architectural Context |
-| :--- | :--- | :--- |
-| Course Registration | 99.95% | 10 minutes of downtime on registration day prevents thousands of students from securing required courses; demands automated fallbacks, load shedding, and pre-semester stress rehearsals. |
-| Learning Management System (LMS) | 99.9% | Nighttime downtime causes the greatest harm because students submit assignments before midnight deadlines; SLOs should vary dynamically by time-of-day. |
-| Faculty Public Information Website | 99.0% | Several hours of daytime unavailability causes minimal disruption; expensive multi-region hot-standby architectures are not economically justified. |
+ในความเป็นจริง กฎเพดาน 50% เป็นสิ่งที่ทำได้ยากที่สุดในระดับองค์กร เนื่องจากองค์กรส่วนใหญ่มักประเมินผลงานของทีมอินฟราสตรัคเจอร์จาก "จำนวนตั๋วงานที่ปิดได้" (Tickets Closed) แทนที่จะประเมินจาก "จำนวนตั๋วงานที่ถูกป้องกันไม่ให้เกิดขึ้น" (Tickets Prevented)
 
 ---
 
-## Section 04: Toil and Operational Debt
+## ส่วนที่ 6: การวัดความน่าเชื่อถือและต้นทุนของเลข 9 (How Reliability Gets Measured & The Cost of Each Nine)
 
-> Being busy is not the same as being useful.
+### ตารางเปรียบเทียบระยะเวลา Downtime ที่ยอมรับได้ต่อรอบ 30 วัน
 
-### Definition of Toil
+ในการออกแบบระบบ ความน่าเชื่อถือถูกระบุด้วยจำนวน "เลขเก้า" (Availability Nines) ซึ่งแต่ละระดับมีระยะเวลาที่ระบบล่มได้จำกัดมาก:
 
-Toil is operational work tied to running a production service that is manual, repetitive, automatable, tactical, devoid of enduring value, and scales linearly as the service grows.
-
-### The Six Tests of Toil
-
-To classify an operational task as toil, evaluate it against six criteria:
-
-1. Manual (ทำด้วยมือ): The work is performed by human hands rather than executed by software.
-2. Repetitive (ทำซ้ำ ๆ): The task is performed repeatedly without novel problem-solving.
-3. Automatable (เขียนโปรแกรมแทนได้): The process follows deterministic rules that could be codified into software.
-4. Tactical (แก้เฉพาะหน้า): The action addresses an immediate symptom without resolving underlying structural causes.
-5. No Enduring Value (ไม่เหลือคุณค่าถาวร): Once completed, the system state is essentially identical to before the issue occurred; the system is no more robust.
-6. Scales Linearly (โตตามขนาดระบบ): Work volume expands directly in proportion to system load, number of users, or cluster size.
-
-### Real-World Examples: School Data Centre
-
-| Data Centre Task | Classification | Rationale |
+| ระดับความน่าเชื่อถือ | เวลาหยุดทำงานที่ยอมให้เกิดได้ในรอบ 30 วัน | บริบทและประเภทของระบบที่เหมาะสม |
 | :--- | :--- | :--- |
-| Resetting individual user passwords via an admin console | Toil | Manual, repetitive, automatable via self-service identity management. |
-| Restarting a crashed service every Monday morning | Toil | Tactical workaround; does not resolve root-cause memory leak or crash bug. |
-| Manually writing serial numbers on paper and retyping into spreadsheets | Toil | Purely manual data entry; automatable via network discovery or barcodes. |
-| Plugging physical console cables into each box to check firmware versions | Toil | Scales linearly with physical machine count; automatable via BMC/IPMI scripts. |
-| Copying PUE readings manually off UPS displays into monthly reports | Toil | Repetitive manual logging; automatable via SNMP or Modbus telemetry scrapers. |
-| Designing containment layouts, automating firmware deployment, or postmortem analysis | Engineering (Not Toil) | Requires human judgment, produces permanent system improvements, done once. |
+| **99% (Two Nines)** | 7.2 ชั่วโมง (7.2 hours) | ระบบใช้งานภายในที่ไม่วิกฤต (Internal, Non-critical Systems) เช่น เว็บไซต์แสดงข้อมูลทั่วไป |
+| **99.9% (Three Nines)** | 43.2 นาที (43.2 minutes) | บริการงานทั่วไปขององค์กร (General-purpose Services) เช่น ระบบสารบรรณ, ระบบจัดการงาน |
+| **99.95%** | 21.6 นาที (21.6 minutes) | ระบบที่ต้องให้บริการแก่ผู้ใช้ภายนอก (Systems with External Users) |
+| **99.99% (Four Nines)** | 4.3 นาที (4.3 minutes) | ระบบธุรกรรมการเงินและระบบชำระเงิน (Payments and Financial Transactions) |
+| **99.999% (Five Nines)** | 26 วินาที (26 seconds) | เครือข่ายโทรคมนาคมและระบบช่วยชีวิต (Telecom Networks, Emergency Services) |
 
-### Lecturer Commentary / Practical Context: AI Tooling in Toil Elimination
+### 3 ข้อคิดสำคัญจากตารางการคำนวณ (Three Key Takeaways)
 
-- Modern generative AI and scripting platforms can eliminate operational drudgery:
-  * Automating Ansible playbooks, writing parsing scripts for serial numbers, and synthesizing SNMP/PUE facility metrics into automated reports.
-  * SREs leverage AI to synthesize runbooks and generate initial automation logic, but engineers must validate the safety guards, rollback criteria, and execution boundaries.
+1. **การเพิ่มเลข 9 แต่ละตัวลด Downtime ลง 10 เท่า แต่ต้นทุนเพิ่มขึ้นมหาศาล:** การขยับจาก 99% ไป 99.9% หรือจาก 99.99% ไป 99.999% ไม่ได้จ่ายเงินเพิ่มแค่ 10 เท่า แต่ต้นทุนด้านโครงสร้างพื้นฐาน การออกแบบความซ้ำซ้อน (Redundancy) บุคลากรเฝ้าระวัง และความซับซ้อนของสถาปัตยกรรมจะเพิ่มขึ้นเป็นทวีคูณ (Exponential Cost)
+2. **ระบบที่ต่อกันแบบอนุกรมจะมีความน่าเชื่อถือน้อยกว่าส่วนประกอบที่อ่อนแอที่สุดเสมอ:** 
+   หากระบบหนึ่งประกอบด้วยบริการ 3 ตัวที่ทำงานต่อเนื่องกันแบบอนุกรม (Serial Connection) โดยแต่ละตัวมีความน่าเชื่อถือ 99.9% ($R_1 = R_2 = R_3 = 0.999$) ความน่าเชื่อถือรวมของระบบคำนวณได้ดังนี้:
 
----
+$$R_{\text{total}} = R_1 \times R_2 \times R_3 = (0.999)^3 \approx 0.997003 \quad (99.7\%)$$
 
-## Section 05: SRE in 2026 and Career Evolution
+   จะเห็นว่าความพร้อมใช้งานรวมลดลงเหลือประมาณ 99.7% ซึ่งแย่กว่าความพร้อมใช้งานของส่วนประกอบเดี่ยวที่ 99.9%
+3. **ผู้ใช้งานไม่ได้รับรู้ตัวเลขทางสถิติ แต่สัมผัสได้จากเวลา ระยะเวลา และผลกระทบ:** การที่ระบบล่ม 43 นาทีตอนตี 3 ของวันธรรมดา กับการล่ม 43 นาทีในเช้าวันเปิดลงทะเบียนเรียน สร้างความเสียหายและความรู้สึกต่อผู้ใช้งานแตกต่างกันโดยสิ้นเชิง
 
-### Five Major Trends Shaping SRE in 2026
+### ทำไมเป้าหมาย 100% จึงเป็นเป้าหมายที่ผิด (Why 100% Is the Wrong Target)
 
-1. AI amplifies; it does not fix:
-   - DORA 2025 research indicates AI improves software delivery velocity, but simultaneously increases delivery instability. Teams with robust deployment and testing foundations excel, whereas teams with weak fundamentals experience amplified system failures.
-   - Core practice: Solidify SLOs, automated rollback, and canary analysis prior to accelerating deployment velocity.
-2. AI providers represent critical production dependencies:
-   - Third-party LLM APIs now reside on the critical user request path. Provider downtime immediately impairs dependent client applications globally.
-   - Core practice: Implement aggressive client-side timeouts, fallback models/heuristics, circuit breakers, and graceful degradation strategies.
-3. Rise of Platform Engineering:
-   - Organizations create internal platforms allowing software developers to self-service application deployments safely. SRE shifts from manual gatekeeping to architecting the "Golden Path."
-   - Core practice: Treat internal developer platforms as products with distinct internal user personas.
-4. OpenTelemetry (OTel) as the universal telemetry standard:
-   - Metric, log, and trace ingestion has converged onto vendor-neutral OpenTelemetry standards, eliminating proprietary vendor lock-in.
-   - Core practice: Implement standardized OTel instrumentation across application runtimes.
-5. Physical cost and power constraints:
-   - Explosive growth in AI model training and inference has constrained power availability, rack physical space, and cooling capacity.
-   - Core practice: Adopt FinOps cost control, track Power Usage Effectiveness (PUE), and implement strict thermal containment.
+- **ความจริงข้อที่ 1: ผู้ใช้งานไม่มีทางสัมผัสประสบการณ์ 100% ได้จริง (Users Never Experience 100% Anyway):**
+  ระหว่างตัวผู้ใช้งานกับเซิร์ฟเวอร์ปลายทาง มีตัวกลางมากมาย ทั้งสมาร์ตโฟน, เครือข่าย Wi-Fi, ผู้ให้บริการเครือข่ายมือถือ (ISP/Carrier) และระบบ DNS หากเส้นทางเครือข่ายของผู้ใช้มีความน่าเชื่อถืออยู่ที่ 99.6% การที่ทีมวิศวกรลงทุนมหาศาลเพื่อเพิ่มความน่าเชื่อถือของเซิร์ฟเวอร์จาก 99.99% เป็น 99.999% จึงเป็นสิ่งที่ผู้ใช้งานไม่มีวันมองเห็นหรือสัมผัสได้
+- **ความจริงข้อที่ 2: เลข 9 ตัวสุดท้ายแลกมาด้วยฟีเจอร์ที่คุณจะไม่ได้สร้าง (Opportunity Cost):**
+  งบประมาณ เวลา และกำลังคนขององค์กรมีจำกัด ทุกชั่วโมงที่ทีมวิศวกรทุ่มเทไล่ตามความสมบูรณ์แบบของเลข 9 ตัวสุดท้าย คือชั่วโมงที่สูญเสียไปโดยไม่ได้นำไปสร้างฟีเจอร์ใหม่เพื่อแก้ปัญหาอื่นให้ผู้ใช้งาน ความน่าเชื่อถือจึงเป็นการตัดสินใจทางธุรกิจ (Business Decision) ไม่ใช่เรื่องของศักดิ์ศรีหรือความภาคภูมิใจส่วนตัวเชิงเทคนิค
 
-### Lecturer Commentary / Practical Context: Enterprise AI Dependency Vulnerabilities
+### ตัวอย่างการตั้งเป้าหมายที่แตกต่างกันในองค์กรเดียวกัน (ระดับมหาวิทยาลัย)
 
-1. Third-Party LLM Outage Cascades:
-   - If an enterprise builds customer service or automated triage entirely dependent on OpenAI, Anthropic, or Google APIs, an outage at the third-party provider completely paralyzes the internal system.
-   - Architectural mitigation: Design multi-model fallback strategies (e.g., primary frontier model falling back to lightweight local/hosted LLMs or deterministic heuristic rules) accompanied by aggressive client timeouts (e.g., 2.5 seconds) and circuit breakers.
-
-2. On-Premises Faculty AI Hardware Constraints:
-   - SIT KMUTT maintains an on-premises AI server environment (accessible through faculty advisors via internal services).
-   - Real-world constraints: Legacy compute servers retrofitted with modern GPU cards face power delivery and thermal throttling challenges. In recent trials, GPU units suffered hardware failure before formal commissioning. Enterprise hardware requires continuous warranty tracking, spares management, and thermal monitoring.
+- **ระบบลงทะเบียนเรียน (Course Registration): เป้าหมาย 99.95%**
+  หากระบบล่มไปเพียง 10 นาทีในวันเปิดระบบลงทะเบียน นักศึกษาหลายพันคนจะเสียสิทธิ์ในการเลือกวิชาเรียน ระบบนี้ต้องการแผนการสลับไปใช้ระบบสำรอง (Fallback System) และต้องมีการซักซ้อมรับมือทุกภาคการศึกษา
+- **ระบบจัดการการเรียนรู้และการส่งการบ้าน (LMS & Assignment Submission): เป้าหมาย 99.9%**
+  การล่มในช่วงเวลากลางคืนสร้างผลกระทบสูงสุด เนื่องจากเป็นช่วงเวลาที่นักศึกษาทำงานและส่งงานจริง ดังนั้นการกำหนดเป้าหมาย SLO จึงควรปรับเปลี่ยนตามช่วงเวลาของวัน (Time-of-Day SLO)
+- **เว็บไซต์ประชาสัมพันธ์ของคณะ (Faculty Public Website): เป้าหมาย 99%**
+  หากเว็บไซต์ภาควิชาหรือคณะเข้าใช้งานไม่ได้ครึ่งวัน แทบไม่มีผลกระทบต่อภารกิจหลัก จึงไม่มีความจำเป็นทางธุรกิจใดๆ ที่จะต้องสิ้นเปลืองงบประมาณไปกับการทำระบบสำรองข้ามภูมิภาค (Multi-region Architecture)
 
 ---
 
-## The Emerging Role: Forward Deployed Engineer (FDE)
+## ส่วนที่ 7: นิยาม Toil และบททดสอบ 6 ประการ (What Toil Is, and Why It Has to Go)
 
-An engineer who embeds directly within the customer's technical environment and takes end-to-end ownership of the system from day-one deployment through long-term production operations.
+### นิยามของ Toil
+> "Toil คืองานปฏิบัติการที่จำเป็นต้องทำเพื่อให้ระบบยังคงมีชีวิตอยู่ต่อไปได้ แต่เมื่อทำเสร็จแล้วกลับไม่ได้ทำให้ระบบมีคุณภาพดีขึ้นกว่าเดิมเลย"
+
+การยุ่งอยู่ตลอดเวลา ไม่ได้แปลว่าคุณกำลังสร้างคุณค่า (Being busy is not the same as being useful)
+
+### บททดสอบ 6 ประการเพื่อจำแนก Toil (The Six Tests of Toil)
+ยิ่งงานใดตรงกับเกณฑ์เหล่านี้มากข้อเท่าใด งานนั้นก็ยิ่งเป็น Toil ชัดเจนขึ้นเท่านั้น:
+1. **ทำด้วยมือ (Manual):** ต้องใช้แรงมนุษย์นั่งกดหรือสั่งการทีละขั้นตอน
+2. **ทำซ้ำๆ (Repetitive):** มีลักษณะงานเหมือนเดิม เกิดขึ้นซ้ำแล้วซ้ำเล่า
+3. **เขียนโปรแกรมแทนได้ (Automatable):** เป็นงานเชิงกลไกที่สามารถออกแบบซอฟต์แวร์หรือสคริปต์มาทำงานแทนได้
+4. **แก้ปัญหาเฉพาะหน้า (Tactical):** มุ่งเน้นการดับเพลิงเพื่อให้ผ่านพ้นไปชั่วคราว ขาดการมองเชิงกลยุทธ์ระยะยาว
+5. **ไม่เหลือคุณค่าถาวร (No Enduring Value):** ทำเสร็จแล้วระบบไม่ได้พัฒนาขึ้น วันพรุ่งนี้ก็ต้องกลับมาทำใหม่อีก
+6. **ขยายตัวตามขนาดระบบ (Scales Linearly):** ยิ่งมีเซิร์ฟเวอร์หรือผู้ใช้เพิ่มขึ้น ปริมาณงานนี้ก็เพิ่มขึ้นเป็นสัดส่วนตรงกัน
+
+### สิ่งที่ไม่ใช่งาน Toil (What Is NOT Toil?)
+งานที่ต้องใช้ดุลยพินิจทางวิศวกรรมและการตัดสินใจ (Human Judgement) และสร้างคุณค่าที่ยั่งยืนให้แก่องค์กร เช่น การออกแบบสถาปัตยกรรมระบบ, การพัฒนาระบบอัตโนมัติขึ้นมาทำงานแทนมนุษย์, และการวิเคราะห์หาสาเหตุใน Postmortem งานเหล่านี้เหน็ดเหนื่อยไม่แพ้กัน แต่เป็นงานที่ "ทำเพียงครั้งเดียวแล้วเกิดผลลัพธ์ระยะยาว"
+
+### ตัวอย่าง Toil ที่เกิดขึ้นจริงในศูนย์ข้อมูล (Data Center) ของคณะ
+- การกดรีเซ็ตรหัสผ่านให้ผู้ใช้งานทีละบัญชีผ่านหน้าคอนโซลผู้ดูแลระบบ
+- การสั่งรีสตาร์ตเซอร์วิสเดิมที่ค้างเป็นประจำทุกเช้าวันจันทร์
+- การเดินตรวจรอบตู้ Rack เพื่อจดหมายเลขเครื่อง (Serial Numbers) ลงบนกระดาษ แล้วนำมาพิมพ์ซ้ำลงสเปรดชีต
+- การเดินนำสาย Console ไปเสียบเข้ากับเครื่องเซิร์ฟเวอร์ทีละตัวเพื่อเช็กเวอร์ชันของเฟิร์มแวร์
+- การเดินไปจดค่าประสิทธิภาพการใช้พลังงาน (PUE) จากหน้าจอของเครื่องสำรองไฟ (UPS) เพื่อนำมาทำรายงานประจำเดือน
+
+---
+
+## ส่วนที่ 8: แนวโน้ม SRE ในปี 2026 และบทบาท Forward Deployed Engineer (SRE in 2026 & FDE Career)
+
+### 5 แนวโน้มสำคัญที่กำหนดทิศทางงาน SRE ในปี 2026
+
+1. **AI ทำหน้าที่ขยายผล แต่ไม่ได้ช่วยแก้ปัญหาเชิงโครงสร้าง (AI Amplifies; It Does Not Fix):**
+   รายงาน DORA 2025 ยืนยันว่า AI ช่วยเพิ่มความเร็วในการส่งมอบงาน แต่ก็นำมาซึ่งความไม่เสถียร ทีมที่มีรากฐานด้านวิศวกรรมที่ดีจะยิ่งทำงานได้รวดเร็วและมีประสิทธิภาพสูงขึ้นอย่างก้าวกระโดด ส่วนทีมที่มีรากฐานโครงสร้างย่ำแย่ การใช้ AI จะยิ่งเร่งให้ระบบพังทลายเร็วขึ้น สิ่งที่ต้องฝึกฝนคือ: การวางกรอบ SLO และกลไกการถอยกลับระบบ (Rollback) ให้มั่นคงแข็งแรงก่อนที่จะเร่งความเร็วในการส่งมอบ
+2. **ผู้ให้บริการโมเดล AI กลายเป็นจุดพึ่งพาใหม่ของระบบ (AI Providers Are the New Dependency):**
+   API ของโมเดลภาษาขนาดใหญ่ (LLM) เข้าไปเป็นส่วนหนึ่งของเส้นทางการทำงานหลักของระบบ (Production Path) ความล้มเหลวของผู้ให้บริการรายเดียวกระทบระบบทั่วโลก สิ่งที่ต้องฝึกฝนคือ: การออกแบบกลไก Timeout, Fallback และการออกแบบระบบให้ลดระดับการให้บริการอย่างปลอดภัย (Graceful Degradation)
+3. **การเติบโตของ Platform Engineering:**
+   องค์กรสร้างแพลตฟอร์มภายในเพื่อให้ทีมพัฒนาสามารถนำโค้ดขึ้นระบบจริง (Deploy) ได้ด้วยตนเองอย่างปลอดภัย บทบาทของ SRE กำลังขยับไปเป็นผู้ออกแบบและสร้าง "เส้นทางทองคำ" (Golden Path) สิ่งที่ต้องฝึกฝนคือ: การมองระบบและโครงสร้างพื้นฐานภายในองค์กรให้เป็นผลิตภัณฑ์ที่มีผู้ใช้งานจริง (Internal Product with Real Users)
+4. **OpenTelemetry กลายเป็นมาตรฐานร่วมระดับสากล:**
+   การจัดเก็บข้อมูลการวัดผล (Metrics), บันทึกเหตุการณ์ (Logs) และการติดตามเส้นทางข้อมูล (Traces) ย้ายมาอยู่บนมาตรฐานเปิด OpenTelemetry (OTel) เพื่อลดการผูกขาดกับผู้ให้บริการรายใดรายหนึ่ง (Vendor Lock-in) สิ่งที่ต้องฝึกฝนคือ: การทำ Instrumentation ระบบด้วย OTel
+5. **ต้นทุนและพลังงานกลายเป็นข้อจำกัดทางกายภาพที่แท้จริง (Cost and Power Are Real Constraints):**
+   การแข่งขันด้านการประมวลผล AI ทำให้กำลังไฟฟ้า อุณหภูมิความเย็น และพื้นที่ตู้ Rack กลายเป็นทรัพยากรขาดแคลน สิ่งที่ต้องฝึกฝนคือ: ทักษะด้าน FinOps, การบริหารจัดการค่า PUE และระบบกักเก็บลมร้อน-เย็น (Containment)
+
+> หลักการที่ไม่เคยเปลี่ยนแปลงตั้งแต่ปี 2003: "ค้นหาจุดที่ผู้ใช้งานเจ็บปวด วัดผลมันให้ชัดเจน แล้วลงมือแก้ไขด้วยวิศวกรรม" (Find out where the user hurts, measure it, then fix it)
+
+### บทบาท Forward Deployed Engineer (FDE)
+
+วิศวกรที่ถูกส่งเข้าไปฝังตัวทำงานร่วมกับลูกค้าหน้างานจริง และเป็นเจ้าของระบบตั้งแต่วันแรกจนถึงวันที่ระบบมีปัญหา
 
 ```
-[ Core Product Engineering ]
-         |
-         | (Builds core platform & foundation model)
-         v
-[ Forward Deployed Engineer (FDE) ] <=======> [ Customer Environment ]
-  - Embeds on-site / hands-on                   - Customer infrastructure
-  - Writes production code on real data         - Real customer data & constraints
-  - Owns operational delivery & reliability     - Security policies & enterprise users
-         |
-         +-----> (Feeds real failure modes back into Core Roadmap)
+[Core Product Engineering]  <--- ส่งต่อรูปแบบปัญหาจริงเพื่อปรับ Roadmap ---  [Forward Deployed Engineer]  <--->  [Customer Environment]
+(สร้างแพลตฟอร์มและโมเดลหลัก)                                                (ฝังตัวหน้างาน / เขียน Production Code)    (โครงสร้างพื้นฐาน ข้อมูล กฎเกณฑ์)
 ```
 
-- Accountability: "Whoever scoped the system on day one gets paged when it breaks in month six."
-- History: Pioneered by Palantir around 2005; widely adopted by 2026 by AI enterprises including OpenAI, Anthropic, Google Cloud, Databricks, Salesforce, and Scale AI.
-- Distinction: Traditional consultants deliver slides and recommendation reports; FDEs deliver functioning, production-grade software running in customer environments.
+- **จุดกำเนิด:** Palantir เป็นผู้ริเริ่มสร้างบทบาทนี้ขึ้นตั้งแต่ช่วงปี 2005 และในปี 2026 บทบาทนี้ถูกนำมาใช้งานอย่างแพร่หลายในบริษัทชั้นนำ เช่น OpenAI, Anthropic, Google Cloud, Databricks, Salesforce และ Scale AI
+- **ความแตกต่างจากที่ปรึกษา (Consultant):** ที่ปรึกษาส่งมอบรายงานและข้อเสนอแนะ แต่ FDE ส่งมอบระบบซอฟต์แวร์ที่รันและทำงานได้จริงบนข้อมูลจริงของลูกค้า
+- **ความรับผิดชอบด้านความน่าเชื่อถือ:** ความน่าเชื่อถือเป็นส่วนหนึ่งของเนื้องาน FDE โดยมีหลักการทำงานว่า "ใครก็ตามที่เป็นผู้วางขอบเขตระบบในวันแรก จะเป็นผู้ที่ถูกเรียกแจ้งเตือน (Paged) เมื่อระบบพังในเดือนที่หก"
 
-### Lecturer Commentary / Practical Context: Bridging Engineering and Business Acumen
+### ตารางเปรียบเทียบ FDE กับบทบาทใกล้เคียงในอุตสาหกรรม
 
-1. The Critical Missing Skill in New Graduates:
-   - Industry alumni frequently report that university candidates possess reasonable baseline technical skills but completely lack business comprehension.
-   - Example scenario: When asked in an interview, "Why did you select this tech stack or design pattern?", candidates often answer, "Because the instructor assigned it."
-   - When asked how a shopping cart project handles checkout and payment gateway integration, candidates often fail to consider transaction boundaries, user conversion, or payment fallback paths.
-   - Real-world engineering requires understanding business value: What is the monetary cost of downtime? How does the transaction close? How do we minimize user drop-off?
-
-2. What Differentiates an FDE:
-   - An FDE operates at the intersection of business strategy, software engineering, and production SRE.
-   - They work directly alongside enterprise client users, writing custom glue code, mapping internal schemas, and deploying solutions onto client infrastructure, while ensuring systems meet enterprise SLOs.
-
-### Comparative Matrix: Adjacent Technical Roles
-
-| Metric / Dimension | Management Consultant | Solutions Engineer (SE) | Forward Deployed Engineer (FDE) | Site Reliability Engineer (SRE) |
+| มิติ | ที่ปรึกษา (Consultant) | Solutions Engineer | Forward Deployed Engineer (FDE) | Site Reliability Engineer (SRE) |
 | :--- | :--- | :--- | :--- | :--- |
-| Deliverable | Slide decks, assessment reports, strategic recommendations | Configuration and demo of off-the-shelf software | Production code and live systems deployed on customer infrastructure | Automation software, SLO frameworks, and resilience tooling |
-| Incident Responsibility | Never paged; engagement concludes upon report submission | Hands off operational issues to customer support | Original deployment engineer is paged during live production outages | On-call rotation managing the service error budget |
-| Customer Presence | High (~80% client-facing) | Moderate (~40-60% pre-sales) | Embedded on-site (~50% customer-facing) | Internal-facing (~10-20% customer contact) |
+| **สิ่งที่ส่งมอบ (Deliverables)** | รายงานการวิเคราะห์และข้อเสนอแนะ | การปรับแต่งและตั้งค่าผลิตภัณฑ์ที่มีอยู่แล้วให้ลูกค้า | โค้ดและระบบที่รันจริงในสภาพแวดล้อมและข้อมูลของลูกค้า | ระบบอัตโนมัติ, กรอบวัดผล SLO และเครื่องมือรักษาความน่าเชื่อถือ |
+| **ใครถูกเรียกเมื่อระบบพัง?** | ไม่ถูกเรียก เนื่องจากภารกิจสิ้นสุดเมื่อส่งมอบเล่มรายงาน | ส่งต่อเคสให้ทีมฝ่ายสนับสนุน (Support Team) | คนเดิมที่วางแผนระบบตั้งแต่วันแรกจะถูกเรียกเมื่อระบบล่มในเดือนที่หก | ทีมที่ถือครองงบประมาณความผิดพลาด (Error Budget) ของบริการนั้น |
+| **สัดส่วนเวลาหน้างาน** | สูง (เน้นการประชุมและสำรวจ) | ปานกลาง (เน้นการสาธิตและช่วยขาย) | สูง (~50% ของเวลาทำงานฝังตัวอยู่กับลูกค้า) | ต่ำ (เน้นโครงสร้างพื้นฐานภายในและระบบคลาวด์) |
 
-### 2026 Market Metrics for FDE Roles
-
-- Job Listing Growth: ~800% year-over-year increase in job postings.
-- Base Compensation: $160,000 – $280,000 mid-level base salary range at frontier AI labs (e.g., OpenAI San Francisco).
-- Customer Site Time: Approximately 50% of working time spent embedded directly with customer teams.
-
-### Preparing for SRE / FDE Roles While in University
-
-1. Ship to Real Production: Deploy real, live software systems with authentic end users, complete with alerts that wake you when systems fail, rather than toy demo projects.
-2. Deconstruct Ambiguous Problems: Technical interviews evaluate the ability to clarify underspecified requirements and edge cases prior to writing code, rather than pure algorithmic memorization.
-3. Cross-Disciplinary Communication: Ability to articulate architectural trade-offs, risks, and technical failures to non-technical business stakeholders is tested equally with technical competency.
-4. Master Reliability Engineering: In-depth understanding of SLOs, error budgets, observability, tracing, automated rollbacks, and postmortem methodologies.
+### ข้อมูลตลาดแรงงานปี 2026 และการเตรียมตัวสู่อาชีพ FDE
+- อัตราการเติบโตของประกาศรับสมัครงาน FDE เพิ่มขึ้นสูงถึง ~800%
+- ฐานเงินเดือนระดับกลางของ FDE ที่ OpenAI (San Francisco) อยู่ที่ 160,000 ถึง 280,000 ดอลลาร์สหรัฐต่อปี ($160-280K)
+- **แนวทางการเตรียมตัวของนักศึกษา:**
+  1. ส่งมอบงานขึ้นสู่สภาพแวดล้อมการใช้งานจริง (Ship to Production): ไม่ใช่ทำเพียงโครงงานตัวอย่าง (Toy Demo) แต่ต้องสร้างระบบที่มีผู้ใช้งานจริง และเคยมีประสบการณ์ถูกตามมาแก้ปัญหาเมื่อระบบล่ม
+  2. ฝึกฝนการแก้โจทย์ที่มีความคลุมเครือ (Tackle Ambiguous Problems): การสัมภาษณ์ FDE ให้ความสำคัญกับการตั้งคำถามเพื่อขยายขอบเขตปัญหาให้ชัดเจนก่อนลงมือทำ มากกว่าการแก้โจทย์อัลกอริทึมทั่วไป
+  3. สื่อสารกับผู้ที่ไม่ใช่วิศวกรได้อย่างมีประสิทธิภาพ: ทักษะการอธิบายระบบเชิงเทคนิคให้ผู้บริหารและผู้ใช้เข้าใจ ถูกประเมินเข้มข้นเท่ากับทักษะการเขียนโค้ด
+  4. เชี่ยวชาญหลักการด้านความน่าเชื่อถือ: มีความเข้าใจลึกซึ้งในเรื่อง SLO, Observability และ Rollback Mechanism
 
 ---
 
-## Section 06: Lab 1 — Moving Racks into Containment
+## ส่วนที่ 9: ปฏิบัติการ Lab 1 การวางแผนย้ายตู้ Rack เข้าสู่ระบบกักเก็บลมร้อน-เย็น (Lab 1: Planning the Move into Containment)
 
-Applying SRE principles, physical engineering, and compliance rigor to real data centre infrastructure using the ISO/IEC 27001:2022 framework.
+ปฏิบัติการนี้เป็นการจำลองภารกิจวิศวกรรมจริงในศูนย์ข้อมูลของคณะ ภายใต้กรอบมาตรฐานความมั่นคงปลอดภัยระดับสากล ISO/IEC 27001:2022
 
-### The Physical Challenge
+### บริบทของปัญหา: สภาพปัจจุบันสู่เป้าหมาย (Current State to Target State)
+- **สภาพปัจจุบัน (Current State - ตู้ Rack แบบเปิดเดิม):** ตู้ Rack แบบเปิดใช้งานต่อเนื่องมาตั้งแต่ภาคเรียนก่อน อุปกรณ์ฮาร์ดแวร์มีหลากหลายรุ่นปะปนกัน สมุดทะเบียนทรัพย์สิน (Asset Register) ไม่ตรงกับอุปกรณ์ที่มีอยู่จริงในตู้ และลมร้อนกับลมเย็นหมุนเวียนปะปนกันอย่างอิสระ
+- **สถานะเป้าหมาย (Target State - ตู้กักเก็บลมร้อน-เย็น Containment):** ย้ายอุปกรณ์เข้าสู่ตู้ Rack ที่มีระบบกักเก็บลมร้อนและลมเย็น (Hot and Cold Aisle Containment) ซึ่งแยกเส้นทางเดินของอากาศออกจากกันโดยเด็ดขาด ปรับปรุงค่า PUE ให้มีประสิทธิภาพสูงขึ้น และรองรับความหนาแน่นของการใช้พลังงานไฟฟ้าต่อตู้ (Power Density) ได้สูงขึ้น
+- **ข้อจำกัดทางวิศวกรรม (Constraints):** เซอร์วิสบางตัวเป็นระบบที่มีผู้ใช้งานจริงและห้ามหยุดทำงานในเวลาทำการ ดังนั้นภารกิจย้ายอุปกรณ์จะต้องเกิดขึ้นนอกเวลาทำการ ภายในกรอบเวลาซ่อมบำรุงที่จำกัด (Maintenance Window) และต้องมีแผนการย้อนคืนระบบ (Reversible) ที่ทำได้จริงเสมอ
 
-Transition infrastructure from legacy open racks into a modern enclosed containment aisle:
+### ทำไมภารกิจนี้จึงเป็นงานของ SRE ไม่ใช่แค่การยกอุปกรณ์ฮาร์ดแวร์?
+- **การบริหารจัดการการเปลี่ยนแปลง (Change Management):** ทุกการกระทำต้องมีแผนงานที่ชัดเจน ต้องผ่านการอนุมัติ และต้องระบุตัวผู้รับผิดชอบงาน
+- **การประเมินรัศมีความเสียหาย (Blast Radius):** หากดึงสายเคเบิลหรือถอดปลั๊กไฟผิด จะมีกี่บริการที่ดับลงทันที และใครคือผู้ได้รับผลกระทบ?
+- **แผนการย้อนกลับเมื่อล้มเหลว (Rollback Plan):** หากเซิร์ฟเวอร์เปิดไม่ติดเมื่อย้ายเข้าตู้ใหม่ จะต้องใช้เวลากี่นาทีในการนำเครื่องและระบบกลับสู่สถานะเดิมก่อนเริ่มงาน?
+- **ทะเบียนทรัพย์สินและอุปกรณ์ (Asset Inventory):** หากทีมงานไม่รู้ว่ามีอุปกรณ์ใดอยู่ในตู้บ้าง จะไม่สามารถประเมินความเสี่ยงและไม่สามารถกู้คืนระบบได้เลย
 
-- Current State: Open racks in continuous operation since previous terms; mixed hardware generations; outdated asset inventory; uncontrolled mixing of hot exhaust and cold supply airflow.
-- Target State: Sealed hot and cold aisle containment; elimination of air recirculation; improved Power Usage Effectiveness (PUE); support for high power density per rack.
-- Operational Constraints: Zero downtime permitted for critical school services during operational hours; physical moves must execute during out-of-hours maintenance windows; full reversibility required.
-
-### Lecturer Commentary / Practical Context: Data Centre Facilities and Lab Logistics
-
-1. The Reality of the SIT Data Centre Space (LX Building, 8th Floor):
-   - The faculty previously utilized legacy open racks that had accumulated rust, dust, and outdated cabling.
-   - The university's central Computer Center (SIT Data Centre, 8th floor LX Building) recently modernized its space into modular hot/cold aisle containment corridors.
-   - SIT secured access to 4 dedicated containment racks in this facility, with 1 rack specifically allocated for INT 403 / INT 531 coursework.
-   - Physical infrastructure benefits: Shared access to high-efficiency industrial chillers, automated fire suppression systems (FM-200 / Inergen rather than makeshift ceiling extinguishers), high-capacity centralized UPS, and diesel generators.
-
-2. Hardware Allocation and Team Sizing:
-   - Target machine count: 20 physical server nodes.
-   - Group size rule: Strictly 2 to 3 students per group (never 4 or 5).
-   - Rationale: In teams larger than 3, only one student actively configures the hardware while others remain passive observers. Hands-on exposure is mandatory for every student.
-   - Hardware breakdown: 8 groups will receive blade server nodes from a decommissioned enterprise blade chassis; remaining groups will receive dedicated 1U/2U server chassis.
-
-3. Physical Safety and Equipment Handling:
-   - Heavy chassis hazard: Fully loaded blade chassis or disk arrays weigh several hundred kilograms. Lifting an assembled chassis will cause severe spinal injury.
-   - Procedure: Equipment must be completely disassembled prior to transport: remove all power supplies, blade cards, storage drives, and fan trays. Even an empty bare chassis requires 5 to 6 people to lift safely.
-   - Center of gravity rule: Heaviest equipment (UPS batteries, dense disk enclosures) must always be installed in the lowest rack units (U1–U13) to prevent rack tipping.
-
-4. Thermal Dynamics and Containment Discipline:
-   - Containment creates a sealed box isolating supply air (fed from raised floor perforated tiles) from hot exhaust air.
-   - Leaving containment doors open or failing to install blanking panels causes cold air loss, triggers thermal imbalance, forces chillers to overwork, and trips facility environmental alarms.
-   - ISO/IEC 27001 controls govern facility access: biometric facial scanning, entry/exit logging (A.7.4), and zero unauthorized photography of asset tags, cabling schemes, or internal terminals.
-
-5. Classroom-to-Datacenter Layer 2 Network Link:
-   - The lab classroom currently possesses dedicated patch cabling connected directly to the 8th floor data centre rack switch on the same Layer 2 broadcast domain.
-   - Plugging into the wall outlet provides direct Layer 2 connectivity without routing hops, enabling immediate discovery and out-of-band management of laboratory hardware before formal network segregation policies are applied.
+### หลักการทางกายภาพ: ทำไมต้องทำระบบกักเก็บอากาศ (Containment)?
+ปัญหาความร้อนสะสมในศูนย์ข้อมูลไม่สามารถแก้ไขได้ด้วยการเพิ่มเครื่องปรับอากาศ แต่ต้องแก้ด้วยการ "แยกทางเดินลมร้อนและลมเย็น":
+1. ลมร้อนที่หมุนวนกลับมาเข้าด้านหน้าเครื่องเซิร์ฟเวอร์ จะทำให้อุณหภูมิอากาศขาเข้า (Intake Temperature) สูงเกินกว่าเกณฑ์มาตรฐาน ส่งผลให้ระบบทำความเย็นต้องทำงานหนักตลอดเวลาโดยไม่ได้ประโยชน์อันใด
+2. ช่องว่างในตู้ Rack ที่ไม่มีอุปกรณ์และไม่ได้ปิดแผ่นกั้น (Uncapped U Slots) คือทางลัดที่ลมร้อนจะพุ่งย้อนกลับมาหาลมเย็น ดังนั้นแผ่นปิดช่องว่างตู้ Rack (Blanking Panels) จึงเป็นชิ้นส่วนวิศวกรรมควบคุมอุณหภูมิที่จำเป็นอย่างยิ่ง ไม่ใช่ของตกแต่ง
+3. ผลลัพธ์ที่วัดค่าได้คือ ค่าประสิทธิภาพการใช้พลังงาน (PUE) ที่ดีขึ้นอย่างชัดเจน และสามารถติดตั้งอุปกรณ์ที่ใช้กำลังไฟสูงในพื้นที่เท่าเดิมได้
 
 ---
 
-## Lab Compliance Framework: ISO/IEC 27001:2022 Annex A Mapping
+## ส่วนที่ 10: การเชื่อมโยงกรอบมาตรฐานความปลอดภัย ISO/IEC 27001:2022 Annex A
 
-Every activity performed in the data centre lab maps directly to international security and operational controls:
+ทุกกิจกรรมในปฏิบัติการ Lab 1 จะต้องจับคู่และสอดคล้องกับมาตรการควบคุมความปลอดภัยของ ISO/IEC 27001:2022 ดังต่อไปนี้:
 
-| Control ID | Control Name | Specific Lab Implementation |
+| รหัสการควบคุม (Control) | ชื่อมาตรการควบคุมตามมาตรฐาน | กิจกรรมที่ต้องปฏิบัติใน Lab 1 |
 | :--- | :--- | :--- |
-| A.5.9 | Inventory of information and associated assets | Perform complete audit of all devices in the legacy rack, detailing serial numbers, rack U positions, system owners, and hosted services. |
-| A.5.37 | Documented operating procedures | Draft a step-by-step Method of Procedure (MOP) with explicit execution timelines that external engineers can follow. |
-| A.7.4 | Physical security monitoring | Maintain strict physical access logs of all individuals entering and exiting the data centre; supervise external personnel. |
-| A.7.8 / A.7.12 | Equipment siting and protection, cabling security | Design target rack elevation: map precise U allocations, enforce separation of power from high-speed data cabling, and ensure proper cable radius. |
-| A.7.10 / A.7.14 | Storage media and secure disposal / re-use | Establish secure wiping procedures with verifiable evidence for decommissioned storage drives prior to hardware disposal. |
-| A.7.11 | Supporting utilities | Verify electrical load balance across 3-phase circuits, UPS battery runtime capacity, and HVAC thermal load prior to equipment transfer. |
-| A.8.32 | Change management | Submit formal Change Request specifying operational impact, blast radius, rollback triggers, and approver authorizations. |
+| **A.5.9** | ทะเบียนข้อมูลและทรัพย์สินที่เกี่ยวข้อง (Inventory of information and associated assets) | สำรวจและจัดทำบัญชีรายชื่ออุปกรณ์ทุกชิ้นในตู้เดิม ระบุเจ้าของทรัพย์สิน และบริการที่กำลังรันอยู่บนเครื่องนั้น |
+| **A.5.37** | ขั้นตอนการปฏิบัติงานที่มีการบันทึกเป็นลายลักษณ์อักษร (Documented operating procedures) | เขียนขั้นตอนการปฏิบัติงานอย่างละเอียดแบบทีละขั้นตอน (Method of Procedure - MOP) ที่บุคคลภายนอกสามารถอ่านและปฏิบัติตามได้ถูกต้อง |
+| **A.7.4** | การตรวจตราความมั่นคงปลอดภัยทางกายภาพ (Physical security monitoring) | การลงทะเบียนบันทึกเวลาเข้า-ออกศูนย์ข้อมูลอย่างเข้มงวด และควบคุมบุคคลภายนอกที่เข้ามาปฏิบัติงาน |
+| **A.7.8 / A.7.12** | การจัดวางและปกป้องอุปกรณ์ และความมั่นคงปลอดภัยของสายสัญญาณ (Equipment siting and protection & Cabling security) | ออกแบบผังการติดตั้งตู้ใหม่: ตำแหน่งช่อง U, แนวการเดินสายเคเบิล และการแยกทางเดินของสายไฟ (Power) ออกจากสายสัญญาณเครือข่าย (Signal) |
+| **A.7.10 / A.7.14** | สื่อบันทึกข้อมูล และการกำจัดหรือนำกลับมาใช้ใหม่อย่างปลอดภัย (Storage media & Secure disposal or re-use) | การจัดการดิสก์ของเครื่องที่ปลดระวางอย่างปลอดภัย มีการลบข้อมูลตามมาตรฐานพร้อมหลักฐานยืนยันการทำลายข้อมูล |
+| **A.7.11** | ระบบสาธารณูปโภคสนับสนุน (Supporting utilities) | ตรวจสอบปริมาณโหลดไฟฟ้าในแต่ละเฟส (Load per phase), ขีดความสามารถของ UPS และกำลังทำความเย็น ก่อนย้ายอุปกรณ์เข้าตู้ใหม่ |
+| **A.8.32** | การบริหารจัดการการเปลี่ยนแปลง (Change management) | จัดทำเอกสารคำขอการเปลี่ยนแปลง (Change Request) โดยระบุผลกระทบ แผนย้อนกลับ และผู้มีอำนาจอนุมัติงานอย่างเป็นทางการ |
 
 ---
 
-## The Migration Plan: Five Execution Phases
+## ส่วนที่ 11: ขั้นตอนการดำเนินงาน 5 เฟส (The Five Phases of Work)
+
+กระบวนการทำงานถูกแบ่งออกเป็น 5 เฟสอย่างเป็นระบบ โดยเฟสที่ 1-2 ดำเนินการในชั่วโมงเรียน ส่วนเฟสที่ 3-5 ดำเนินการต่อนอกเวลาเรียน:
 
 ```
-[ Phase 1: Survey & Inventory ] (A.5.9)
-         |
-         v
-[ Phase 2: Analyse Dependencies & Risk ] (A.8.32)
-         |
-    (In-Class Milestone)
-         |
-         v
-[ Phase 3: Design New Rack Layout ] (A.7.8 / A.7.11)
-         |
-         v
-[ Phase 4: Write MOP & Rollback Plan ] (A.5.37)
-         |
-         v
-[ Phase 5: Rehearse & Peer Review ] (A.5.37)
+[เฟส 1: สำรวจและบันทึกทรัพย์สิน] ---> [เฟส 2: วิเคราะห์การพึ่งพาและความเสี่ยง] ---> [เฟส 3: ออกแบบผังตู้ Rack ใหม่] ---> [เฟส 4: เขียน MOP และแผนย้อนกลับ] ---> [เฟส 5: ซักซ้อมและตรวจทานแผน]
+(Output: ตาราง Inventory)              (Output: ผัง Dependency + Risk)            (Output: ผัง Rack Elevation)             (Output: เอกสาร MOP + Rollback)          (Output: บันทึก Review + แผนปรับปรุง)
 ```
 
-1. Phase 1: Survey and Inventory (In-Class)
-   - Method: Inspect the legacy rack unit by unit (U1 to U42). Document manufacturer, model, hardware serial number, U location, power consumption, network port utilization, and hosted workloads.
-   - Deliverable: Complete Asset Inventory Sheet (mapped to ISO control A.5.9).
-2. Phase 2: Dependency and Risk Analysis (In-Class)
-   - Method: Trace upstream and downstream dependencies. Identify single points of failure (SPOFs), assess blast radius if specific hardware is isolated, and assign criticality rankings.
-   - Deliverable: Dependency Graph and Risk Register (mapped to ISO control A.8.32).
-3. Phase 3: Target Rack Elevation Design (Out-of-Class)
-   - Method: Model hardware placement within the new containment rack, optimizing for weight distribution, thermal airflow, three-phase power balancing, and cable distance.
-   - Deliverable: Rack Elevation Diagram (mapped to ISO controls A.7.8 and A.7.11).
-4. Phase 4: Method of Procedure (MOP) & Rollback Plan (Out-of-Class)
-   - Method: Author a procedural runbook including itemized time estimates, role assignments, health check verification milestones, and unambiguous abort criteria.
-   - Deliverable: Formal MOP and Rollback Document (mapped to ISO control A.5.37).
-5. Phase 5: Tabletop Rehearsal and Peer Review (Out-of-Class)
-   - Method: Conduct structured walkthroughs with peer engineering groups to simulate edge-case failures, refine procedural ambiguities, and validate abort criteria prior to physical execution.
-   - Deliverable: Peer Review Audit Log and Revised Migration Plan (mapped to ISO control A.5.37).
+1. **เฟส 1: สำรวจและบันทึกทรัพย์สิน (Survey and Inventory):**
+   - เดินสำรวจตู้ Rack เดิมทีละช่อง U
+   - บันทึกยี่ห้อ (Make), รุ่น (Model), หมายเลขเครื่อง (Serial Number), ตำแหน่งช่องติดตั้ง (U Position), ปริมาณการใช้พลังงานไฟฟ้า (Power Draw), พอร์ตเครือข่ายที่ใช้งาน และบริการที่รันอยู่
+   - ผลลัพธ์ที่ต้องส่งมอบ: ใบรายการสำรวจทรัพย์สิน (Inventory Sheet) [สอดคล้องกับ A.5.9]
+2. **เฟส 2: วิเคราะห์การพึ่งพาและความเสี่ยง (Analyse Dependencies and Risk):**
+   - เขียนแผนผังระบุว่าอุปกรณ์ใดเชื่อมต่อกับอุปกรณ์ใด
+   - วิเคราะห์ว่าบริการใดจะหยุดทำงานทันทีหากอุปกรณ์ชิ้นนั้นถูกดึงปลั๊กออก พร้อมประเมินระดับความสำคัญของแต่ละระบบ
+   - ผลลัพธ์ที่ต้องส่งมอบ: แผนผังความเชื่อมโยงของระบบ (Dependency Map) และทะเบียนความเสี่ยง (Risk Register) [สอดคล้องกับ A.8.32]
+3. **เฟส 3: ออกแบบผังตู้ Rack ใหม่ (Design the New Rack Layout):**
+   - กำหนดตำแหน่งติดตั้งอุปกรณ์แต่ละชิ้นในตู้ Rack แบบ Containment ใหม่
+   - คำนวณทิศทางการไหลเวียนของอากาศ (Airflow), ปริมาณโหลดไฟฟ้าต่อเฟส, การกระจายน้ำหนัก และความยาวของสายเคเบิล
+   - ผลลัพธ์ที่ต้องส่งมอบ: แผนภาพผังความสูงของตู้แร็ค (Rack Elevation Diagram) [สอดคล้องกับ A.7.8 / A.7.11]
+4. **เฟส 4: เขียนคู่มือปฏิบัติการและแผนย้อนกลับ (Write the Procedure and the Rollback Plan):**
+   - จัดทำเอกสารขั้นตอนการปฏิบัติงานอย่างละเอียด (Method of Procedure - MOP) พร้อมประเมินเวลาในแต่ละขั้นตอน
+   - ระบุผู้รับผิดชอบในแต่ละจุด, จุดตรวจสอบยืนยันความถูกต้อง (Verification Points) และเกณฑ์การตัดสินใจยกเลิกงาน (Abort Criteria)
+   - ผลลัพธ์ที่ต้องส่งมอบ: เอกสาร MOP และแผนย้อนกลับระบบ (MOP + Rollback Plan) [สอดคล้องกับ A.5.37]
+5. **เฟส 5: ซักซ้อมแผนงานและตรวจทาน (Rehearse and Review):**
+   - นำแผนงานไปอธิบายให้กลุ่มอื่นฟังแบบ Walkthrough บนกระดาษ
+   - ค้นหาจุดบกพร่องและจุดเสี่ยงที่แผนจะล้มเหลว แล้วแก้ไขปรับปรุงแผนให้สมบูรณ์ก่อนที่จะมีการแตะต้องอุปกรณ์ฮาร์ดแวร์จริง
+   - ผลลัพธ์ที่ต้องส่งมอบ: บันทึกการตรวจทานและแผนฉบับปรับปรุง (Review Log + Revised Plan) [สอดคล้องกับ A.5.37]
 
 ---
 
-## Phase 3 Reference Standard: Rack Elevation Architecture
+## ส่วนที่ 12: ตัวอย่างผลลัพธ์เฟส 3: แผนภาพผังความสูงของตู้แร็ค (Rack Elevation Diagram)
 
-The submitted elevation diagram must meet production engineering standards:
+ผังแสดงการจัดวางอุปกรณ์ในตู้มาตรฐานขนาด 42U:
 
 ```
-+-------------------------------------------------------+ U42
-|  [Active Equipment] Patch Panel + Top-of-Rack Switch  | U40
-+-------------------------------------------------------+ U39
-|  [Reserved] Reserved for Future Switch / Expansion    | U38
-+-------------------------------------------------------+ U37
-|  [Active Equipment] Application Server Node 01        |
-|  [Active Equipment] Application Server Node 02        |
-|  [Active Equipment] Application Server Node 03        |
-|  [Active Equipment] Application Server Node 04        | U30
-+-------------------------------------------------------+ U29
-|  [Mandatory] 2U Blanking Panel (Prevents Recirculation)| U28
-+-------------------------------------------------------+ U27
-|  [Active Equipment] Core Database / Clustered Storage | U20
-+-------------------------------------------------------+ U19
-|  [Mandatory] 6U Blanking Panel                        | U14
-+-------------------------------------------------------+ U13
-|  [Active Equipment] High-Density Storage Array        | U06
-+-------------------------------------------------------+ U05
-|  [Active Equipment] Uninterruptible Power Supply (UPS)| U01
-+-------------------------------------------------------+
++-------------------------------------------------------------+
+| U40 - U42: Patch Panel + Top-of-Rack (ToR) Network Switch  |
+| U38 - U39: ช่องสำรองสำหรับการขยายระบบ (Reserved for Growth)  |
+| U30 - U37: เซิร์ฟเวอร์แอปพลิเคชัน (App Servers x 4 เครื่อง)  |
+| U28 - U29: แผ่นกั้นช่องว่างปิดทึบ (Blanking Panels)          |
+| U20 - U27: เซิร์ฟเวอร์ฐานข้อมูลและสตอเรจ (Database/Storage) |
+| U14 - U19: แผ่นกั้นช่องว่างปิดทึบ (Blanking Panels)          |
+| U06 - U13: ตู้อาร์เรย์เก็บข้อมูล (Storage Array)             |
+| U01 - U05: เครื่องสำรองไฟฟ้ากำลังสูง (UPS)                   |
++-------------------------------------------------------------+
 ```
 
-### Key Rack Design Rules
-
-1. Centre of gravity: Heaviest components (UPS batteries, high-density disk arrays) must be installed at the lowest rack units (U1–U13) to prevent rack tipping.
-2. Thermal sealing: All unpopulated U space must be capped with blanking panels; unsealed gaps short-circuit hot exhaust into cold supply channels.
-3. Power redundancy: Redundant power supply units (PSU A and PSU B) must connect to independent Power Distribution Units (PDU A and PDU B) on separate electrical phases.
-4. Circuit utilization: Maximum continuous electrical load per branch circuit / PDU phase must not exceed 80% of rated capacity.
-
----
-
-## Lab Deliverables, Team Roles, and Safety Protocols
-
-### Deliverables and Grading Criteria (Total: 10 Marks)
-
-- Group Size: 2 to 3 students per team (strictly enforced; max 20 groups total).
-- Due Date: Start of Week 2 session.
-
-| Assessment Component | Allocated Marks | Success Criteria |
-| :--- | :--- | :--- |
-| Inventory Completeness | 3 Marks | 100% audit of hardware serials, exact U coordinates, component owners, and associated production services. |
-| Dependency Map Quality | 2 Marks | Explicit mapping of service-level failure cascades, control paths, and validated criticality tiers. |
-| MOP Clarity & Rigour | 2 Marks | Granular, step-by-step procedure readable by outside engineers, including realistic durations and verification checks. |
-| Rollback Feasibility | 2 Marks | Realistic abort criteria, unambiguous triggers, and defined Maximum Tolerable Downtime (MTD) to return to baseline. |
-| ISO 27001 Alignment | 1 Mark | Accurate, justifiable mapping of operational activities to ISO/IEC 27001:2022 Annex A controls. |
-
-### Operational Team Roles
-
-Roles rotate weekly and mirror incident response command structures introduced in Week 15:
-
-- Change Owner: Holds overall accountability for the change procedure; possesses sole authority to declare an abort and initiate rollback.
-- Inventory Lead: Responsible for data accuracy and validation of every entry across physical asset registers and cable matrices.
-- Safety Officer: Responsible for physical safety compliance, environmental monitoring, and data centre access rules.
-- Scribe: Maintains timestamped logs of all actions, observations, environmental metrics, and discovered discrepancies.
-
-### Mandatory Data Centre Safety Protocols
-
-- No Disconnections: Strictly zero disconnections, unpluggings, or power manipulations permitted during observational survey phases.
-- Authorized Access Only: Entry into the data centre facility requires continuous presence of course instructors or certified facility staff; badge sign-in/sign-out mandatory.
-- Information Security (Control A.7.4): Strictly forbidden to photograph asset tags, network cabling labels, network topology schematics, or management consoles for dissemination outside the secure course portal.
-- Hazard Reporting: Any anomalous sensory condition (electrical burning odors, unusual acoustic vibration, crushed cabling) must be reported immediately to facility engineers; do not attempt unilateral physical remediation.
+### กฎเกณฑ์ทางวิศวกรรมในการจัดวางตู้ Rack:
+1. **อุปกรณ์ที่มีน้ำหนักมากต้องติดตั้งอยู่ด้านล่างสุดเสมอ:** เครื่องสำรองไฟฟ้า (UPS) และตู้ Storage Array ขนาดใหญ่ต้องติดตั้งที่ช่องล่างสุด (U1-U5, U6-U13) เพื่อลดจุดศูนย์ถ่วง (Center of Gravity) ของตู้ ป้องกันตู้ล้มคว่ำ
+2. **ทุกช่อง U ที่ว่างอยู่ต้องติดตั้งแผ่น Blanking Panel เสมอ:** เพื่อป้องกันไม่ให้ลมร้อนจากด้านหลังย้อนกลับมาทางด้านหน้า
+3. **อุปกรณ์ที่มีพาวเวอร์ซัพพลายคู่ (Dual-PSU) ต้องต่อแยกสายกัน:** เสียบเข้ากับรางจ่ายไฟ PDU A และ PDU B คนละฝั่งเพื่อรองรับการทำงานแบบ Redundancy
+4. **โหลดไฟฟ้าในแต่ละเฟสต้องไม่เกิน 80%:** ต้องควบคุมกำลังไฟฟ้าไม่ให้เกิน 80% ของขีดจำกัดสูงสุดเพื่อความปลอดภัย
 
 ---
 
-## Preparation and Next Week Assignments
+## ส่วนที่ 13: กฎความปลอดภัย เกณฑ์การให้คะแนน และบทบาทในทีม (Safety, Grading & Team Roles)
 
-Theme for Week 2: SLI / SLO / SLA and Error Budgets (Quantifying Reliability).
+### กฎความปลอดภัยประจำศูนย์ข้อมูล (Safety Rules - ห้ามฝ่าฝืนโดยเด็ดขาด)
+- ห้ามถอดปลั๊ก, ปลดสายสัญญาณ หรือสั่งปิดเครื่องอุปกรณ์ใดๆ โดยเด็ดขาดในระหว่างการสำรวจในสัปดาห์นี้
+- อนุญาตให้เข้าสู่ห้องศูนย์ข้อมูลได้เฉพาะเมื่อมีอาจารย์ผู้สอนหรือเจ้าหน้าที่ประจำศูนย์ข้อมูลอยู่ด้วยเท่านั้น และต้องลงชื่อเข้า-ออกทุกครั้ง
+- ห้ามถ่ายภาพป้ายระบุทรัพย์สิน (Asset Tags), ข้อมูลล็อกอินหน้าจอ (Credentials) หรือแผนผังระบบเครือข่าย เพื่อนำไปเผยแพร่นอกรายวิชา
+- หากพบสิ่งผิดปกติ เช่น กลิ่นไหม้ เสียงดังผิดปกติ หรือสายสัญญาณชำรุดเสียหาย ให้รายงานอาจารย์ทันที ห้ามลงมือแก้ไขด้วยตนเอง
 
-### Individual Preparation
-- Reading: Google SRE Book, Chapter 4 ("Service Level Objectives") — available at sre.google/books.
-- Assessment: Complete Pre-Class Quiz 1 on the university LMS.
-- Exercise: Identify and document one software service used daily for analysis in Assignment 1.
+### บทบาทหน้าที่ของสมาชิกในทีม (Team Roles)
+สมาชิกกลุ่ม 3-4 คน จะต้องแบ่งหน้าที่ความรับผิดชอบอย่างชัดเจน และจะมีการสลับบทบาทในสัปดาห์ถัดไป (บทบาทเหล่านี้จะถูกนำไปใช้จริงในการรับมือวิกฤต Incident Response ในสัปดาห์ที่ 15):
+- **Change Owner (เจ้าของแผนการเปลี่ยนแปลง):** ถือครองแผนภาพรวมทั้งหมด และมีสิทธิ์ขาดในการตัดสินใจสั่งดำเนินงานต่อหรือสั่งยกเลิกงาน (Proceed or Abort)
+- **Inventory Lead (หัวหน้าฝ่ายบัญชีทรัพย์สิน):** รับผิดชอบความถูกต้องสมบูรณ์ของข้อมูลทุกบรรทัดในตาราง Asset Register
+- **Safety Officer (เจ้าหน้าที่ความปลอดภัย):** ดูแลความปลอดภัยทางกายภาพของทีมงานและการปฏิบัติตามกฎระเบียบของศูนย์ข้อมูล
+- **Scribe (ผู้บันทึกเหตุการณ์):** ทำหน้าที่จดบันทึกเวลาอย่างละเอียด (Timestamp), บันทึกว่าใครทำอะไร และพบข้อมูลใด เพื่อใช้เป็นหลักฐานยืนยันในขั้นตอน Postmortem
 
-### Group Deliverables
-- Finalize the Asset Inventory Sheet and Dependency Analysis Map.
-- Commit all artifacts, along with the physical data centre access sign-in log, into the team Git repository.
-- Compile unresolved architectural questions for review in the next session.
-
-### Environment Readiness
-- Deploy and verify the course sample distributed application using Docker Compose.
-- Establish and record baseline end-to-end response-time latencies.
-
-### Opening Challenge for Next Session
-> If you had to tell the university president in a single number whether the registration system is good enough, what number would you use?
-
----
-
-## References and Standards
-
-### Core Texts
-- Beyer, B., Jones, C., Petoff, J., & Murphy, N. R. (2016). *Site Reliability Engineering: How Google Runs Production Systems*. O'Reilly Media. (Chapters 1–3, 5). Available free at `sre.google/books`.
-- Beyer, B. et al. (2018). *The Site Reliability Workbook: Practical Ways to Implement SRE*. O'Reilly Media. (Chapters 1–2).
-
-### Case Studies and Industry Reports
-- Amazon Web Services (2025). *Summary of the Amazon DynamoDB Service Disruption in Northern Virginia (us-east-1)*, October 2025.
-- ThousandEyes (2025). *AWS Outage Analysis: October 20, 2025*.
-- IncidentHub (2026). *H1 2026 Cloud and SaaS Reliability Report* (July 2026).
-- Forrester Research (2026). *Predictions 2026: Cloud Computing*.
-- InfoQ (2026). *Coinbase Postmortem on a Localized AWS Failure* (June 2026).
-- DORA (2025). *State of AI-assisted Software Development*. `dora.dev`.
-
-### International Standards
-- ISO/IEC 27001:2022: Information security, cybersecurity and privacy protection — Information security management systems — Requirements (Annex A controls).
-- ISO/IEC 27002:2022: Information security, cybersecurity and privacy protection — Information security controls.
-- ISO/IEC 22237 Series: Information technology — Data centre facilities and infrastructures.
-- ISO/IEC 30134-2: Information technology — Data centres — Key performance indicators — Part 2: Power Usage Effectiveness (PUE).
+### เกณฑ์การประเมินคะแนน Lab 1 (คะแนนเต็ม 10 คะแนน)
+- ความสมบูรณ์ของบัญชีทรัพย์สิน (Inventory Completeness): ครบถ้วนทั้ง Serial, ตำแหน่ง U, เจ้าของเครื่อง และบริการที่เกี่ยวข้อง (3 คะแนน)
+- คุณภาพของแผนผังความเชื่อมโยงระบบ (Dependency Map): แสดงชัดเจนว่าอุปกรณ์ใดดับหากถูกถอดปลั๊ก พร้อมจัดระดับความสำคัญ (2 คะแนน)
+- ความชัดเจนของคู่มือปฏิบัติการ (MOP Clarity): บุคคลภายนอกอ่านแล้วสามารถปฏิบัติตามได้จริง มีการประมาณเวลาและจุดตรวจสอบ (2 คะแนน)
+- แผนการย้อนกลับระบบที่สามารถใช้งานได้จริง (Rollback Plan): ระบุเกณฑ์การยกเลิกงานชัดเจนและมีเวลาที่ใช้ในการกู้สถานะเดิม (2 คะแนน)
+- การอ้างอิงและจับคู่กับมาตรฐาน ISO/IEC 27001 อย่างสมเหตุสมผล (ISO/IEC 27001 Mapping): (1 คะแนน)
 
 ---
 
-## Summary in Three Sentences
+## ส่วนที่ 14: การเตรียมตัวสำหรับสัปดาห์ที่ 2 (Assignments and Next Steps)
 
-1. Reliability is a product attribute you design, measure, and pay for; it does not happen on its own.
-2. The goal is not a system that never fails, but one that fails predictably and recovers before users give up.
-3. Repetitive manual work is a debt you pay every month; at least half the team's time must go into engineering it away.
+ในสัปดาห์ที่ 2 จะเริ่มเข้าสู่หัวข้อเชิงลึก: SLI / SLO / SLA และ Error Budgets
+
+- **สิ่งที่ต้องทำก่อนเข้าเรียนสัปดาห์ถัดไป:**
+  - อ่านหนังสือ Google SRE Book บทที่ 4 (Service Level Objectives)
+  - ทำแบบทดสอบก่อนเรียน Quiz 1 บนระบบ LMS
+  - เลือกบริการจริงในชีวิตประจำวัน 1 บริการที่ใช้งานเป็นประจำ เพื่อใช้สำหรับการทำ Assignment 1
+- **งานกลุ่ม Lab 1:**
+  - จัดทำใบรายการสำรวจทรัพย์สิน (Inventory Sheet) และแผนผังความเชื่อมโยง (Dependency Map) ให้เสร็จสมบูรณ์
+  - อัปโหลดเอกสารทั้งหมดเข้าสู่ Git Repository ของกลุ่ม พร้อมแนบบันทึกการเข้าห้องศูนย์ข้อมูล
+- **การเตรียมสภาพแวดล้อมระบบ:**
+  - รันเว็บแอปพลิเคชันตัวอย่างของรายวิชาด้วย Docker Compose บนเครื่องของตนเอง
+  - ทำการวัดค่าและบันทึกเวลาตอบสนองเริ่มต้นของระบบ (Baseline Response Time)
+- **คำถามชวนคิดก่อนเริ่มสัปดาห์ถัดไป:**
+  > "หากคุณจำเป็นต้องรายงานอธิการบดีด้วย 'ตัวเลขเพียงตัวเดียว' เพื่อบอกว่าระบบลงทะเบียนเรียนทำงานได้ดีเพียงพอแล้วหรือไม่ คุณจะเลือกใช้ตัวเลขใด?"
+
+---
+
+## ส่วนที่ 15: สรุปบทเรียนประจำสัปดาห์ใน 3 ประโยค (Summary in Three Sentences)
+
+1. **ความน่าเชื่อถือคือคุณสมบัติของผลิตภัณฑ์ที่คุณต้องออกแบบ วัดผล และจ่ายเงินเพื่อแลกมา** ซึ่งไม่มีทางเกิดขึ้นได้เองตามธรรมชาติ
+2. **เป้าหมายของวิศวกรรมไม่ใช่การสร้างระบบที่ไม่เคยพัง แต่คือการสร้างระบบที่พังอย่างคาดเดาได้ และสามารถฟื้นฟูกลับมาได้ก่อนที่ผู้ใช้จะหมดความอดทน**
+3. **งานที่ทำด้วยมือซ้ำๆ คือหนี้สินที่คุณต้องจ่ายดอกเบี้ยทุกเดือน** เวลาอย่างน้อยครึ่งหนึ่งของทีม SRE จึงต้องทุ่มเทให้กับการพัฒนาระบบเพื่อกำจัดงานเหล่านั้นให้หายไป
