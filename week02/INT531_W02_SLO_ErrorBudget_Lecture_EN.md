@@ -1,681 +1,667 @@
 # INT531 Site Reliability Engineering
 
-## Week 2: SLI / SLO / SLA and Error Budgets
-**Putting a number on "good enough"**
+## สัปดาห์ที่ 2: SLI / SLO / SLA และงบประมาณความผิดพลาด (Error Budgets)
+**การกำหนดตัวเลขนิยามความ "ดีเพียงพอ" ของระบบ (Putting a number on "good enough")**
 
-- Institution: School of Information Technology, King Mongkut's University of Technology Thonburi
-- Course Structure: Lecture 2 h + Field lab 1.5 h
-- Content Revision: 2026
-
----
-
-## 1. Agenda and Overview
-
-Lecture 1.5 h + Field session briefing 1.5 h
-
-1. **From an open question to a number**: Why "the system feels stable" cannot support any decision.
-2. **SLI / SLO / SLA**: Three terms people swap around, and what breaks when they do.
-3. **Choosing a good SLI**: An SLI menu by service type, and the trap of measuring the wrong side.
-4. **Error budgets**: The budget, the burn rate, and the policy for when it runs out.
-5. **Lab 2 - two field sessions**: Walk the containment room, then the decommission and move day.
-6. **Room access and asset handback**: The procedure under ISO/IEC 27001 and related standards.
+- สถาบัน: คณะเทคโนโลยีสารสนเทศ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี (School of Information Technology, KMUTT)
+- โครงสร้างการเรียน: บรรยาย 2 ชั่วโมง + ปฏิบัติการภาคสนาม 1.5 ชั่วโมง (Lecture 2 h + Field lab 1.5 h)
+- ปรับปรุงเนื้อหา: ปี 2026
 
 ---
 
-## 2. Session Learning Outcomes
+## 1. ภาพรวมและกำหนดการเรียนรู้ (Agenda and Overview)
 
-| Outcome Code | Description | Course Learning Outcome (CLO) |
+การบรรยาย 1.5 ชั่วโมง พร้อมการชี้แจงปฏิบัติการภาคสนาม 1.5 ชั่วโมง ครอบคลุมหัวข้อหลักดังนี้:
+
+1. **จากคำถามปลายเปิดสู่ตัวเลขที่ใช้งานได้จริง (From an open question to a number)**: ทำไมความรู้สึกที่ว่า "ระบบดูนิ่งดี" จึงไม่สามารถใช้เป็นฐานในการตัดสินใจทางวิศวกรรมได้
+2. **SLI / SLO / SLA**: คำศัพท์สามคำที่มักถูกใช้สับสน ความแตกต่าง หน้าที่ความรับผิดชอบ และความเสียหายที่จะเกิดขึ้นเมื่อนำไปใช้ปะปนกัน
+3. **การเลือก SLI ที่เหมาะสม (Choosing a good SLI)**: เมนูตัวชี้วัดจำแนกตามประเภทของบริการ และหลุมพรางของการวัดผลผิดฝั่ง
+4. **งบประมาณความผิดพลาด (Error budgets)**: นิยามงบประมาณ อัตราการผลาญงบประมาณ (Burn Rate) และนโยบายควบคุมเมื่อเกิดปัญหางบประมาณหมด (Error Budget Policy)
+5. **ปฏิบัติการภาคสนามที่ 2 (Lab 2 - two field sessions)**: การเดินสำรวจห้องควบคุมระบบระบายความร้อน (Containment Room) ตามด้วยวันปลดระวางและขนย้ายอุปกรณ์จริง (Decommission and Move Day)
+6. **การเข้าพื้นที่ควบคุมและการส่งมอบทรัพย์สิน (Room access and asset handback)**: ระเบียบวิธีปฏิบัติตามมาตรฐานสากล ISO/IEC 27001 และมาตรฐานที่เกี่ยวข้อง
+
+---
+
+## 2. ผลลัพธ์การเรียนรู้ประจำบทเรียน (Session Learning Outcomes)
+
+เมื่อสิ้นสุดบทเรียนนี้ ผู้เรียนจะมีความสามารถดังต่อไปนี้:
+
+| รหัสผลลัพธ์การเรียนรู้ | รายละเอียดความสามารถ | ผลลัพธ์การเรียนรู้ของรายวิชา (CLO) |
 | :--- | :--- | :--- |
-| SLO 2.1 | Tell SLI, SLO, and SLA apart and give an example of each | CLO2 |
-| SLO 2.2 | Choose an SLI that suits the service type, and explain why it must be measured from the user's side | CLO2 |
-| SLO 2.3 | Compute an error budget from an SLO and convert it into allowable downtime | CLO2 |
-| SLO 2.4 | Write an error budget policy that says what happens as the budget runs down | CLO2, CLO7 |
-| SLO 2.5 | Explain why averages mislead and why percentiles are used instead | CLO2 |
-| SLO 2.6 | Follow the controlled-area access and asset handback procedures correctly | CLO3, CLO7 |
+| **SLO 2.1** | จำแนกความแตกต่างระหว่าง SLI, SLO และ SLA ได้อย่างถูกต้อง พร้อมทั้งยกตัวอย่างรูปธรรมของแต่ละตัวชี้วัดได้ | CLO2 |
+| **SLO 2.2** | เลือก SLI ที่สอดคล้องกับประเภทของระบบบริการได้ และอธิบายได้ว่าเหตุใดจึงต้องวัดผลจากฝั่งมุมมองของผู้ใช้งาน (User's side) | CLO2 |
+| **SLO 2.3** | คำนวณ Error Budget จากค่า SLO ที่กำหนด และแปลงค่าดังกล่าวให้กลายเป็นเวลาหยุดทำงานที่ยอมรับได้ (Allowable Downtime) | CLO2 |
+| **SLO 2.4** | ร่างนโยบาย Error Budget Policy ที่ระบุแนวทางปฏิบัติและการตัดสินใจอย่างชัดเจนเมื่อระดับงบประมาณความผิดพลาดลดลง | CLO2, CLO7 |
+| **SLO 2.5** | อธิบายได้ว่าเหตุใดการใช้ค่าเฉลี่ย (Averages) จึงทำให้เกิดความเข้าใจผิด และทำไมวิศวกรรม SRE จึงต้องใช้ค่าเปอร์เซ็นไทล์ (Percentiles) | CLO2 |
+| **SLO 2.6** | ปฏิบัติตามขั้นตอนการขอเข้าพื้นที่ควบคุม (Controlled-Area Access) และกระบวนการส่งคืนทรัพย์สินฮาร์ดแวร์ได้อย่างถูกต้องตามมาตรฐาน | CLO3, CLO7 |
 
 ---
 
-## 3. From an Open Question to a Usable Number
+## 3. จากคำถามปลายเปิดสู่ตัวเลขที่วัดผลได้จริง (From an Open Question to a Usable Number)
 
-### The Guiding Question
-> "If you had one number to say whether the registration system is good enough, what would it be?"
+### คำถามตกค้างจากสัปดาห์ก่อนหน้า (The Guiding Question)
+> "หากคุณมีโอกาสเลือกตัวเลขเพียงตัวเดียว เพื่อบอกว่าระบบลงทะเบียนเรียนของมหาวิทยาลัยนั้น 'ดีเพียงพอแล้วหรือยัง' คุณจะเลือกตัวเลขใด?"
 
-### Answers That Sound Fine But Decide Nothing
+### คำตอบที่ฟังดูดีแต่ใช้ตัดสินใจอะไรไม่ได้ (Answers That Sound Fine But Decide Nothing)
 
-- **"99.9% uptime"**
-  - Problem: Uptime of what, measured where? If the web server returns HTTP 200 but the page never actually renders for the student, does that still count as "up"?
-- **"CPU averages 40%"**
-  - Problem: This is a metric about hardware utilization, not user experience. An idle CPU can easily coexist with complete service failure (e.g., deadlocked threads, blocked database connections, authentication service crash).
-- **"Nobody has complained"**
-  - Problem: Does silence mean no problem exists, or does it mean users gave up and walked away? Operating in the dark leaves engineering unable to distinguish satisfaction from abandonment.
+- **"ระบบมีความพร้อมใช้งาน 99.9% (99.9% Uptime)"**
+  - ข้อจำกัด: ความพร้อมใช้งานของอะไร และวัดผลที่จุดใด? หากเครื่องแม่ข่ายเว็บ (Web Server) ตอบกลับสถานะ HTTP 200 แต่หน้าจอของผู้ใช้ค้างจนไม่สามารถแสดงผล (Render) หรือกดส่งข้อมูลไม่ได้ จะถือว่าระบบทำงานได้ (Up) หรือไม่?
+- **"การใช้งาน CPU เฉลี่ยอยู่ที่ 40% (CPU averages 40%)"**
+  - ข้อจำกัด: ตัวเลขนี้บ่งบอกสถานะของเครื่องจักร ไม่ได้บ่งบอกประสบการณ์ของผู้ใช้งานจริง ในความเป็นจริง ซีพียูอาจว่างงานในขณะที่ระบบหยุดชะงักโดยสิ้นเชิง เช่น เกิดปัญหาสภาพวะชะงักงัน (Deadlock) ของเธรด, การเชื่อมต่อฐานข้อมูลเต็ม (Connection Pool Exhaustion) หรือระบบยืนยันตัวตนล่ม ทำให้ผู้ใช้เข้าสู่ระบบไม่ได้แม้แต่คนเดียว
+- **"ไม่มีใครส่งเรื่องร้องเรียนเข้ามาเลย (Nobody has complained)"**
+  - ข้อจำกัด: ความเงียบไม่ได้แปลว่าระบบทำงานราบรื่น แต่อาจหมายความว่าผู้ใช้งานยอมแพ้และเลิกพยายามใช้งานไปแล้ว การดำเนินงานโดยไม่มีข้อมูลวัดผลทำให้ทีมวิศวกรรมไม่สามารถแยกแยะได้ระหว่างความพึงพอใจของผู้ใช้กับการละทิ้งการใช้งาน
 
-### An Answer You Can Act On
-> "Over the last 30 days, 99.2% of registration submissions succeeded within 2 seconds - below the 99.5% target we set."
+### คำตอบที่นำไปสู่การปฏิบัติการได้จริง (An Answer You Can Act On)
+> "ในช่วง 30 วันที่ผ่านมา 99.2% ของการส่งคำร้องลงทะเบียนเรียนสำเร็จภายในระยะเวลา 2 วินาที ซึ่งต่ำกว่าเป้าหมาย 99.5% ที่เรากำหนดร่วมกันไว้"
 
-This statement provides complete operational clarity:
-- **What was counted**: Registration submissions.
-- **From whose side**: User-facing request path.
-- **Over what window**: Rolling 30 days.
-- **Against what target**: Compared directly against the agreed 99.5% objective.
+ประโยคนี้มีความชัดเจนและครบถ้วนตามหลักวิศวกรรมเนื่องจากระบุ:
+- **สิ่งที่ถูกนับ (What was counted)**: ปริมาณการส่งคำร้องลงทะเบียนเรียนที่สำเร็จ
+- **วัดจากมุมมองของใคร (From whose side)**: เส้นทางการรับส่งข้อมูลจากมุมมองของผู้ใช้งาน
+- **ช่วงเวลาที่ใช้ประเมิน (Over what window)**: หน้าต่างเวลาย้อนหลัง 30 วันแบบเลื่อนไหล (30-day Rolling Window)
+- **เปรียบเทียบกับเป้าหมายใด (Against what target)**: เปรียบเทียบกับค่าเป้าหมายที่ตกลงกันไว้ที่ 99.5%
 
 ---
 
-## 4. SLI, SLO, SLA: Distinctions, Ownership, and Boundaries
+## 4. SLI, SLO และ SLA: ความแตกต่าง หน้าที่ และขอบเขตความรับผิดชอบ
 
-These three terms must never be used interchangeably. Each represents a distinct tier of service governance with a different owner, audience, and consequence.
+คำศัพท์ทั้งสามระดับนี้มีบทบาท ผู้รับผิดชอบ และผลกระทบต่อองค์กรที่แตกต่างกันอย่างสิ้นเชิง จึงห้ามนำมาใช้แทนกันโดยเด็ดขาด
 
 ```
 +-------------------------------------------------------------------+
-|                        SLI (Indicator)                            |
-|  What you measure: Ratio taken from the user's side               |
-|  Formula: (Successful requests / All valid requests)              |
-|  Owner: Whoever instruments the service                           |
+|               ตัวบ่งชี้ระดับการให้บริการ: SLI                      |
+|               (Service Level Indicator)                           |
+|  สิ่งที่วัดผลได้จริง: อัตราส่วนจากมุมมองของผู้ใช้งาน              |
+|  สูตร: (จำนวนคำร้องที่สำเร็จ / จำนวนคำร้องที่ถูกต้องทั้งหมด)       |
+|  ผู้รับผิดชอบ: ผู้พัฒนาและวางระบบตรวจวัด (Instrumentation/SRE)    |
 +---------------------------------+---------------------------------+
                                   |
                                   v
 +-------------------------------------------------------------------+
-|                        SLO (Objective)                            |
-|  The internal target committed by engineering                     |
-|  Example: "99.9% over 30 days"                                    |
-|  Owner: The engineering team                                      |
+|               วัตถุประสงค์ระดับการให้บริการ: SLO                  |
+|               (Service Level Objective)                           |
+|  เป้าหมายภายในองค์กรที่ทีมวิศวกรรมตกลงและยึดมั่นร่วมกัน           |
+|  ตัวอย่าง: "99.9% ภายในรอบระยะเวลา 30 วัน"                        |
+|  ผู้รับผิดชอบ: ทีมวิศวกรรมและเจ้าของผลิตภัณฑ์ (Engineering & PO)   |
 +---------------------------------+---------------------------------+
                                   |
-                                  | (SLO must be stricter than SLA)
+                                  | (SLO ต้องเข้มงวดกว่า SLA เสมอ)
                                   v
 +-------------------------------------------------------------------+
-|                        SLA (Agreement)                            |
-|  The customer contract: Promise with financial/credit penalty    |
-|  Always looser than the internal SLO                              |
-|  Owner: Legal and the business                                    |
+|               ข้อตกลงระดับการให้บริการ: SLA                       |
+|               (Service Level Agreement)                           |
+|  สัญญาผูกพันทางกฎหมายระหว่างผู้ให้บริการและลูกค้าภายนอก           |
+|  มีบทลงโทษทางการเงิน ค่าปรับ หรือการคืนเครดิต                     |
+|  ผู้รับผิดชอบ: ฝ่ายกฎหมายและฝ่ายธุรกิจ (Legal & Business)          |
 +-------------------------------------------------------------------+
 ```
 
-### Summary Comparison Table
+### ตารางเปรียบเทียบเชิงลึก (Comparison Matrix)
 
-| Metric Tier | Definition | Core Meaning | Owner | Audience | Consequence of Failure |
+| ระดับตัวชี้วัด | คำจำกัดความ | วัตถุประสงค์หลัก | ผู้รับผิดชอบ (Owner) | ผู้ใช้งานข้อมูล (Audience) | ผลลัพธ์เมื่อไม่ผ่านเกณฑ์ (Consequences) |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **SLI** | Service Level Indicator | What you actually measure | Instrumentation / SRE engineers | Engineers | Triggers internal metric alerts |
-| **SLO** | Service Level Objective | Internal reliability target | Engineering team | Engineering and Product Owners | Halts deployments, redirects effort to reliability |
-| **SLA** | Service Level Agreement | Legally binding contract | Business and Legal | External customers / Executives | Financial penalties, rebates, breach of contract |
+| **SLI** (Service Level Indicator) | ตัวบ่งชี้ระดับการให้บริการ | บ่งบอกสถานะปัจจุบันของระบบตามความเป็นจริงเชิงปริมาณ | วิศวกรผู้วางระบบตรวจวัด (Instrumentation / SRE) | ทีมวิศวกรรมคอมพิวเตอร์ | ส่งสัญญาณแจ้งเตือนเชิงเทคนิค (Alerts) เพื่อให้วิศวกรเข้าตรวจสอบ |
+| **SLO** (Service Level Objective) | วัตถุประสงค์ระดับการให้บริการ | กำหนดเป้าหมายความน่าเชื่อถือภายในองค์กรเพื่อสร้างสมดุลระหว่างความเสถียรและความเร็วในการพัฒนา | ทีมวิศวกรรมและทีมผลิตภัณฑ์ (Engineering Team & Product Owner) | ทีมวิศวกรรมและฝ่ายบริหารระดับปฏิบัติการ | ชะลอหรือระงับการเปิดตัวฟีเจอร์ใหม่ นำทรัพยากรมาแก้ไขหนี้ทางเทคนิคและความเสถียร |
+| **SLA** (Service Level Agreement) | ข้อตกลงระดับการให้บริการ | ข้อตกลงเชิงสัญญาทางการค้าเพื่อสร้างความมั่นใจให้แก่ผู้รับบริการภายนอก | ฝ่ายธุรกิจและฝ่ายกฎหมาย (Business & Legal) | ลูกค้าภายนอก คณะกรรมการบริหาร และผู้ใช้งานระดับองค์กร | เกิดบทลงโทษทางสัญญา การชดเชยค่าเสียหายทางการเงิน หรือการเสียชื่อเสียงทางธุรกิจ |
 
-### Critical Governance Rules
-- **Error Budget Definition**: $\text{Error Budget} = 100\% - \text{SLO}$.
-  - At an SLO of $99.9\%$ over a 30-day window, the team is allowed $0.1\%$ failure, which equals exactly **43.2 minutes** of allowable downtime.
-- **Common Pitfall**: Setting the SLO equal to the SLA. If internal SLO = external SLA, the first time the internal target is missed, the organization is immediately in breach of contract with monetary and legal consequences. The SLO must always be stricter than the SLA to provide a safety margin.
+### กฎเหล็กในการบริหารจัดการความน่าเชื่อถือ
+- **นิยามของงบประมาณความผิดพลาด**: $\text{Error Budget} = 100\% - \text{SLO}$
+  - ตัวอย่างเช่น หากกำหนดค่าเป้าหมาย SLO ไว้ที่ $99.9\%$ ภายในรอบเวลา 30 วัน สัดส่วนความล้มเหลวที่ยอมรับได้คือ $0.1\%$ ซึ่งคิดเป็นเวลาหยุดทำงานสูงสุดรวมไม่เกิน **43.2 นาที**
+- **ข้อผิดพลาดร้ายแรงที่สุดในการตั้งค่า**: การกำหนดให้ SLO เท่ากับ SLA โดยตรง หากตั้งค่าเป้าหมายภายในเท่ากับภาระผูกพันภายนอก เมื่อใดก็ตามที่ทีมพลาดเป้าหมายภายในแม้เพียงเล็กน้อย องค์กรจะละเมิดสัญญาทางกฎหมายทันที ดังนั้น **SLO จะต้องมีความเข้มงวดกว่า SLA เสมอ** เพื่อเป็นกันชนความปลอดภัย (Safety Buffer)
 
 ---
 
-## 5. Anatomy of an SLI and the Core Equation
+## 5. โครงสร้างและสูตรทางคณิตศาสตร์ของ SLI (Anatomy of an SLI)
 
-Every usable SLI is a ratio of events. If a metric cannot be stated as a fraction, it is not yet defined.
+ตัวชี้วัด SLI ที่ใช้งานได้จริงทุกตัวจะต้องอยู่ในรูปของ **อัตราส่วนของเหตุการณ์ (Ratio of Events)** หากตัวชี้วัดใดไม่สามารถเขียนให้อยู่ในรูปเศษส่วนได้ แสดงว่าตัวชี้วัดนั้นยังไม่ได้รับการนิยามที่สมบูรณ์
 
-### General Formula
+### สูตรการคำนวณมาตรฐาน
 
-$$\text{SLI} = \frac{\text{Good Events}}{\text{Valid Events}} \times 100\%$$
+$$\text{SLI} = \frac{\text{จำนวนเหตุการณ์ที่ดี (Good Events)}}{\text{จำนวนเหตุการณ์ที่ถูกต้องทั้งหมด (Valid Events)}} \times 100\%$$
 
-Where:
-- **Good Events**: Total requests that met all defined success criteria (status code, latency, payload correctness).
-- **Valid Events**: All incoming requests that should legitimately have been served.
+โดยที่:
+- **จำนวนเหตุการณ์ที่ดี (Good Events)**: จำนวนคำร้องหรือธุรกรรมที่ผ่านเกณฑ์ความสำเร็จที่กำหนดไว้ครบถ้วน เช่น ได้รับรหัสสถานะสำเร็จ (Status Code 2xx), เวลาตอบสนองไม่เกินเกณฑ์ (Latency $\le 2\text{ s}$) และผลลัพธ์ของข้อมูลถูกต้อง
+- **จำนวนเหตุการณ์ที่ถูกต้องทั้งหมด (Valid Events)**: จำนวนคำร้องของผู้ใช้งานจริงที่ระบบควรจะต้องตอบสนองและให้บริการอย่างถูกต้อง
 
-### Worked Example: Registration Submissions (30-Day Window)
+### ตัวอย่างการคำนวณจริง: ระบบลงทะเบียนเรียน (ช่วงเวลา 30 วัน)
 
-| Line Item | Count | Status / Role in Calculation |
+| รายการที่บันทึก | จำนวนครั้ง | บทบาทและการตีความในการคำนวณ |
 | :--- | :--- | :--- |
-| Total submissions received | 205,140 | Raw total at perimeter |
-| Health checks and synthetic probes | - 5,140 | **Excluded** from denominator |
-| **Valid events (Denominator)** | **200,000** | Net real user attempts |
-| Returned HTTP 2xx within 2 seconds | **198,412** | **Good events (Numerator)** |
-| Failed submissions ($200,000 - 198,412$) | 1,588 | Unsuccessful events |
+| จำนวนคำร้องทั้งหมดที่ระบบได้รับ (Total submissions received) | 205,140 | ข้อมูลดิบที่ตรวจพบ ณ ขอบระบบ (Perimeter) |
+| คำร้องตรวจสอบสถานะระบบ (Health checks & monitoring probes) | - 5,140 | **ตัดออก (Excluded)** ไม่นำมาคิดในตัวส่วน |
+| **จำนวนเหตุการณ์ที่ถูกต้องทั้งหมด (Valid Events - ตัวส่วน)** | **200,000** | จำนวนครั้งที่ผู้ใช้งานจริงพยายามส่งข้อมูล |
+| คำร้องที่คืนค่า HTTP 2xx ภายในระยะเวลา 2 วินาที | **198,412** | **เหตุการณ์ที่ดี (Good Events - ตัวเศษ)** |
+| คำร้องที่ล้มเหลวหรือช้าเกินเกณฑ์ ($200,000 - 198,412$) | 1,588 | เหตุการณ์ที่ไม่เป็นไปตามเกณฑ์ความสำเร็จ |
 
 $$\text{SLI} = \frac{198,412}{200,000} \times 100\% = 99.206\%$$
 
-### The Exclusion Principle
-Excluding events from the denominator is an explicit engineering decision, not an implementation detail. Every exclusion must be explicitly documented and periodically reviewed. Unrecorded exclusions are where SLIs quietly become dishonest.
+### หลักการตัดเหตุการณ์ออก (The Exclusion Principle)
+การตัดเหตุการณ์ใดๆ ออกจากตัวส่วนไม่ใช่รายละเอียดปลีกย่อยทางเทคนิค แต่คือการตัดสินใจทางวิศวกรรม ทุกข้อยกเว้นจะต้องมีการจดบันทึกเป็นลายลักษณ์อักษรและระบุเหตุผลอย่างโปร่งใส การแอบตัดข้อมูลคำร้องที่มีปัญหาออกโดยไม่เปิดเผย คือจุดเริ่มต้นของการรายงานตัวเลข SLI ที่บิดเบือนและหลอกลวงตนเอง
 
 ---
 
-## 6. From Specification to Implementation
+## 6. การเปลี่ยนจากข้อกำหนดสู่การนำไปปฏิบัติจริง (Specification to Implementation)
 
-Every SLO requires two distinct layers. Without separating specification from implementation, two different engineers will measure two completely different numbers.
+การกำหนด SLO จำเป็นต้องมี 2 เลเยอร์ที่แยกจากกันชัดเจนเสมอ หากขาดเลเยอร์ใดเลเยอร์หนึ่ง วิศวกรสองคนจะวัดค่าออกมาได้ตัวเลขที่ไม่ตรงกัน
 
-### Specification vs. Implementation Framework
+### โครงสร้างเปรียบเทียบ 2 เลเยอร์ พร้อมรายการข้อยกเว้น
 
-| Layer | What It Contains | Registration System Example |
+| เลเยอร์ | ข้อมูลที่ระบุ | ตัวอย่างในระบบลงทะเบียนเรียน |
 | :--- | :--- | :--- |
-| **Specification** | The plain-language meaning with zero tooling or infrastructure detail | The proportion of registration submissions the system serves successfully within an acceptable time |
-| **Implementation** | The concrete mathematical formula, telemetry source, filters, and thresholds | Measured at load balancer: requests with HTTP status < 500 and response time $\le 2\text{ s}$, divided by all requests to path `/register` |
-| **Exclusions** | Events excluded from the denominator, each with an explicit documented justification | Health check probes, internal synthetic monitoring pings, and client-aborted connections (cancelled by user before timeout) |
+| **ข้อกำหนดเชิงหลักการ (Specification)** | ความหมายของความสำเร็จในภาษาที่มนุษย์เข้าใจ ไม่ผูกติดกับเครื่องมือหรือโครงสร้างพื้นฐานใดๆ | สัดส่วนของคำร้องลงทะเบียนเรียนที่ระบบสามารถประมวลผลสำเร็จได้อย่างรวดเร็วในเกณฑ์เวลาที่ยอมรับได้ |
+| **การนำไปปฏิบัติจริง (Implementation)** | สูตรคณิตศาสตร์ที่วัดได้จริง แหล่งที่มาของข้อมูล เกณฑ์ตัวชี้วัด และจุดที่ดึงข้อมูล | ตรวจวัดที่ตัวกระจายภาระงาน (Load Balancer): คำร้องที่ส่งไปยังพาท `/register` ที่ได้สถานะ HTTP < 500 และใช้เวลาประมวลผล $\le 2$ วินาที หารด้วยคำร้องทั้งหมดที่ส่งไปยังพาท `/register` |
+| **รายการข้อยกเว้น (Exclusions)** | รายการของเหตุการณ์ที่ไม่ถูกนับรวมในตัวส่วน พร้อมระบุเหตุผลประกอบอย่างเป็นทางการ | คำร้องตรวจสอบสถานะ (Health checks), สัญญาณทดสอบสังเคราะห์ภายใน (Synthetic probes) และคำร้องที่ผู้ใช้กดยกเลิกด้วยตนเองก่อนหมดเวลา (Client abort) |
 
-### Core Architectural Principles
-1. **Why Two Layers Exist**:
-   - The *specification* is what product managers, business leaders, and users discuss and agree upon.
-   - The *implementation* is what software and reliability engineers instrument, test, and alert against.
-   - Without both layers, debates regarding what constitutes "success" never end.
-2. **Measurement Location Dictates Truth**:
-   - Measuring inside the application runtime misses edge web server and load balancer crashes.
-   - Measuring at the load balancer misses authoritative DNS lookup failures and external network transit drops.
-   - The closer measurement is taken to the end user, the closer it reflects reality.
-3. **Explicit Exclusion Documentation**:
-   - Every excluded request type artificially improves the resulting SLI number.
-   - All exclusions must have written justifications and undergo regular audits rather than being added quietly when metrics look poor.
+### เสาหลัก 3 ประการในการแปลงข้อกำหนด
+1. **เหตุผลที่ต้องมี 2 เลเยอร์**: ข้อกำหนดเชิงหลักการเป็นสิ่งที่ตกลงร่วมกันระหว่างทีมวิศวกรรม ทีมธุรกิจ และฝ่ายบริหาร ส่วนการนำไปปฏิบัติจริงคือสิ่งที่วิศวกร SRE สร้างและตรวจวัด หากไม่มีความสอดคล้องกัน การถกเถียงเรื่องนิยามของ "ความสำเร็จ" จะไม่มีวันสิ้นสุด
+2. **ตำแหน่งในการวัดมีความสำคัญเท่ากับสิ่งที่วัด**: หากวัดผลภายในตัวแอปพลิเคชัน จะมองไม่เห็นความล้มเหลวที่เกิดขึ้นบน Load Balancer หากวัดผลที่ Load Balancer จะมองไม่เห็นปัญหาเรื่องระบบโดเมน (DNS) หรือเครือข่ายภายนอก ยิ่งจุดวัดอยู่ใกล้ชิดกับผู้ใช้งานจริงมากเท่าใด ข้อมูลที่ได้ยิ่งสะท้อนความเป็นจริงมากเท่านั้น
+3. **ต้องบันทึกและทบทวนข้อยกเว้นอย่างสม่ำเสมอ**: การตัดทราฟฟิกบางประเภทออกทำให้ค่า SLI ดูสูงขึ้นเสมอ จึงต้องมีบันทึกเหตุผลกำกับและนำมาตรวจสอบเป็นประจำ ไม่ใช่เพิ่มข้อยกเว้นอย่างลับๆ เฉพาะตอนที่ตัวเลขเริ่มย่ำแย่
 
 ---
 
-## 7. Choosing an SLI by Service Type
+## 7. การเลือก SLI ให้สอดคล้องกับประเภทของระบบบริการ (Choosing Good SLIs)
 
-Never measure what is simply easy to extract from a vendor tool. Measure what directly impacts the user's perception of service quality.
+อย่าเลือกวัดเพียงสิ่งที่วัดได้ง่ายจากเครื่องมือ แต่ต้องเลือกวัดสิ่งที่ส่งผลกระทบต่อความรู้สึกของผู้ใช้งานจริง (User-centric)
 
-### SLI Menu by Architecture
+### เมนู SLI ตามสถาปัตยกรรมของบริการ
 
-| Service Type | What the User Cares About | Standard SLIs to Use | Campus System Example |
+| ประเภทบริการ (Service Type) | สิ่งที่ผู้ใช้งานให้ความสำคัญ | ตัวชี้วัด SLI ที่ควรนำมาใช้ | ตัวอย่างระบบในมหาวิทยาลัย |
 | :--- | :--- | :--- | :--- |
-| **Request / Response** | "It works when I click, and returns results fast enough." | Availability, Latency, Correctness | Student Registration, Learning Management System (LMS), Faculty APIs |
-| **Batch Pipeline** | "The data arrives completely, without loss, and on time." | Freshness, Coverage, Correctness | Grade calculation rollups, Daily student data synchronization |
-| **Storage / Object Store** | "What I wrote into storage can always be retrieved accurately." | Durability, Availability, Read/Write Latency | Shared campus network file storage, System backup repositories |
+| **ระบบตอบรับคำร้อง (Request / Response)** | "กดคลิกแล้วต้องทำงานได้ทันที และตอบสนองรวดเร็วเพียงพอ" | ความพร้อมใช้งาน (Availability), ความหน่วงเวลา (Latency), ความถูกต้องของข้อมูล (Correctness) | ระบบลงทะเบียนเรียน, ระบบจัดการการเรียนรู้ (LMS), API เชื่อมต่อคณะ |
+| **ระบบประมวลผลแบบกลุ่ม (Batch Pipeline)** | "ข้อมูลต้องถูกประมวลผลครบถ้วน ถูกต้อง และเสร็จทันตามกำหนดเวลา" | ความสดใหม่ของข้อมูล (Freshness), ความครอบคลุม (Coverage), ความถูกต้อง (Correctness) | การรวบรวมตัดเกรดประจำภาค, การซิงค์ข้อมูลนักศึกษาข้ามระบบ |
+| **ระบบจัดเก็บข้อมูล (Storage / Object Store)** | "ข้อมูลที่เคยบันทึกไว้จะต้องสามารถอ่านกลับคืนมาได้อย่างถูกต้องและสมบูรณ์เสมอ" | ความคงทนของข้อมูล (Durability), ความพร้อมใช้งาน (Availability), ความเร็วในการอ่าน/เขียน (Latency) | ระบบแชร์ไฟล์ส่วนกลางของมหาวิทยาลัย, ระบบสำรองข้อมูลฐานข้อมูล |
 
-### Three Traps That Produce Misleadingly Good SLIs
+### หลุมพราง 3 ประการที่ทำให้ SLI ดูดีแต่ไร้ความหมาย (Three Traps That Lie)
 
-1. **Measuring Only at the Server**:
-   - The backend service reports HTTP 200 for every incoming connection.
-   - If the intermediate Content Delivery Network (CDN) or ingress load balancer misroutes traffic or fails TLS termination, the user receives an error screen while the server SLI reports 100% health.
-2. **Counting Only Requests That Successfully Arrive**:
-   - During severe network blackouts, packet storms, or connection pool exhaustion, user requests fail at the edge before reaching application instrumentation.
-   - Because only surviving requests reach the counter, the recorded success rate paradoxically spikes during major outages.
-3. **Using Arithmetic Averages Instead of Percentiles**:
-   - A single average metric completely masks severe tail latency suffered by the most active users.
+1. **การวัดผลเฉพาะที่ฝั่งเครื่องแม่ข่าย (Measuring only at the server)**: เครื่องแม่ข่ายอาจบันทึกสถานะตอบกลับ 200 ทุกคำร้อง แต่หากระบบ CDN หรือ Load Balancer เกิดปัญหาในการแปลงรหัสหรือระบบเครือข่ายขัดข้อง ผู้ใช้งานจะเห็นหน้าจอ Error ในขณะที่กราฟ SLI ของเครื่องแม่ข่ายแสดงสถานะสีเขียวสมบูรณ์
+2. **การนับเฉพาะคำร้องที่ส่งมาถึงระบบ (Counting only the requests that arrive)**: เมื่อเกิดปัญหาเครือข่ายหรือทางเข้าล่มครั้งใหญ่ คำร้องของผู้ใช้ส่วนมากจะถูกตัดการเชื่อมต่อก่อนจะมาถึงตัวนับของระบบ ผลลัพธ์คือตัวนับจะคำนวณเฉพาะคำร้องที่หลุดรอดเข้ามาได้ ทำให้ดูเหมือนว่าอัตราความสำเร็จพุ่งสูงขึ้นอย่างผิดปกติในยามที่ระบบกำลังวิกฤต
+3. **การใช้ค่าเฉลี่ยแทนเปอร์เซ็นไทล์ (Using an average instead of a percentile)**: ค่าเฉลี่ยจะกลบซ่อนความเจ็บปวดของผู้ใช้กลุ่มที่ประสบปัญหาความล่าช้าขั้นรุนแรงเสมอ
 
 ---
 
-## 8. Why Averages Lie and the Mathematics of Percentiles
+## 8. เหตุผลที่ค่าเฉลี่ยหลอกตา และคณิตศาสตร์ของ Percentile
 
-### Illustrative Data: Registration System Opening Day
+### ข้อมูลเปรียบเทียบ: วันเปิดระบบลงทะเบียนเรียนจริง
+- ค่าความหน่วงเวลาเฉลี่ย (Mean Latency): **380 มิลลิวินาที** (ผ่านเกณฑ์อย่างสบาย ผู้บริหารรู้สึกพึงพอใจ)
+- การกระจายตัวตามลำดับเปอร์เซ็นไทล์ (Percentile Distribution):
 
-- Measured Average Latency (Mean): **380 ms** (passes internal targets comfortably)
-- Latency Distribution by Percentile:
-
-| Metric | Latency Value | User Impact Analysis |
+| ระดับการวัด | เวลาตอบสนอง | การวิเคราะห์ผลกระทบต่อผู้ใช้งาน |
 | :--- | :--- | :--- |
-| **Average (Mean)** | 380.0 ms | Appears healthy; managers assume performance is exceptional |
-| **p50 (Median)** | 210.0 ms | 50% of requests complete in 210 ms or faster |
-| **p90** | 890.0 ms | 10% of users wait longer than 890 ms |
-| **p99** | 3,100.0 ms (3.1 s) | 1 out of every 100 users waits over 3 seconds |
-| **p99.9** | 8,200.0 ms (8.2 s) | 1 out of every 1,000 users waits over 8.2 seconds |
+| **ค่าเฉลี่ยเลขคณิต (Mean)** | 380.0 ms | ตัวเลขดูดี ทำให้ทีมงานนิ่งนอนใจและเข้าใจผิดว่าระบบเสถียรมาก |
+| **p50 (มัธยฐาน - Median)** | 210.0 ms | ผู้ใช้งาน 50% ได้รับการตอบสนองเร็วกว่าหรือเท่ากับ 210 มิลลิวินาที |
+| **p90** | 890.0 ms | ผู้ใช้งาน 10% ต้องรอนานกว่า 890 มิลลิวินาที |
+| **p99** | 3,100.0 ms (3.1 วินาที) | ผู้ใช้งาน 1 ใน 100 คน ต้องรอนานเกินกว่า 3 วินาที |
+| **p99.9** | 8,200.0 ms (8.2 วินาที) | ผู้ใช้งาน 1 ใน 1,000 คน ต้องรอนานเกินกว่า 8.2 วินาที |
 
-### Tail Latency Reality Check
-- With 200,000 total requests in a day:
-  - **p99 degradation**: $1\% \times 200,000 = 2,000$ users experience agonizingly slow submissions exceeding 3 seconds.
-  - **p99.9 degradation**: $0.1\% \times 200,000 = 200$ users wait over 8 seconds.
-  - These 200 to 2,000 frustrated users are the individuals who flood helpdesks, submit support tickets, and frantically click "refresh" or "retry", compounding server load into a cascading outage.
+### ผลกระทบของความล่าช้าในกลุ่มหางแถว (Tail Latency Reality Check)
+หากในวันเปิดระบบมีคำร้องรวม 200,000 ครั้ง:
+- ที่ระดับ **p99**: ผู้ใช้ $1\% \times 200,000 = 2,000$ คน ประสบปัญหาหน้าจอค้างนานเกิน 3 วินาที
+- ที่ระดับ **p99.9**: ผู้ใช้ $0.1\% \times 200,000 = 200$ คน ต้องรอนานเกิน 8.2 วินาที
+- ผู้ใช้กลุ่มนี้คือผู้ที่โทรศัพท์ร้องเรียนเข้ามายังศูนย์คอมพิวเตอร์ และพยายามกดปุ่ม "รีเฟรช (Refresh)" หรือส่งข้อมูลซ้ำๆ จนทำให้เกิดการจราจรติดขัดเป็นลูกโซ่ (Cascading Failure)
 
-**Rule of Thumb**: Always define latency SLOs as percentiles (e.g., p95, p99, p99.9), and select the percentile tier based on total transaction volume and the absolute number of real human beings represented by the remaining tail.
+**หลักปฏิบัติสากล (Rule of Thumb)**: จงกำหนด SLO ด้าน Latency ในรูปของเปอร์เซ็นไทล์เสมอ (เช่น p95, p99, p99.9) และเลือกเปอร์เซ็นไทล์ให้สอดคล้องกับขนาดฐานผู้ใช้งานจริงของระบบ
 
 ---
 
-## 9. Computing a Percentile Step-by-Step
+## 9. ขั้นตอนการคำนวณ Percentile แบบทีละก้าว (Computing a Percentile Step-by-Step)
 
-### Step-by-Step Calculation Procedure
-Given an ordered sample of 20 latency observations (in milliseconds):
+### วิธีการคำนวณตามขั้นตอน
+กำหนดชุดข้อมูลตัวอย่างเวลาตอบสนอง 20 ค่า (หน่วยเป็นมิลลิวินาที):
 $$[95, 110, 128, 141, 155, 168, 180, 196, 210, \mathbf{232}, 258, 290, 340, 420, 560, 780, 1120, \mathbf{1850}, \mathbf{3400}, 8200]$$
 
-1. **Order the raw sample data** from lowest to highest.
-2. **Determine rank index**:
-   - 50th percentile ($p50$): 10th value $\rightarrow \mathbf{232\text{ ms}}$
-   - 90th percentile ($p90$): 18th value $\rightarrow \mathbf{1,850\text{ ms}}$
-   - 95th percentile ($p95$): 19th value $\rightarrow \mathbf{3,400\text{ ms}}$
-   - Maximum ($p100$): 20th value $\rightarrow 8,200\text{ ms}$
+1. **เรียงลำดับข้อมูลจากน้อยไปหามาก (Sort samples ascending)**
+2. **หาตำแหน่งลำดับ (Rank Index)** ตามสูตรเปอร์เซ็นไทล์:
+   - เปอร์เซ็นไทล์ที่ 50 ($p50$): ข้อมูลตำแหน่งที่ $20 \times 0.50 = 10 \rightarrow \mathbf{232\text{ ms}}$
+   - เปอร์เซ็นไทล์ที่ 90 ($p90$): ข้อมูลตำแหน่งที่ $20 \times 0.90 = 18 \rightarrow \mathbf{1,850\text{ ms}}$
+   - เปอร์เซ็นไทล์ที่ 95 ($p95$): ข้อมูลตำแหน่งที่ $20 \times 0.95 = 19 \rightarrow \mathbf{3,400\text{ ms}}$
+   - ค่าสูงสุด ($p100$): ข้อมูลตำแหน่งที่ 20 $\rightarrow 8,200\text{ ms}$
 
-### Three Fundamental Rules of Percentiles
+### กฎพื้นฐาน 3 ประการของ Percentile
+1. **ต้องมีจำนวนตัวอย่างมากเพียงพอ (Sample Count Floor)**:
+   - การประเมินค่า $p99$ อย่างมีนัยสำคัญทางสถิติต้องการตัวอย่างอย่างน้อย **100 ตัวอย่าง** ในหน้าต่างการวัด
+   - การประเมินค่า $p99.9$ ต้องการตัวอย่างอย่างน้อย **1,000 ตัวอย่าง** หากทราฟฟิกมีไม่เพียงพอ ตัวเลขเปอร์เซ็นไทล์ระดับสูงจะไร้ความหมาย
+2. **เลือกเปอร์เซ็นไทล์ให้เหมาะกับจำนวนผู้ใช้จริง**:
+   - สำหรับระบบที่มีผู้ใช้ 20,000 คน เป้าหมาย $p99$ จะทอดทิ้งผู้ใช้ถึง 200 คน ระบบที่มีขนาดใหญ่จึงจำเป็นต้องขยับเป้าหมายไปสู่ $p99.9$ หรือ $p99.99$
+3. **ใช้ Histogram ในระบบตรวจสอบจริง**:
+   - การเก็บข้อมูลเวลาประมวลผลดิบทุกรายการในระบบแบบกระจาย (Distributed Systems) เปลืองหน่วยความจำและพื้นที่จัดเก็บอย่างมหาศาล ระบบตรวจสอบสมัยใหม่ (เช่น Prometheus) จึงใช้การแบ่งช่วงฮิสโตแกรม (Histogram Buckets) ในการประมาณค่าเปอร์เซ็นไทล์
 
-1. **Statistical Sample Floor**:
-   - To compute a statistically sound $p99$, a minimum of **100 samples** is required within the measurement window.
-   - To compute $p99.9$, at least **1,000 samples** are required. Calculating high percentiles with insufficient traffic produces meaningless figures.
-2. **Scale Percentile Tier to User Base**:
-   - For an application with 20,000 active sessions, a $p99$ target leaves 200 users suffering degraded performance. High-volume systems require $p99.9$ or $p99.99$ targets.
-3. **Use Histograms in Production Monitoring**:
-   - Storing all raw execution times in distributed production systems is prohibitive in memory and storage. Production tools (e.g., Prometheus) use histogram buckets to estimate percentile distributions.
-
-### The Cardinal Prohibition of Percentiles
-> **You cannot average percentiles.**
-> The arithmetic mean of Server A's $p99$ and Server B's $p99$ is mathematically NOT the $p99$ of the combined cluster. To find cluster-wide percentiles, one must aggregate underlying histogram buckets or recompute from raw samples.
+### ข้อห้ามร้ายแรงที่สุดทางคณิตศาสตร์ (The Cardinal Prohibition)
+> **ห้ามนำค่าเปอร์เซ็นไทล์มาหาค่าเฉลี่ยเลขคณิตโดยเด็ดขาด (You cannot average percentiles)**
+> ค่าเฉลี่ยของค่า p99 จากเซิร์ฟเวอร์เครื่องที่ 1 และ p99 จากเซิร์ฟเวอร์เครื่องที่ 2 ไม่เท่ากับค่า p99 ของทั้งคลัสเตอร์ การหาค่าเปอร์เซ็นไทล์รวมต้องทำจากการรวมข้อมูลใน Histogram Buckets หรือนำข้อมูลดิบทั้งหมดมารวมกันก่อนคำนวณใหม่เท่านั้น
 
 ---
 
-## 10. Composite Availability: Series vs. Parallel Dependencies
+## 10. ความพร้อมใช้งานแบบผสม: สถาปัตยกรรมแบบอนุกรมและแบบขนาน (Composite Availability)
 
-A system's maximum achievable reliability is strictly constrained by the architecture and availability of its upstream and downstream dependencies.
+ระดับความพร้อมใช้งานสูงสุดของระบบจะถูกจำกัดด้วยสถาปัตยกรรมและความพร้อมใช้งานของระบบที่ต้องพึ่งพา (Dependencies) เสมอ
 
 ```
-1. Series Architecture (Every hop must succeed):
-[ Web Tier (99.9%) ] ---> [ API Service (99.9%) ] ---> [ Database (99.9%) ]
-Result: Availability drops to 99.7% (2 hours 10 minutes downtime / 30 days)
+1. สถาปัตยกรรมแบบอนุกรม (Series - ทุกจุดต้องทำงานได้):
+[ เว็บเซิร์ฟเวอร์ (99.9%) ] ---> [ บริการ API (99.9%) ] ---> [ ฐานข้อมูล (99.9%) ]
+ผลลัพธ์: ความพร้อมใช้งานรวมลดลงเหลือ 99.7% (หยุดทำงานได้ 2 ชั่วโมง 10 นาที / 30 วัน)
 
-2. Parallel Architecture (Redundancy - one survivor is enough):
-                      +---> [ Node A1 (99%) ] ---+
-[ Load Balancer ] --->|                          |---> Output
-                      +---> [ Node A2 (99%) ] ---+
-Result: Availability increases to 99.99% (4.3 minutes downtime / 30 days)
+2. สถาปัตยกรรมแบบขนาน (Parallel - มีโหนดสำรอง เพียง 1 โหนดรอดระบบก็รอด):
+                          +---> [ โหนด A1 (99%) ] ---+
+[ ตัวกระจายภาระงาน (LB) ] --->|                         |---> เอาต์พุต
+                          +---> [ โหนด A2 (99%) ] ---+
+ผลลัพธ์: ความพร้อมใช้งานรวมเพิ่มขึ้นเป็น 99.99% (หยุดทำงานได้เพียง 4.3 นาที / 30 วัน)
 ```
 
-### Series Availability Mathematics
-In a linear dependency chain where every component must function for the request to succeed:
+### คณิตศาสตร์ของความพร้อมใช้งานแบบอนุกรม (Series Availability)
+ในสายการเชื่อมต่อที่ทุกองค์ประกอบต้องทำงานร่วมกันอย่างสมบูรณ์:
 
 $$A_{\text{total}} = \prod_{i=1}^{n} A_i = A_1 \times A_2 \times A_3 \times \dots \times A_n$$
 
-- For three chained systems each offering $99.9\%$ ($0.999$):
+- สำหรับระบบ 3 ชั้น แต่ละชั้นมีความพร้อมใช้งาน $99.9\%$ ($0.999$):
   $$A_{\text{total}} = 0.999 \times 0.999 \times 0.999 = 0.997002999 \approx 99.7\%$$
-- **Operational Reality**: Chaining three $99.9\%$ components yields worse availability ($99.7\% \approx 2\text{ h } 10\text{ min}$ downtime per 30 days) than any individual service in the chain.
+- **ความจริงเชิงวิศวกรรม**: การต่อระบบที่มีความพร้อมใช้งาน $99.9\%$ แบบอนุกรม 3 จุด จะทำให้ระบบรวมมีความน่าเชื่อถือต่ำกว่าระบบเดี่ยวใดๆ (ลดเหลือ $99.7\%$ คิดเป็นเวลาหยุดทำงานประมาณ 2 ชั่วโมง 10 นาที ต่อ 30 วัน)
 
-### Parallel (Redundant) Availability Mathematics
-When identical redundant components operate in parallel and only one component needs to survive:
+### คณิตศาสตร์ของความพร้อมใช้งานแบบขนาน (Parallel / Redundant Availability)
+เมื่อมีองค์ประกอบสำรองทำงานคู่ขนานกัน และต้องการเพียงหนึ่งตัวที่ทำงานได้:
 
 $$A_{\text{total}} = 1 - \prod_{i=1}^{n} (1 - A_i) = 1 - (1 - A_1) \times (1 - A_2)$$
 
-- For two redundant nodes each with $99\%$ availability ($A = 0.99$, unreliability $1 - A = 0.01$):
+- สำหรับโหนดคู่ขนาน 2 ตัว แต่ละตัวมีความพร้อมใช้งานเพียง $99\%$ ($A = 0.99$, ความไม่พร้อมใช้งาน $1 - A = 0.01$):
   $$A_{\text{total}} = 1 - (0.01 \times 0.01) = 1 - 0.0001 = 0.9999 \ (99.99\%)$$
-- **Operational Reality**: Two mediocre $99\%$ nodes in parallel outperform either single node, reducing monthly downtime to **4.3 minutes**.
+- **ความจริงเชิงวิศวกรรม**: โหนดธรรมดาที่พร้อมใช้งาน $99\%$ จำนวน 2 โหนดต่อขนานกัน ให้ความพร้อมใช้งานสูงกว่าโหนดเดี่ยวที่ $99.9\%$ อย่างมหาศาล โดยลดเวลาหยุดทำงานเหลือเพียง 4.3 นาที ต่อ 30 วัน
 
-### Three Core Architecture Rules
-1. **Rule One**: Never commit to an SLO higher than the product of your mandatory dependencies. If the backend database provides $99.9\%$, the API cannot promise $99.95\%$ unless it is explicitly architected to serve stale cache or degrade gracefully without the database.
-2. **Rule Two**: Every additional component placed in series reduces overall system reliability. Simplification is the most effective reliability engineering technique.
-3. **Rule Three**: Redundancy only improves availability if failure modes are strictly independent. If two redundant servers share a common power distribution unit, network switch, or virtualization host, they share a single point of failure and the parallel availability formula does not apply.
-
----
-
-## 11. Error Budget Arithmetic and Downtime Conversions
-
-An error budget represents the exact amount of unreliability, errors, or downtime a service is permitted to accumulate over a specified rolling window.
-
-> **A budget is time/events you are allowed to spend, not a total catastrophe to avoid at all costs.**
-
-### Allowable Downtime Reference Table
-
-| Target SLO | Allowable Downtime per 30 Days | Allowable Downtime per 7 Days | Allowable Downtime per Day | Target Environment Suitability |
-| :--- | :--- | :--- | :--- | :--- |
-| **99%** ("two nines") | 7 hours 12 minutes | 1 hour 41 minutes | 14 minutes 24 seconds | Internal tools, non-critical background services |
-| **99.5%** | 3 hours 36 minutes | 50 minutes 24 seconds | 7 minutes 12 seconds | General campus services, student portals |
-| **99.9%** ("three nines") | 43 minutes 12 seconds | 10 minutes 5 seconds | 1 minute 26 seconds | Production systems with external user interaction |
-| **99.95%** | 21 minutes 36 seconds | 5 minutes 2 seconds | 43 seconds | Mission-critical enrollment and registration peaks |
-
-### Operating Principles of Error Budgets
-- **Inclusive Scope**: The budget covers all failure categories: unplanned software crashes, bad rollouts, cloud infrastructure outages, and planned maintenance windows alike.
-- **Under-spending Risk**: Ending a measurement window with 100% of the error budget intact indicates an overly conservative deployment velocity. The team may be shipping features too slowly, missing market or educational opportunities.
-- **Mid-Period Depletion**: Exhausting the error budget mid-month requires immediately stopping new feature deployments to arrest compounding operational risk.
+### กฎทอง 3 ข้อในการออกแบบสถาปัตยกรรมระบบ
+1. **กฎข้อที่ 1**: ห้ามตั้งเป้าหมาย SLO ของระบบตนเองสูงกว่าผลคูณของความพร้อมใช้งานของระบบที่ต้องพึ่งพา หากฐานข้อมูลมีความพร้อมใช้งานเพียง $99.9\%$ ระบบ API ของคุณจะไม่สามารถสัญญาความพร้อมใช้งานที่ $99.95\%$ ได้ เว้นแต่คุณจะออกแบบสถาปัตยกรรมให้ทำงานต่อได้ด้วยแคช (Stale Cache) หรือมีกลไก Degrade Mode เมื่อฐานข้อมูลล่ม
+2. **กฎข้อที่ 2**: การเพิ่มองค์ประกอบแบบอนุกรมเข้าไปในระบบจะลดทอนความน่าเชื่อถือลงเสมอ ระบบที่เรียบง่ายกว่าจึงมักเป็นระบบที่มีความน่าเชื่อถือสูงกว่า
+3. **กฎข้อที่ 3**: การสร้างระบบสำรอง (Redundancy) จะช่วยเพิ่มความน่าเชื่อถือได้ก็ต่อเมื่อ "จุดล้มเหลวมีความเป็นอิสระต่อกันอย่างแท้จริง" หากโหนดคู่ขนานทั้งสองใช้ปลั๊กไฟ (PDU) เดียวกัน หรือเชื่อมต่อสวิตช์เครือข่ายตัวเดียวกัน เมื่อสวิตช์หรือไฟดับ ระบบจะล่มพร้อมกันทั้งคู่และสูตรขนานจะไม่เป็นจริง
 
 ---
 
-## 12. Step-by-Step Error Budget Computation
+## 11. คณิตศาสตร์ของ Error Budget และการแปลงค่าเป็นเวลาหยุดทำงาน
 
-Worked Example: Registration System with SLO of **99.9%** over a **30-day window** ($200,000$ valid requests).
+Error Budget คืองบประมาณความผิดพลาดหรือความไม่พร้อมใช้งานที่ระบบได้รับอนุญาตให้สะสมได้ตลอดช่วงระยะเวลาการวัดผลที่กำหนด
 
-### Step 1: Calculate Total Time in Window
-$$\text{Total Window Minutes} = 30\text{ days} \times 24\text{ hours/day} \times 60\text{ minutes/hour} = 43,200\text{ minutes}$$
+> **งบประมาณ (Budget) คือทรัพยากรที่คุณได้รับอนุญาตให้ใช้ในการสร้างนวัตกรรม ไม่ใช่สิ่งเลวร้ายที่ต้องหลีกเลี่ยงจนไม่กล้าทำอะไรเลย**
 
-### Step 2: Calculate Error Budget as Allowable Downtime
-$$\text{Budget}_{\text{time}} = (1 - \text{SLO}) \times \text{Window} = (1 - 0.999) \times 43,200\text{ min} = 0.001 \times 43,200 = \mathbf{43.2\text{ minutes}}$$
+### ตารางเปรียบเทียบเวลาหยุดทำงานที่ยอมรับได้ (Allowable Downtime Table)
 
-### Step 3: Calculate Error Budget as Allowable Failed Requests
-$$\text{Budget}_{\text{requests}} = (1 - \text{SLO}) \times \text{Total Valid Requests} = 0.001 \times 200,000 = \mathbf{200\text{ requests}}$$
+| ค่าเป้าหมาย SLO | เวลาหยุดทำงานต่อ 30 วัน | เวลาหยุดทำงานต่อ 7 วัน | เวลาหยุดทำงานต่อ 1 วัน | เวลาหยุดทำงานต่อ 1 ปี (365 วัน) | ความเหมาะสมตามประเภทของระบบงาน |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **99%** ("Two Nines") | 7 ชั่วโมง 12 นาที | 1 ชั่วโมง 41 นาที | 14 นาที 24 วินาที | 3 วัน 15 ชั่วโมง 36 นาที | ระบบภายใน, บริการประมวลผลพื้นหลังที่ไม่วิกฤต |
+| **99.5%** | 3 ชั่วโมง 36 นาที | 50 นาที 24 วินาที | 7 นาที 12 วินาที | 1 วัน 19 ชั่วโมง 48 นาที | บริการทั่วไปในองค์กร, พอร์ทัลข้อมูลนักศึกษา |
+| **99.9%** ("Three Nines") | 43 นาที 12 วินาที | 10 นาที 5 วินาที | 1 นาที 26 วินาที | 8 ชั่วโมง 45 นาที 36 วินาที | ระบบสายการผลิตที่รองรับผู้ใช้งานจริงภายนอก |
+| **99.95%** | 21 นาที 36 วินาที | 5 นาที 2 วินาที | 43 วินาที | 4 ชั่วโมง 22 นาที 48 วินาที | ระบบลงทะเบียนเรียนในช่วงเวลาพีคที่มีการแข่งขันสูง |
+| **99.99%** ("Four Nines")| 4 นาที 19 วินาที | 1 นาที 0 วินาที | 8.6 วินาที | 52 นาที 36 วินาที | ระบบการเงิน, โครงสร้างพื้นฐานคลาวด์ระดับวิกฤต |
 
-### Step 4: Quantify Actual Failures Spent
-From the SLI calculation in Section 5:
-- Total valid requests: $200,000$
-- Successful requests: $198,412$
-- Actual failed requests:
-  $$\text{Failed Requests} = 200,000 - 198,412 = \mathbf{1,588\text{ requests}}$$
-- Percentage of budget consumed:
-  $$\text{Budget Consumed} = \frac{1,588}{200} \times 100\% = \mathbf{794\%}$$
-
-### Step 5: Determine Operational Position
-The team overspent the allowable error budget by a factor of **7.94x**. The error budget is fully exhausted. Under the agreed error budget policy, all non-emergency releases must stop immediately.
+### ปรัชญาการปฏิบัติการเรื่อง Error Budget
+- **ครอบคลุมทุกสาเหตุ**: งบประมาณนี้รองรับเหตุการณ์ระบบหยุดชะงักทุกรูปแบบ ทั้งปัญหาขัดข้องที่ไม่ได้คาดการณ์ (Unplanned Outages), การ Deploy โค้ดที่ผิดพลาด และการปิดปรับปรุงระบบตามแผน (Planned Maintenance)
+- **ความเสี่ยงจากการใช้งบประมาณน้อยเกินไป (Under-spending)**: หากสิ้นสุดรอบการวัดผลแล้วพบว่างบประมาณแทบไม่ถูกใช้เลย แสดงว่าทีมงานอาจมีความระมัดระวังมากเกินไปจนส่งมอบฟีเจอร์ช้า และเสียโอกาสในการแข่งขันหรือการพัฒนา
+- **งบประมาณหมดกลางงวด**: หาก Error Budget ถูกใช้จนหมดตั้งแต่กลางเดือน ทีมงานจะต้องหยุดการส่งมอบความเสี่ยงใหม่ทันที เพื่อไม่ให้กระทบต่อความเชื่อมั่นของผู้ใช้งาน
 
 ---
 
-## 13. Burn Rate: Mathematical Foundations and Alerting
+## 12. ตัวอย่างการคำนวณ Error Budget แบบทีละขั้นตอน (Step-by-Step Calculation)
 
-Burn rate measures the acceleration of error budget consumption. Monitoring the current burn rate allows teams to act on catastrophic degradation before the entire budget is drained.
+กรณีศึกษาระบบลงทะเบียนเรียน: กำหนดเป้าหมาย SLO อยู่ที่ **99.9%** ภายในหน้าต่างเวลา **30 วัน** (มีจำนวนคำร้องที่ถูกต้อง $200,000$ คำร้อง)
 
-### The Three Core Burn Rate Equations
+### ขั้นที่ 1: คำนวณเวลาทั้งหมดในหน้าต่างการวัด (Fix the window)
+$$\text{เวลาทั้งหมดในหน้าต่าง} = 30\text{ วัน} \times 24\text{ ชั่วโมง/วัน} \times 60\text{ นาที/ชั่วโมง} = 43,200\text{ นาที}$$
 
-1. **Burn Rate by Consumption over Time**:
-   $$\text{Burn Rate} = \frac{\text{Budget Spent (\%)}}{\text{Time Elapsed (\%)}}$$
+### ขั้นที่ 2: คำนวณ Error Budget ในรูปของเวลาที่ยอมรับได้ (Budget as time)
+$$\text{งบประมาณเวลา} = (1 - \text{SLO}) \times \text{เวลาทั้งหมด} = (1 - 0.999) \times 43,200\text{ นาที} = 0.001 \times 43,200 = \mathbf{43.2\text{ นาที}}$$
 
-2. **Burn Rate by Error Rate**:
-   $$\text{Burn Rate} = \frac{\text{Observed Error Rate}}{1 - \text{SLO}}$$
+### ขั้นที่ 3: คำนวณ Error Budget ในรูปของจำนวนคำร้องที่ยอมให้ล้มเหลว (Budget as requests)
+$$\text{งบประมาณคำร้อง} = (1 - \text{SLO}) \times \text{จำนวนคำร้องที่ถูกต้องทั้งหมด} = 0.001 \times 200,000 = \mathbf{200\text{ คำร้อง}}$$
 
-3. **Time to Complete Exhaustion**:
-   $$\text{Time to Exhaustion} = \frac{\text{Total Window}}{\text{Burn Rate}}$$
+### ขั้นที่ 4: ตรวจสอบปริมาณงบประมาณที่ถูกใช้ไปจริง (Check what was spent)
+จากข้อมูลจริงในสไลด์เรื่อง SLI:
+- คำร้องที่ถูกต้องทั้งหมด: $200,000$ คำร้อง
+- คำร้องที่สำเร็จตามเกณฑ์: $198,412$ คำร้อง
+- คำร้องที่ล้มเหลวจริง:
+  $$\text{คำร้องที่ล้มเหลว} = 200,000 - 198,412 = \mathbf{1,588\text{ คำร้อง}}$$
+- คิดเป็นสัดส่วนงบประมาณที่ผลาญไป:
+  $$\text{สัดส่วนงบประมาณที่ใช้} = \frac{1,588}{200} \times 100\% = \mathbf{794\%}$$
 
-### Worked Example: Mid-Window Outage
-Suppose a system is 5 days into a 30-day window, and 60% of the error budget has been spent:
-- Time elapsed percentage: $\frac{5}{30} = 16.7\%$
-- Budget spent: $60\%$
-- Current burn rate:
+### ขั้นที่ 5: ประเมินสถานะและดำเนินการตามนโยบาย (State the position)
+ระบบใช้งบประมาณเกินไปถึง **7.94 เท่า** (งบประมาณติดลบ) สถานะคือ **งบประมาณหมดลงอย่างสิ้นเชิง (Budget Exhausted)** ทีมงานต้องปฏิบัติตามนโยบาย Error Budget Policy โดยการหยุดปล่อยฟีเจอร์ใหม่ทั้งหมดในทันที
+
+---
+
+## 13. Burn Rate: พื้นฐานทางคณิตศาสตร์และการแจ้งเตือน
+
+Burn Rate คืออัตราความเร็วในการผลาญงบประมาณความผิดพลาด การเฝ้าสังเกต Burn Rate ทำให้ทีมงานสามารถระงับเหตุวิกฤตได้ก่อนที่งบประมาณทั้งเดือนจะสูญสลายไปจนหมด
+
+### สูตรคณิตศาสตร์หลัก 3 สูตร
+
+1. **Burn Rate จากสัดส่วนงบประมาณเทียบกับเวลาที่ผ่านไป**:
+   $$\text{Burn Rate} = \frac{\text{สัดส่วนงบประมาณที่ใช้ไป (\%)}}{\text{สัดส่วนเวลาที่ผ่านไป (\%)}}$$
+
+2. **Burn Rate จากอัตราความผิดพลาดจริงเทียบกับ SLO**:
+   $$\text{Burn Rate} = \frac{\text{อัตราความผิดพลาดที่ตรวจพบ (Observed Error Rate)}}{1 - \text{SLO}}$$
+
+3. **ระยะเวลาที่เหลือก่อนงบประมาณจะหมดเกลี้ยง (Time to Exhaustion)**:
+   $$\text{ระยะเวลาจนงบหมด} = \frac{\text{ระยะเวลาทั้งหมดของหน้าต่างการวัด}}{\text{Burn Rate}}$$
+
+### ตัวอย่างการคำนวณ: เกิดเหตุขัดข้องกลางรอบวัดผล
+สมมติว่าระบบทำงานผ่านไปแล้ว 5 วัน ในรอบ 30 วัน และ Error Budget ถูกใช้ไปแล้ว 60%:
+- สัดส่วนเวลาที่ผ่านไป: $\frac{5}{30} = 16.7\%$
+- สัดส่วนงบประมาณที่ใช้ไป: $60\%$
+- คำนวณ Burn Rate:
   $$\text{Burn Rate} = \frac{60\%}{16.7\%} = \mathbf{3.6}$$
-- Projected time until total exhaustion:
-  $$\text{Time to Exhaustion} = \frac{30\text{ days}}{3.6} = \mathbf{8.3\text{ days}}$$
+- คำนวณระยะเวลาจนกระทั่งงบประมาณหมดเกลี้ยง:
+  $$\text{ระยะเวลาจนงบหมด} = \frac{30\text{ วัน}}{3.6} = \mathbf{8.3\text{ วัน}}$$
 
-### Burn Rate Exhaustion and Alerting Matrix
+### ตารางระดับ Burn Rate และแนวทางการตอบสนอง
 
-| Burn Rate | Observed Error Rate (for 99.9% SLO) | 100% Budget Depletion Window | Operational Action / Alerting Response |
+| ระดับ Burn Rate | อัตราความผิดพลาดที่ตรวจพบ (สำหรับ SLO 99.9%) | งบประมาณ 100% จะหมดลงภายใน | แนวทางการปฏิบัติการและการแจ้งเตือน |
 | :--- | :--- | :--- | :--- |
-| **1.0** | $0.10\%$ | 30 days (exact window duration) | Normal baseline consumption. No operational action needed. |
-| **2.0** | $0.20\%$ | 15 days | Elevated risk. Monitor trend; document in weekly SRE report. |
-| **6.0** | $0.60\%$ | 5 days | Critical leak. File an engineering ticket for resolution during business hours. |
-| **14.4** | $1.44\%$ | 2 days (48 hours) | Immediate crisis. Trigger on-call pager immediately to halt runaway burn. |
+| **1.0** | $0.10\%$ | 30 วัน (หมดตรงวันสุดท้ายพอดี) | อัตราการใช้งานปกติ ไม่จำเป็นต้องดำเนินการใดๆ |
+| **2.0** | $0.20\%$ | 15 วัน | ความเสี่ยงปานกลาง เฝ้าติดตามแนวโน้มและบันทึกในรายงานประจำสัปดาห์ |
+| **6.0** | $0.60\%$ | 5 วัน | งบประมาณรั่วไหลรวดเร็ว เปิดคำร้อง (Ticket) เพื่อให้วิศวกรแก้ไขในเวลาทำการ |
+| **14.4** | $1.44\%$ | 2 วัน (48 ชั่วโมง) | วิกฤตร้ายแรง ส่งสัญญาณแจ้งเตือนปลุกเจ้าหน้าที่เวร (Page on-call) ทันที |
+
+### แนวคิด Multi-Window Multi-Burn-Rate Alerting
+ในการใช้งาน SRE ขั้นสูง (เช่น ในสัปดาห์ที่ 6) การส่ง Alert จะใช้การวัดค่าความเร็วในการผลาญงบประมาณข้ามหลายหน้าต่างเวลาควบคู่กัน (Multi-window) เช่น ตรวจสอบทั้งหน้าต่างระยะสั้น (เช่น 1 ชั่วโมง) และหน้าต่างระยะยาว (เช่น 6 ชั่วโมง) เพื่อป้องกันปัญหาการเตือนผิดพลาด (False Alarms) และตรวจจับเหตุการณ์ที่งบประมาณรั่วไหลอย่างรวดเร็วได้อย่างแม่นยำ
 
 ---
 
-## 14. Error Budget Policy: Rules, Thresholds, and Governance
+## 14. นโยบายงบประมาณความผิดพลาด (Error Budget Policy)
 
-An error budget policy is a formal operational contract between Development, Operations/SRE, and Product Management. It must be negotiated and signed before incidents occur to prevent finger-pointing during an outage.
-
-### Policy Action Thresholds
+นโยบาย Error Budget Policy คือข้อตกลงร่วมกันระหว่างทีมพัฒนา (Dev), ทีมปฏิบัติการ (SRE/Ops) และเจ้าของผลิตภัณฑ์ (Product Owner) ซึ่ง **ต้องตกลงกันล่วงหน้าก่อนที่งบประมาณจะหมดลง** เพื่อป้องกันการกล่าวโทษกันเมื่อเกิดวิกฤต
 
 ```
-Remaining Budget
+ระดับงบประมาณที่เหลืออยู่
 100% +-------------------------------------------------------+
-     | Over 50% Left: Ship as normal; run chaos tests        |
+     | เหลืองบประมาณ > 50%: ปล่อยฟีเจอร์ได้ปกติ, ทดสอบ Chaos ได้  |
  50% +-------------------------------------------------------+
-     | 25% - 50% Left: Review high-risk changes; test deeper  |
+     | เหลืองบประมาณ 25% - 50%: ทบทวนงานเสี่ยงสูง, ทดสอบเข้มงวดขึ้น|
  25% +-------------------------------------------------------+
-     | Under 25% Left: Freeze features; only risk fixes ship |
+     | เหลืองบประมาณ < 25%: หยุดฟีเจอร์ใหม่, ปล่อยเฉพาะงานแก้เสี่ยง|
   0% +-------------------------------------------------------+
-     | Budget Exhausted: Total freeze; postmortem required   |
+     | งบประมาณหมด: หยุด Deploy สิ้นเชิง, หันมาแก้งานเสถียรภาพ      |
      +-------------------------------------------------------+
 ```
 
-| Remaining Budget Tier | Permitted Engineering Activities | Mandatory Operational Constraints |
+### เกณฑ์การบังคับใช้มาตรการตามระดับงบประมาณคงเหลือ
+
+| ระดับงบประมาณที่เหลือ | กิจกรรมทางวิศวกรรมที่อนุญาต | ข้อจำกัดและมาตรการบังคับใช้ |
 | :--- | :--- | :--- |
-| **Over 50% Left** | Standard feature delivery and deployments | Team has room to experiment; ideal phase to conduct game days and chaos experiments |
-| **25% - 50% Left** | Standard feature delivery | Scrutinize high-risk pull requests; increase integration and pre-deployment testing |
-| **Under 25% Left** | Feature release freeze | Only changes that directly reduce operational risk or enhance reliability may be deployed |
-| **Budget Exhausted ($\le 0\%$)** | Complete release halt | All feature deployments stop; 100% of engineering bandwidth shifts to reliability engineering until next window; postmortem is mandatory |
+| **เหลืองบประมาณมากกว่า 50%** | พัฒนาและส่งมอบฟีเจอร์ตามแผนปกติ | ทีมงานมีพื้นที่รับความเสี่ยง สามารถทำการทดลองวิศวกรรมความโกลาหล (Chaos Engineering) หรือ Game Days ได้ |
+| **เหลืองบประมาณ 25% – 50%** | ส่งมอบฟีเจอร์ได้ตามปกติ | เพิ่มความเข้มงวดในการตรวจสอบ Pull Requests ที่มีความเสี่ยงสูง และเพิ่มกระบวนการทดสอบก่อนขึ้นระบบ |
+| **เหลืองบประมาณต่ำกว่า 25%** | ระงับการเปิดตัวฟีเจอร์ใหม่ (Feature Freeze) | อนุญาตให้ปล่อยได้เฉพาะการเปลี่ยนแปลงที่ช่วยลดความเสี่ยงหรือเสริมสร้างเสถียรภาพของระบบเท่านั้น |
+| **งบประมาณหมดลง ($\le 0\%$)** | สั่งหยุดการขึ้นระบบทั้งหมด (Complete Halt) | ยุติการ Deploy ฟีเจอร์ใหม่ 100% ของทรัพยากรทีมต้องทุ่มเทให้กับการแก้ไขความเสถียร จัดการหนี้ทางเทคนิค และทำรายงานวิเคราะห์สาเหตุ (Postmortem) |
 
 ---
 
-## 15. Operational Case Study: One Month of Real Decisions
+## 15. กรณีศึกษาเชิงปฏิบัติการ: จำลองการตัดสินใจจริงใน 1 เดือน (Operational Case Study)
 
-Walkthrough of a registration system across a single 30-day window ($SLO = 99.9\%$, Total Budget = **43.2 minutes**).
+ตัวอย่างการเดินระบบลงทะเบียนเรียนตลอดรอบระยะเวลา 30 วัน ($SLO = 99.9\%$, งบประมาณเวลารวม **43.2 นาที**)
 
-| Day | Incident / Event | Duration Spent | Cumulative Downtime | Remaining Budget (%) | Enforced Policy Action |
+| วันที่ | เหตุการณ์ที่เกิดขึ้น | เวลาที่สูญเสีย | เวลารวมสะสม | งบประมาณคงเหลือ (%) | การตัดสินใจตามนโยบาย (Policy Decision) |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Day 3** | Deployment v2.4 introduces regression | 5.0 min | 5.0 min | 88% | Normal operation; proceed with feature work |
-| **Day 9** | Primary database failover | 12.0 min | 17.0 min | 61% | Normal operation; proceed with feature work |
-| **Day 16** | Scheduled maintenance window | 8.0 min | 25.0 min | 42% | Enter caution phase: review high-risk PRs and tighten pre-deploy testing |
-| **Day 22** | Erroneous release; required rollback | 13.0 min | 38.0 min | 12% | Feature freeze enforced: pause new features, deploy only reliability fixes |
-| **Day 27** | Core switch network partition | 6.0 min | 44.0 min | -2% (Exhausted) | Hard stop: complete deployment lockdown, engineering shifted to remediation, blameless postmortem initiated |
+| **วันที่ 3** | การ Deploy เวอร์ชัน 2.4 เกิดข้อผิดพลาด | 5.0 นาที | 5.0 นาที | 88% | ส่งมอบฟีเจอร์ได้ตามปกติ |
+| **วันที่ 9** | ฐานข้อมูลหลักสลับการทำงานฉุกเฉิน (Database Failover) | 12.0 นาที | 17.0 นาที | 61% | ส่งมอบฟีเจอร์ได้ตามปกติ |
+| **วันที่ 16** | ปิดปรับปรุงระบบตามรอบการบำรุงรักษา (Planned Maintenance) | 8.0 นาที | 25.0 นาที | 42% | เข้าสู่ช่วงเฝ้าระวัง: ทบทวนการเปลี่ยนแปลงที่มีความเสี่ยงสูงอย่างเข้มงวด |
+| **วันที่ 22** | Deploy โค้ดผิดพลาด ต้องทำการย้อนคืนระบบ (Rollback) | 13.0 นาที | 38.0 นาที | 12% | สั่งหยุดฟีเจอร์ใหม่: ให้ทำเฉพาะการแก้ไขที่ลดความเสี่ยงเท่านั้น |
+| **วันที่ 27** | สวิตช์เครือข่ายส่วนกลางขัดข้อง (Network Incident) | 6.0 นาที | 44.0 นาที | -2% (งบประมาณหมด) | หยุดการปล่อยงานทั้งหมดทันที นำทีมแก้งานเสถียรภาพ และจัดทำ Postmortem |
 
-### Key Takeaway on Maintenance
-The 8-minute maintenance window on Day 16 came out of the exact same error budget pool as unplanned outages. Users experiencing service disruption do not distinguish whether downtime was scheduled or accidental.
-
----
-
-## 16. Field Lab 2: Data Center Decommissioning and Error Budgets
-
-### Rationale: Connecting Physical Infrastructure to SRE Principles
-Stripping data center racks represents the single largest planned withdrawal from the annual infrastructure error budget.
-1. **Financial and Reliability Cost**: Every minute of physical server downtime directly debits service error budgets.
-2. **Scheduling Out of Hours**: Physical strip-outs are performed during low-traffic windows (e.g., Saturday morning) because request-based SLIs suffer the least statistical impact when traffic volume is lowest.
-3. **Universal Asset Inventory**: Unregistered hardware is unmanaged hardware. When untracked boxes fail, monitoring cannot identify them, alerts are never sent, and data loss risks remain hidden.
-4. **Returning Idle Assets**: Unused servers consume rack units, cooling, and electricity every day while providing zero user value.
+### บทเรียนสำคัญเรื่องการปิดปรับปรุงระบบตามแผน (Planned Maintenance)
+เวลา 8 นาที ที่เสียไปจากการปิดปรับปรุงระบบในวันที่ 16 ถูกหักออกจากงบประมาณก้อนเดียวกันกับเหตุการณ์ล่มที่ไม่ได้คาดการณ์ เพราะในมุมมองของผู้ใช้งาน ผู้ใช้ไม่สนใจว่าระบบหยุดทำงานเพราะความตั้งใจของทีมงานหรือเกิดจากอุบัติเหตุ หากผู้ใช้เข้าใช้งานไม่ได้ นั่นคืองบประมาณที่ถูกใช้ไปเสมอ
 
 ---
 
-## 17. Field Session Schedules
+## 16. ปฏิบัติการภาคสนามที่ 2: การปลดระวางอุปกรณ์ในศูนย์ข้อมูลและ Error Budget
 
-All field operations require formal access requests submitted and approved at least five working days in advance.
+### ความเชื่อมโยงระหว่างฮาร์ดแวร์กายภาพกับวิศวกรรม SRE
+การปลดระวางตู้แร็กเซิร์ฟเวอร์ถือเป็นการเบิกใช้งบประมาณความผิดพลาดครั้งใหญ่ที่สุดครั้งหนึ่งของภาคการศึกษา:
+1. **ต้นทุนต่อความน่าเชื่อถือ**: ทุกนาทีที่เซิร์ฟเวอร์หยุดทำงานระหว่างการขนย้ายจะถูกหักออกจาก Error Budget ของบริการโดยตรง ทีมงานต้องคำนวณและประเมินล่วงหน้า
+2. **เหตุผลที่ต้องทำนอกเวลาทำการ**: เพื่อให้ผลกระทบตกอยู่ในช่วงเวลาที่มีทราฟฟิกต่ำที่สุด ซึ่งจะทำให้ค่า SLI ที่คิดจากจำนวนคำร้องได้รับผลกระทบน้อยที่สุด
+3. **ความสำคัญของการทำทะเบียนทรัพย์สิน**: อุปกรณ์ที่ไม่อยู่ในระบบทะเบียนคืออุปกรณ์ที่ไม่มีผู้รับผิดชอบ เมื่ออุปกรณ์นั้นพังลง จะไม่มีระบบแจ้งเตือน และไม่มีใครทราบว่าข้อมูลสูญหายไปที่ใด
+4. **การส่งคืนอุปกรณ์ที่ไม่ได้ใช้งาน**: เซิร์ฟเวอร์ที่เปิดทิ้งไว้เฉยๆ สิ้นเปลืองทั้งค่าไฟฟ้าและพื้นที่ระบายความร้อนในตู้แร็กโดยไม่ได้สร้างประโยชน์ใดๆ
 
-### Session A: Site Walkthrough
-- **Slot**: Week 2 scheduled lab slot (13:00 - 16:00)
-- **Location**: New containment room
+---
 
-| Timeline | Activity Description |
+## 17. กำหนดการและขั้นตอนปฏิบัติการภาคสนาม
+
+การเข้าปฏิบัติงานในศูนย์ข้อมูลต้องยื่นเอกสารขออนุญาตล่วงหน้าอย่างน้อย 5 วันทำการ
+
+### รอบที่ A: การเดินสำรวจพื้นที่จริง (Session A: Site Walkthrough)
+- **ช่วงเวลา**: ตารางปฏิบัติการสัปดาห์ที่ 2 (13:00 - 16:00 น.)
+- **สถานที่**: ห้องควบคุมระบบระบายความร้อนห้องใหม่ (New Containment Room)
+
+| เวลา | กิจกรรมที่ต้องปฏิบัติ |
 | :--- | :--- |
-| 13:00 - 13:30 | Access security briefing, identity verification, and sign-in log |
-| 13:30 - 14:30 | Physical walk of the containment room layout and rack positions |
-| 14:30 - 15:30 | Measurement of free Rack Units (U space), power distribution, and thermal/airflow pathways |
-| 15:30 - 16:00 | Group alignment and agreement on the draft target rack layout |
+| 13:00 - 13:30 น. | บรรยายสรุปความปลอดภัย ตรวจสอบบัตรประจำตัว และลงชื่อเข้าพื้นที่ |
+| 13:30 - 14:30 น. | เดินสำรวจแผนผังห้องและตำแหน่งตู้แร็กเป้าหมาย |
+| 14:30 - 15:30 น. | วัดขนาดพื้นที่ Rack Unit (U) ที่ว่าง ตรวจสอบการจ่ายไฟฟ้า และทิศทางการไหลเวียนของลม |
+| 15:30 - 16:00 น. | ประชุมสรุปและตกลงแบบร่างแผนผังการจัดวางตู้แร็กเป้าหมายร่วมกัน |
 
-### Session B: Decommission and Move Day
-- **Slot**: Week 3 Saturday (09:00 - 16:00, off-peak maintenance window)
-- **Location**: Old server room
+### รอบที่ B: วันปลดระวางและขนย้ายอุปกรณ์จริง (Session B: Decommission and Move Day)
+- **ช่วงเวลา**: วันเสาร์ สัปดาห์ที่ 3 (09:00 - 16:00 น. นอกเวลาทำการ)
+- **สถานที่**: ห้องเซิร์ฟเวอร์เดิม (Old Server Room)
 
-| Timeline | Activity Description |
+| เวลา | กิจกรรมที่ต้องปฏิบัติ |
 | :--- | :--- |
-| 09:00 - 09:30 | Sign-in at security desk, escort assignment, comprehensive safety briefing |
-| 09:30 - 10:30 | Complete photographic baseline documentation and physical cable labeling |
-| 10:30 - 12:00 | Graceful server and appliance shutdown in strict dependency order |
-| 12:00 - 13:00 | Scheduled operational break |
-| 13:00 - 14:30 | Physical unmounting of equipment; immediate recording of serial numbers |
-| 14:30 - 15:30 | Sorting items into Keep, Return, or Dispose paths with physical color-coded tags |
-| 15:30 - 16:00 | Formal asset transfer handover to faculty asset officer; sign-out |
+| 09:00 - 09:30 น. | ลงชื่อเข้าพื้นที่ รับมอบหมายเจ้าหน้าที่ควบคุม และรับฟังการชี้แจงความปลอดภัย |
+| 09:30 - 10:30 น. | ถ่ายภาพบันทึกสภาพดั้งเดิมทุกมุม และติดป้ายระบุสายสัญญาณ (Cable Labeling) ทั้งสองด้าน |
+| 10:30 - 12:00 น. | ทยอยปิดเครื่องแม่ข่ายตามลำดับความพึ่งพาของระบบ (Dependency Order) อย่างเคร่งครัด |
+| 12:00 - 13:00 น. | พักการปฏิบัติการตามตาราง |
+| 13:00 - 14:30 น. | ถอดอุปกรณ์ฮาร์ดแวร์ออกจากแร็ก และบันทึกหมายเลขซีเรียลลงทะเบียนทันที |
+| 14:30 - 15:30 น. | คัดแยกอุปกรณ์ตามเส้นทาง Keep / Return / Dispose พร้อมติดแท็กสีที่ตัวเครื่อง |
+| 15:30 - 16:00 น. | ส่งมอบอุปกรณ์ให้เจ้าหน้าที่ดูแลทรัพย์สินพร้อมลงนามร่วมกัน และลงชื่อออกจากพื้นที่ |
 
 ---
 
-## 18. Controlled Area Access and ISO/IEC 27001 Controls
+## 18. ระเบียบการเข้าพื้นที่ควบคุมตามมาตรฐาน ISO/IEC 27001
 
-Access to university server rooms is governed by ISO/IEC 27001:2022 security controls. Every access step must produce verifiable evidence.
+การเข้าใช้งานห้องคอมพิวเตอร์แม่ข่ายต้องเป็นไปตามข้อกำหนดความมั่นคงปลอดภัยสารสนเทศ ISO/IEC 27001:2022 ทุกขั้นตอนต้องมีหลักฐานตรวจสอบได้
 
-| Step | Action | Operational Detail | Governing ISO/IEC 27001:2022 Control |
+| ขั้นตอน | การดำเนินการ | รายละเอียดการปฏิบัติ | ข้อกำหนด ISO/IEC 27001:2022 |
 | :--- | :--- | :--- | :--- |
-| **1** | File the Request | Submit student names, IDs, exact purpose, scheduled date/time, and full tool manifest at least 5 business days in advance | Control A.7.2 (Physical entry) |
-| **2** | Obtain Approvals | Course instructor endorses request; facility custodian issues formal approval. Entry is strictly valid only for stated period | Control A.7.2 / A.5.15 (Access control) |
-| **3** | Sign In and Escort | Present national/student ID, sign visitor log, remain under physical escort at all times. Unescorted presence is prohibited | Control A.7.2 / Control A.7.4 (Physical monitoring) |
-| **4** | Work Within Scope | Execute only tasks explicitly authorized in the request. Facility photography requires explicit case-by-case permission | Control A.7.4 / Control A.5.37 (Documented operating procedures) |
-| **5** | Tool Audit and Handover | Re-count all physical tools in and out, deliver updated asset logs to staff, and execute formal sign-out | Control A.7.4 / Control A.5.11 (Return of assets) |
+| **1** | ยื่นเอกสารขออนุญาต (File the Request) | ระบุชื่อนักศึกษา รหัสนักศึกษา วัตถุประสงค์ วันเวลา และรายการเครื่องมือที่จะนำเข้า ล่วงหน้า 5 วันทำการ | Control A.7.2 (การเข้าถึงพื้นที่กายภาพ) |
+| **2** | รับการอนุมัติ (Get it Approved) | อาจารย์ผู้สอนลงนามรับรอง และผู้ดูแลพื้นที่อนุมัติ สิทธิ์เข้าได้เฉพาะวันและเวลาที่ระบุเท่านั้น | Control A.7.2 / A.5.15 (การควบคุมการเข้าถึง) |
+| **3** | ลงชื่อและรับผู้ติดตาม (Sign in and Meet Escort) | แสดงบัตร ลงชื่อในสมุดบันทึก และต้องมีเจ้าหน้าที่ติดตามตลอดเวลา ห้ามอยู่ตามลำพังในห้องเด็ดขาด | Control A.7.2 / Control A.7.4 (การเฝ้าระวังความปลอดภัย) |
+| **4** | ปฏิบัติงานตามขอบเขต (Work inside Stated Scope) | ทำเฉพาะงานที่ได้รับอนุมัติ การถ่ายภาพต้องได้รับอนุญาตเป็นกรณีพิเศษ | Control A.7.4 / Control A.5.37 (ขั้นตอนการปฏิบัติงาน) |
+| **5** | ตรวจนับเครื่องมือและส่งมอบ (Sign out and Handover) | นับจำนวนเครื่องมือนำเข้า-นำออก ส่งมอบเอกสารทรัพย์สินให้เจ้าหน้าที่ และลงชื่อออกจากพื้นที่ | Control A.7.4 / Control A.5.11 (การคืนทรัพย์สิน) |
 
-> **Compliance Warning**: Bringing any unauthorized person not listed on the approved access document constitutes an information security control violation and results in forfeiture of group lab marks.
-
----
-
-## 19. Session A Execution: Walking the Containment Room
-
-### On-Site Measurement Checklist
-- Actual available free Rack Units (U space) in each destination rack.
-- Placement and status of existing blanking panels.
-- Power Distribution Unit (PDU) specifications: electrical voltage/amperage rating, receptacle counts, and connector types (e.g., C13, C19).
-- Exact cable run distances from target rack positions to central patch panels.
-- Thermal dynamics: hot aisle / cold aisle containment panel locations and airflow direction.
-- Facility passage dimensions: physical door and aisle heights/widths to verify transit clearances.
-
-### Mandatory Deliverable Artifacts
-- Group-approved draft rack elevation layout.
-- Comprehensive cable procurement list with specified lengths, jacket ratings, and connector types.
-- Projected electrical power draw per PDU and across individual electrical phases.
-- Documented architectural constraints and site discrepancies not present in original blueprints.
-- Authorized photographic evidence of site parameters.
+> **คำเตือนด้านความปลอดภัย**: การนำบุคคลที่ไม่มีรายชื่อในเอกสารขออนุญาตเข้าสู่พื้นที่ถือเป็นการละเมิดข้อกำหนดความปลอดภัยอย่างร้ายแรง และจะถูกตัดคะแนนปฏิบัติการทั้งกลุ่ม
 
 ---
 
-## 20. Session B Execution: Decommission and Move Day Protocol
+## 19. การปฏิบัติงานรอบที่ A: รายละเอียดการตรวจสอบห้อง Containment
 
-Field engineers must execute the strip-out in strict sequential order. Every milestone requires a named, accountable signer.
+### รายการตรวจวัดหน้างาน (Checklist)
+- พื้นที่ว่างจริงในตู้แร็ก (Free U space) และตำแหน่งของแผ่นกั้นช่องว่าง (Blanking Panels)
+- สเปกของปลั๊กจ่ายไฟประจำตู้แร็ก (PDU): แรงดัน, พิกัดกระแสไฟฟ้า, จำนวนเต้ารับ และประเภทของหัวต่อ (เช่น C13, C19)
+- ระยะห่างในการเดินสายสัญญาณจากตู้แร็กไปยังแผงกระจายสาย (Patch Panel) เพื่อจัดหาสายยาวที่เหมาะสม
+- ทิศทางการไหลเวียนของอากาศ (Airflow) ตำแหน่งของช่องลมร้อนและลมเย็น (Hot/Cold Aisle)
+- ขนาดความกว้างและความสูงของประตูและทางเดิน เพื่อรองรับการเคลื่อนย้ายอุปกรณ์ขนาดใหญ่
 
-1. **Pre-Touch Photographic and Backup Verification**:
-   - Capture multi-angle photographs of every rack, cable connection, and switch port.
-   - Attach indelible labels to both ends of every network, power, and console cable.
-   - Confirm that verified, recoverable backups exist for every server before initiating power-down.
-2. **Operational Start Declaration**:
-   - Broadcast maintenance start notification across agreed stakeholder communication channels.
-   - Timestamp the start time and begin tracking active error budget consumption.
-3. **Power Down in Dependency Order**:
-   - Shut down systems working strictly top-down along the dependency graph.
-   - Core infrastructure services (e.g., DNS, LDAP, storage SANs) that other systems rely upon must be powered down last.
-4. **Physical Removal and Immediate Inventorying**:
-   - Extract hardware one unit at a time.
-   - Instantly record serial numbers, original rack U coordinates, and physical condition onto the inventory sheet. Never defer data recording until after the strip-out.
-5. **Disposition Sorting and Color Tagging**:
-   - Categorize each removed asset into **Keep**, **Return**, or **Dispose** streams.
-   - Affix durable color-coded physical tags to each chassis immediately upon extraction.
-6. **Formal Asset Handover and Closeout**:
-   - Present the comprehensive equipment register to the faculty asset officer for dual signature sign-off.
-   - Record the operational completion timestamp and calculate the final error budget consumption.
+### สิ่งที่ต้องส่งมอบหลังจบการสำรวจ
+- แบบร่างแผนผังการติดตั้งอุปกรณ์ในตู้แร็กที่ทุกคนในกลุ่มเห็นชอบร่วมกัน
+- รายการจัดหาสายเคเบิลระบุความยาว ชนิดหัวต่อ และจำนวนที่ชัดเจน
+- ตัวเลขการใช้พลังงานไฟฟ้าที่คาดการณ์ต่อ PDU และต่อเฟสไฟฟ้า
+- รายการข้อจำกัดหน้างานที่ไม่ตรงกับแบบแปลนดั้งเดิม
+- ภาพถ่ายภาพรวมของพื้นที่ที่ได้รับอนุญาต
 
 ---
 
-## 21. Building the Asset Register During Strip-Out
+## 20. การปฏิบัติงานรอบที่ B: ลำดับขั้นตอนการปลดระวางและขนย้าย
 
-The equipment register must be compiled at the exact moment an asset leaves the rack rails, not reconstructed retrospectively from memory.
+การทำงานต้องเรียงลำดับขั้นตอนอย่างเคร่งครัดและมีผู้รับผิดชอบลงนามในทุกขั้นตอน:
 
-### Required Fields per Asset Record
+1. **การบันทึกภาพและการยืนยันข้อมูลสำรอง (Before Touching Anything)**:
+   - ถ่ายภาพสภาพเดิมของตู้แร็กและการเชื่อมต่อสายทุกมุม
+   - ติดป้ายระบุสายสัญญาณ (Cable Labels) ทั้งสองฝั่งของสายทุกเส้น
+   - ยืนยันว่าระบบทั้งหมดได้รับการสำรองข้อมูล (Backup) ที่สมบูรณ์และทดสอบการกู้คืนได้จริงก่อนเริ่มปิดเครื่อง
+2. **การประกาศเริ่มต้นการทำงาน (Declare the Start)**:
+   - แจ้งเตือนผู้ใช้งานผ่านช่องทางสื่อสารทางการที่ตกลงกันไว้
+   - บันทึกเวลาเริ่มต้นอย่างเป็นทางการ และเริ่มนับการผลาญ Error Budget
+3. **การปิดระบบตามลำดับความพึ่งพา (Power Down in Dependency Order)**:
+   - ปิดระบบจากบนลงล่างตามแผนผัง Dependency Map
+   - ระบบโครงสร้างพื้นฐานหลักที่ระบบอื่นต้องพึ่งพา (เช่น ระบบ DNS, การระบุตัวตน หรือสตอเรจกลาง) จะต้องเป็นระบบที่ถูกปิดการทำงานเป็นลำดับสุดท้าย
+4. **การถอดอุปกรณ์และลงทะเบียนทันที (Remove and Record)**:
+   - ถอดอุปกรณ์ทีละตัว
+   - บันทึกหมายเลขซีเรียล ตำแหน่ง U เดิม และสภาพความสมบูรณ์ลงในแบบฟอร์มทันที ห้ามรอเขียนย้อนหลัง
+5. **การคัดแยกเส้นทางของอุปกรณ์ (Sort onto its Path)**:
+   - แยกอุปกรณ์ออกเป็นกลุ่ม Keep, Return หรือ Dispose
+   - ติดแท็กสีระบุสถานะบนตัวเครื่องทันทีที่ทำการคัดแยก
+6. **การส่งมอบและปิดงาน (Hand Over and Close Out)**:
+   - ส่งมอบแบบฟอร์มทะเบียนทรัพย์สินให้เจ้าหน้าที่พัสดุพร้อมลงนามร่วมกันทั้งสองฝ่าย
+   - บันทึกเวลาสิ้นสุดงาน และคำนวณงบประมาณ Error Budget ที่ถูกใช้ไปจริงทั้งหมด
 
-| Category | Required Data Fields | Purpose |
+---
+
+## 21. การจัดทำทะเบียนทรัพย์สินระหว่างการถอดอุปกรณ์ (Asset Register)
+
+ทะเบียนทรัพย์สินต้องถูกบันทึก ณ วินาทีที่อุปกรณ์ถูกถอดออกจากรางตู้แร็ก ไม่ใช่การมานั่งนึกย้อนหลังในภายหลัง
+
+### ข้อมูลบังคับ 6 หมวดหมู่ที่ต้องบันทึก
+
+| หมวดหมู่ข้อมูล | ฟิลด์ข้อมูลที่ต้องบันทึก | วัตถุประสงค์ในการตรวจสอบ |
 | :--- | :--- | :--- |
-| **Asset Identity** | Manufacturer, model number, chassis serial number, university asset bar code, MAC address of port 0/eth0 | Unambiguous hardware tracking |
-| **Origin and Destination** | Origin rack number, original U position, target disposition stream (Keep / Return / Dispose) | Physical traceability |
-| **Operational State** | Services hosted prior to decommissioning, designated system owner, original in-service commissioning date | Service mapping |
-| **Storage Media** | Quantity of drives, disk interface (SAS/SATA/NVMe), storage capacity, cryptographic sanitization status | Data leak prevention |
-| **Physical Condition** | Chassis damage, missing rail ears/caddies/power supplies, high-resolution visual photograph | Chain of custody audit |
-| **Custody Log** | Full name of technician who unmounted unit, name of verifying reviewer, exact timestamp | Accountable verification |
+| **ข้อมูลระบุตัวตน (Identity)** | ยี่ห้อ, รุ่น, หมายเลขซีเรียล (Serial Number), รหัสบาร์โค้ดทรัพย์สินมหาวิทยาลัย, MAC Address ของพอร์ตแรก | การติดตามฮาร์ดแวร์อย่างแม่นยำไม่ซ้ำซ้อน |
+| **ที่มาและปลายทาง (Origin & Destination)** | หมายเลขตู้แร็กเดิม, ตำแหน่ง U เดิม, เส้นทางที่จะไปต่อ (Keep / Return / Dispose) | การตรวจสอบเส้นทางย้ายทางกายภาพ |
+| **สถานะการทำงาน (Operational Status)** | บริการที่เคยรันอยู่ก่อนปิดเครื่อง, ชื่อผู้ดูแลระบบหลัก, วันที่เริ่มนำเข้าใช้งาน | การทำแผนผังความสัมพันธ์ของระบบ |
+| **สื่อบันทึกข้อมูลภายใน (Media Inside)** | จำนวนและประเภทของฮาร์ดดิสก์/SSD, ความจุข้อมูลรวม, สถานะการล้างทำลายข้อมูล | การป้องกันข้อมูลรั่วไหลสู่ภายนอก |
+| **สภาพทางกายภาพ (Physical Condition)** | รอยบุบแตก อะไหล่หรือหูจับที่สูญหาย พร้อมภาพถ่ายประกอบอย่างน้อย 1 ภาพ | การตรวจสอบความรับผิดชอบต่อสภาพทรัพย์สิน |
+| **ผู้บันทึกข้อมูล (Who Recorded It)** | ชื่อผู้ถอดอุปกรณ์, ชื่อผู้ตรวจสอบความถูกต้อง, วันและเวลาที่ทำการบันทึก | การยืนยันความโปร่งใสในสายการปฏิบัติงาน |
 
-**Rule**: Record one item per row. Never aggregate identical units. Ten identical 1U servers have ten distinct serial numbers and represent ten discrete assets.
+**กฎเหล็ก**: หนึ่งแถวข้อมูลต่อหนึ่งชิ้นอุปกรณ์ ห้ามจัดกลุ่มรวมกัน แม้จะมีเซิร์ฟเวอร์รุ่นเดียวกัน 10 เครื่อง ก็ถือเป็น 10 ทรัพย์สินที่มีหมายเลขซีเรียลแยกกัน 10 หมายเลข
 
 ---
 
-## 22. Asset Disposition Paths and Data Sanitization
+## 22. เส้นทางปลายทางของทรัพย์สินและการล้างข้อมูลอย่างปลอดภัย
 
 ```
-                          [ Item Removed from Old Rack ]
-                                        |
-                                        v
-                    +---------------------------------------+
-                    | Still in service or planned for new?  |
-                    +-------------------+-------------------+
-                                        |
-                   YES -----------------+----------------- NO
-                    |                                      |
-                    v                                      v
-          +-------------------+                  +-------------------+
-          |       KEEP        |                  | Serviceable/Live? |
-          | Moves to new rack |                  +---------+---------+
-          | Stays in register |                            |
-          | New location logged|          YES -------------+------------- NO
-          +-------------------+            |                              |
-                                           v                              v
-                                 +-------------------+          +-------------------+
-                                 |      RETURN       |          |      DISPOSE      |
-                                 | Surrendered to    |          | Beyond end-of-life|
-                                 | asset officer     |          | Destroy / Recycle |
-                                 | Signed handback   |          | Requires media    |
-                                 | Media sanitized!  |          | sanitization cert |
-                                 +-------------------+          +-------------------+
+                          [ อุปกรณ์ที่ถอดออกจากตู้แร็กเดิม ]
+                                         |
+                                         v
+                     +---------------------------------------+
+                     |  ยังใช้งานต่อ หรือเตรียมย้ายไปตู้ใหม่?   |
+                     +-------------------+-------------------+
+                                         |
+                    ใช่ -----------------+----------------- ไม่ใช่
+                     |                                      |
+                     v                                      v
+           +-------------------+                  +-------------------+
+           |    เก็บไว้ (KEEP)   |                  | ยังเปิดติดใช้งานได้? |
+           | ย้ายไปตู้แร็กใหม่   |                  +---------+---------+
+           | คงอยู่ในทะเบียน     |                            |
+           | บันทึกตำแหน่งใหม่  |          ใช่ --------------+-------------- ไม่ใช่
+           +-------------------+            |                               |
+                                            v                               v
+                                  +-------------------+           +-------------------+
+                                  |   ส่งคืน (RETURN)  |           |   ทำลาย (DISPOSE)  |
+                                  | ส่งมอบคืนฝ่ายพัสดุ  |           | หมดสภาพ/ชำรุดถาวร  |
+                                  | มีเอกสารเซ็นรับมอบ  |           | ส่งกำจัดเป็นขยะพิษ |
+                                  | ต้องล้างข้อมูลก่อน! |           | ต้องมีใบรับรองล้าง |
+                                  +-------------------+           +-------------------+
 ```
 
-### Disposition Stream Definitions
-- **KEEP**: Gear transitioning into the new containment room. Remains on active register with updated rack location coordinates (ISO Control A.5.9).
-- **RETURN**: Functioning, serviceable equipment no longer required by the lab (e.g., retired storage appliances). Handed back to the institutional equipment officer with dual signatures (ISO Control A.5.11).
-- **DISPOSE**: Obsolete, end-of-life, or defective hardware destined for e-waste recycling. Disposal is prohibited until all onboard persistent media are sanitized and certified (ISO Control A.7.14).
+### คำอธิบายเส้นทางทั้งสามรูปแบบ
+- **KEEP (เก็บไว้ใช้งานต่อ)**: อุปกรณ์ที่จะย้ายไปติดตั้งในห้อง Containment ห้องใหม่ โดยยังคงอยู่ในระบบทะเบียนทรัพย์สินและอัปเดตตำแหน่งใหม่ (ISO Control A.5.9)
+- **RETURN (ส่งคืนส่วนกลาง)**: อุปกรณ์ที่ยังทำงานได้ดีแต่ห้องแล็บไม่ได้ใช้งานแล้ว (เช่น เครื่องเซิร์ฟเวอร์จัดเก็บข้อมูลรุ่นเก่า) ต้องส่งคืนเจ้าหน้าที่พัสดุพร้อมใบรับมอบที่ลงนามร่วมกัน (ISO Control A.5.11)
+- **DISPOSE (จำหน่ายทิ้ง/ทำลาย)**: อุปกรณ์ที่ชำรุดถาวรหรือหมดอายุการใช้งาน เพื่อส่งเข้ากระบวนการรีไซเคิลขยะอิเล็กทรอนิกส์ ไม่อนุญาตให้ทิ้งจนกว่าสื่อบันทึกข้อมูลจะถูกล้างและมีใบรับรองกำกับ (ISO Control A.7.14)
 
-### Media Sanitization Mandate
-Any component entering the **RETURN** or **DISPOSE** stream that contains storage media (magnetic HDDs, SSDs, NVMe modules, BIOS flash cards, or embedded flash) must undergo certified data sanitization before leaving technical custody. Releasing un-sanitized drives is the primary cause of institutional data leaks.
-
----
-
-## 23. Handing Back Unused Equipment: The Storage Server Case Study
-
-Step-by-step handback procedure for retiring storage hardware:
-
-1. **Verify Complete Inactivity**:
-   - Inspect historical network connection telemetry and access logs.
-   - Confirm with application owners that zero active services point to the storage shares.
-2. **Preserve Data Under Retention**:
-   - If archived files are subject to statutory retention guidelines, migrate records to secure secondary storage and verify checksums prior to drive wiping.
-3. **Perform Certified Media Sanitization**:
-   - Apply disk sanitization conforming to NIST SP 800-88 Rev. 1 guidelines (e.g., Cryptographic Erase, Multi-pass Overwrite, or physical degaussing/shredding).
-   - Generate an official sanitization certificate detailing serial numbers, sanitization method, operator identity, and timestamp.
-4. **Update Asset Management System**:
-   - Transition asset status from "In-Service" to "Pending Return", recording reason code and approval reference.
-5. **Execute Dual-Sign Handover**:
-   - Transfer physical custody to the asset officer accompanied by signed handover paperwork and attached sanitization certificates.
+### ข้อบังคับเด็ดขาดเรื่องการล้างทำลายข้อมูล (Media Sanitization)
+อุปกรณ์ทุกชิ้นที่เข้าสู่เส้นทาง **RETURN** หรือ **DISPOSE** หากมีฮาร์ดดิสก์, SSD หรือการ์ดความจำอยู่ภายใน **จะต้องผ่านกระบวนการล้างทำลายข้อมูลและออกใบรับรองกำกับก่อนเสมอ** การส่งคืนอุปกรณ์ที่มีข้อมูลค้างอยู่คือช่องทางหลักของการเกิดเหตุการณ์ข้อมูลรั่วไหลในองค์กร
 
 ---
 
-## 24. Security Standards Compliance Mapping
+## 23. การส่งคืนอุปกรณ์ที่ไม่ได้ใช้งาน: กรณีศึกษาเซิร์ฟเวอร์เก็บข้อมูลรุ่นเก่า
 
-| Standard Reference | Clause / Control | Mandatory Implementation in SRE Field Work |
+ขั้นตอนการส่งคืนอุปกรณ์สตอเรจอย่างเป็นระบบ:
+
+1. **ตรวจสอบยืนยันว่าไม่มีใครใช้งานแล้วจริง (Confirm Inactivity)**: ตรวจสอบบันทึกการเชื่อมต่อย้อนหลัง สอบถามเจ้าของระบบ และยืนยันว่าไม่มีบริการใดชี้การทำงานมายังเซิร์ฟเวอร์นี้
+2. **สำรองและรักษาข้อมูลตามกฎระเบียบ (Preserve Data)**: หากข้อมูลมีข้อกำหนดทางกฎหมายที่ต้องจัดเก็บไว้ ให้ย้ายข้อมูลไปยังระบบสำรองระยะยาวและทดสอบการอ่านกลับคืนให้เรียบร้อย
+3. **ล้างทำลายข้อมูลในดิสก์ตามมาตรฐาน (Sanitise the Disks)**: ดำเนินการตามแนวทางมาตรฐาน NIST SP 800-88 Rev. 1 บันทึกวิธีที่ใช้ ชื่อผู้ปฏิบัติงาน และวันเวลาลงในใบรับรองการล้างข้อมูล (Sanitisation Certificate)
+4. **อัปเดตสถานะในทะเบียนทรัพย์สิน (Update Asset Register)**: เปลี่ยนสถานะจาก "ใช้งานอยู่ (In-service)" เป็น "รอส่งคืน (Pending return)" พร้อมระบุเหตุผลและผู้อนุมัติ
+5. **ส่งมอบพร้อมลงนามร่วมกัน (Hand Over with Both Signatures)**: ส่งมอบตัวเครื่องพร้อมเอกสารส่งมอบและแนบใบรับรองการล้างข้อมูลให้แก่เจ้าหน้าที่พัสดุ
+
+---
+
+## 24. การเชื่อมโยงกับมาตรฐานความปลอดภัยสากล
+
+| มาตรฐานอ้างอิง | ข้อกำหนด / การควบคุม | การนำมาบังคับใช้ในการปฏิบัติการ SRE |
 | :--- | :--- | :--- |
-| **ISO/IEC 27001:2022** | Control A.5.11 | **Return of Assets**: Unused hardware returned with verified signed transfer documentation |
-| **ISO/IEC 27001:2022** | Control A.5.15 | **Access Control**: Physical access strictly restricted to personnel named in approved request |
-| **ISO/IEC 27001:2022** | Control A.7.1 / A.7.2 | **Physical Security**: Enforced perimeter security; mandatory escort at all times |
-| **ISO/IEC 27001:2022** | Control A.7.4 | **Security Monitoring**: Access logs recorded; photography controlled by permit |
-| **ISO/IEC 27001:2022** | Control A.7.10 | **Storage Media**: Full custody tracking of persistent media until certified destruction |
-| **ISO/IEC 27001:2022** | Control A.7.14 | **Secure Disposal/Re-use**: Mandatory sanitization certificates prior to equipment transfer |
-| **ISO/IEC 27001:2022** | Control A.8.32 | **Change Management**: Formal change requests outlining execution windows, risks, and rollbacks |
-| **ISO/IEC 22237** | Data Centre Facilities | Environmental, cabling, and rack containment facility specifications |
-| **NIST SP 800-88 Rev. 1** | Media Sanitization | Protocols for clear, purge, and destroy cycles on magnetic and solid-state storage |
+| **ISO/IEC 27001:2022** | Control A.5.11 | **การส่งคืนทรัพย์สิน**: อุปกรณ์ที่ไม่ได้ใช้งานต้องส่งคืนเจ้าหน้าที่พัสดุพร้อมเอกสารลงนาม |
+| **ISO/IEC 27001:2022** | Control A.5.15 | **การควบคุมการเข้าถึง**: สิทธิ์การเข้าห้องจำกัดเฉพาะผู้ที่มีรายชื่อ วัน และเวลาที่อนุมัติ |
+| **ISO/IEC 27001:2022** | Control A.7.1 / A.7.2 | **ความปลอดภัยทางกายภาพ**: มีการป้องกันพื้นที่หวงห้าม และต้องมีผู้ติดตามตลอดเวลา |
+| **ISO/IEC 27001:2022** | Control A.7.4 | **การเฝ้าระวังความปลอดภัย**: บันทึกการเข้า-ออก และควบคุมการถ่ายภาพอย่างเคร่งครัด |
+| **ISO/IEC 27001:2022** | Control A.7.10 | **สื่อบันทึกข้อมูล**: ควบคุมดูแลฮาร์ดดิสก์ทุกตัวตั้งแต่ตอนถอดจนถึงการล้างข้อมูลสำเร็จ |
+| **ISO/IEC 27001:2022** | Control A.7.14 | **การกำจัดหรือนำกลับมาใช้ใหม่อย่างปลอดภัย**: ต้องมีใบรับรองการล้างข้อมูลก่อนจำหน่าย |
+| **ISO/IEC 27001:2022** | Control A.8.32 | **การจัดการความเปลี่ยนแปลง (Change Management)**: มีแผนงาน กรอบเวลา ผลกระทบ และแผนย้อนกลับที่ผ่านการอนุมัติ |
+| **ISO/IEC 22237 Series** | ข้อกำหนดศูนย์ข้อมูล | ข้อกำหนดด้านสิ่งแวดล้อม การเดินสายสัญญาณ และการกักกั้นลมร้อนลมเย็น |
+| **NIST SP 800-88 Rev. 1** | การล้างทำลายสื่อบันทึกข้อมูล | มาตรฐานการล้างข้อมูล (Clear, Purge, Destroy) บนฮาร์ดไดรฟ์และสื่อบันทึกแบบแฟลช |
 
 ---
 
-## 25. Move Day Safety and Team Roles
+## 25. ความปลอดภัยและบทบาทหน้าที่ในวันปฏิบัติงานจริง
 
-Controlled computer rooms present high physical and electrical hazards. Safety rules admit no exceptions.
+ห้องศูนย์ข้อมูลเป็นพื้นที่ที่มีความเสี่ยงทั้งด้านไฟฟ้าและน้ำหนักอุปกรณ์ กฎความปลอดภัยจึงไม่มีข้อยกเว้นใดๆ ทั้งสิ้น
 
-### Mandatory Safety Rules
-- **Heavy Lifting Limit**: Server chassis exceeding 20 kg require a two-person team lift and mechanical transport trolleys.
-- **Strict Disconnection Protocol**: No technician may disconnect a power or network cable until the Change Owner explicitly confirms the system is down and gives the command.
-- **Personal Protective Equipment (PPE)**: Closed-toe protective shoes, no loose metal jewelry, long hair tied back securely. Protective work gloves must be worn when working around sharp server sheet metal and cable trays.
-- **Emergency Halt Authority**: Any detection of abnormal heat, burning odor, or electrical arcing requires immediate evacuation of the rack aisle. The designated Safety Officer has absolute authority to halt operations instantly without seeking managerial permission.
+### กฎความปลอดภัยประจำพื้นที่ปฏิบัติการ
+- **การยกของหนัก**: อุปกรณ์ที่มีน้ำหนักเกิน 20 กิโลกรัม ต้องใช้คนยกอย่างน้อย 2 คนเสมอ และต้องใช้รถเข็นในการเคลื่อนย้าย
+- **การถอดสายสัญญาณและสายไฟ**: ห้ามถอดสายใดๆ จนกว่า Change Owner จะสั่งการ แม้เครื่องจะดูเหมือนดับสนิทแล้วก็ตาม
+- **การแต่งกาย**: สวมรองเท้าหุ้มส้น ห้ามสวมเครื่องประดับโลหะที่รุ่มร่าม มัดผมให้เรียบร้อย และต้องสวมถุงมือป้องกันขอบคมของตู้แร็ก
+- **สัญญาณผิดปกติ**: หากได้กลิ่นไหม้ รู้สึกถึงความร้อนผิดปกติ หรือเกิดประกายไฟ ให้ถอยห่างจากพื้นที่และแจ้งทันที
+- **อำนาจหยุดปฏิบัติการฉุกเฉิน**: เจ้าหน้าที่ความปลอดภัย (Safety Officer) มีอำนาจเด็ดขาดในการสั่งหยุดการทำงานทันทีโดยไม่ต้องขออนุญาตใคร
 
-### Team Roles and Accountabilities
+### 4 บทบาทหลักในการปฏิบัติการประจำกลุ่ม
 
-| Role Title | Core Accountabilities |
+| บทบาทหน้าที่ | ขอบเขตความรับผิดชอบ |
 | :--- | :--- |
-| **Change Owner** | Holds final authority over the change window; gives formal go/no-go signals for each step; determines rollbacks |
-| **Inventory Lead** | Maintains physical custody of the equipment register; verifies every chassis is recorded and tagged before exiting the room |
-| **Safety Officer** | Enforces ergonomics, PPE compliance, and physical safety; holds unconditional veto and halt authority |
-| **Scribe** | Logs exact real-time start and stop timestamps per procedural step; records all deviations, anomalies, and errors |
+| **ผู้อนุมัติการเปลี่ยนแปลง (Change Owner)** | มีอำนาจสูงสุดในการควบคุมช่วงเวลาการทำงาน สั่งการเริ่มหรือยกเลิกในแต่ละขั้นตอน และตัดสินใจเรื่องการย้อนคืนระบบ (Rollback) |
+| **หัวหน้าฝ่ายทะเบียนทรัพย์สิน (Inventory Lead)** | ถือเอกสารทะเบียน ตรวจสอบว่าอุปกรณ์ทุกชิ้นได้รับการลงบันทึกและติดแท็กสีเรียบร้อยก่อนนำออกจากห้อง |
+| **เจ้าหน้าที่ความปลอดภัย (Safety Officer)** | ควบคุมดูแลการยกของหนัก การสวมใส่อุปกรณ์ป้องกัน (PPE) และมีสิทธิ์สั่งหยุดงานทันทีเมื่อพบความไม่ปลอดภัย |
+| **ผู้บันทึกข้อมูลปฏิบัติการ (Scribe)** | บันทึกเวลาเริ่มต้นและสิ้นสุดของแต่ละขั้นตอนแบบเรียลไทม์ และจดบันทึกทุกปัญหาหรือความผิดปกติที่เกิดขึ้น |
 
 ---
 
-## 26. Course Deliverables and Submissions
+## 26. ภาระงานและชิ้นงานที่ต้องส่งมอบประจำสัปดาห์
 
-| Deliverable | Scope | Contents and Requirements | Weight | Due Date |
+| ชิ้นงานที่ต้องส่งมอบ | รูปแบบ | รายละเอียดและข้อกำหนด | สัดส่วนคะแนน | กำหนดส่ง |
 | :--- | :--- | :--- | :--- | :--- |
-| **Assignment 1** | Individual | Comprehensive Service Level Objective document for a chosen service: defined SLI, measurement mechanics, target percentage, rolling time window, and technical rationale | 5% | Week 4 |
-| **Site Walkthrough Record** | Group | Complete set of five containment room physical measurement logs and the group-approved draft rack elevation layout | 3% | 3 days after Session A |
-| **Complete Asset Register** | Group | Detailed equipment inventory (one row per serial number) with designated destination pathways and attached photographic evidence | 5% | 5 days after Session B |
-| **Asset Handback Pack** | Group | Signed physical asset transfer certificates accompanied by verified NIST-compliant media sanitization certificates for all decommissioned storage hardware | 2% | 5 days after Session B |
+| **Assignment 1 (งานเดี่ยว)** | เดี่ยว | จัดทำเอกสารกำหนด SLO สำหรับบริการที่เลือก: ระบุ SLI, วิธีการวัดผล, ค่าเป้าหมาย, ช่วงเวลา และเหตุผลทางวิศวกรรม | 5% | สัปดาห์ที่ 4 |
+| **บันทึกการสำรวจพื้นที่ (Site Walkthrough Record)** | กลุ่ม | ผลการวัดขนาดพื้นที่จริง 5 รายการ พร้อมแบบร่างแผนผังการจัดวางตู้แร็กเป้าหมาย | 3% | 3 วันหลังจบ Session A |
+| **ทะเบียนทรัพย์สินฉบับสมบูรณ์ (Complete Asset Register)** | กลุ่ม | รายการอุปกรณ์แยกทีละบรรทัดต่อหนึ่งซีเรียล ระบุเส้นทางปลายทาง และแนบภาพถ่ายประกอบ | 5% | 5 วันหลังจบ Session B |
+| **ชุดเอกสารการส่งมอบทรัพย์สิน (Asset Handback Pack)** | กลุ่ม | แบบฟอร์มการส่งมอบทรัพย์สินที่ลงนามครบถ้วน พร้อมใบรับรองการล้างข้อมูลของสตอเรจทุกชิ้น | 2% | 5 วันหลังจบ Session B |
 
 ---
 
-## 27. Preparation for Week 3
+## 27. การเตรียมตัวสำหรับสัปดาห์ที่ 3 (Assignments and Next Week)
 
-- **Upcoming Lecture Focus**: Week 3: Systems and distributed systems fundamentals for reliability.
-- **Opening Question for Next Session**:
-  > "If a system gets slower but has not failed, how do we know it is about to - before the users do?"
-- **Individual Pre-Session Tasks**:
-  - Read Google SRE Book, Chapter 6: *Monitoring Distributed Systems*.
-  - Complete Pre-Class Quiz 2 on the LMS.
-  - Review core Linux diagnostic utilities: `top`, `vmstat`, `iostat`, `ss`.
-- **Field Work Preparations**:
-  - Submit access request forms for both upcoming data center sessions.
-  - Assign the four operational roles (Change Owner, Inventory Lead, Safety Officer, Scribe) within each project group.
-  - Prepare field toolkits: tape measure, LED flashlight, cable labeling printer/tags, digital camera, and printed paper inventory forms.
-- **Continuity from Lab 1**:
-  - Update system dependency architecture maps with site discoveries from the walkthrough.
-  - Compute estimated error budget consumption for the physical move window.
-  - Synthesize the sequential power-down schedule from the updated dependency diagram.
+- **หัวข้อการเรียนรู้สัปดาห์หน้า**: สัปดาห์ที่ 3: ระบบและพื้นฐานระบบแบบกระจายเพื่อความน่าเชื่อถือ (Systems and distributed systems fundamentals for reliability)
+- **คำถามเปิดบทเรียนสัปดาห์หน้า**:
+  > "หากระบบเริ่มตอบสนองช้าลงเรื่อยๆ แต่ยังไม่เกิดความล้มเหลว (Failed) เราจะมีวิธีทราบล่วงหน้าได้อย่างไรว่าระบบกำลังจะล่ม ก่อนที่ผู้ใช้งานจริงจะสังเกตเห็น?"
+- **สิ่งที่ต้องทำก่อนเข้าเรียนสัปดาห์หน้า**:
+  - อ่านหนังสือ Google SRE Book บทที่ 6 (*Monitoring Distributed Systems*)
+  - ทำแบบทดสอบก่อนเรียน Quiz 2 บนระบบ LMS
+  - ทบทวนคำสั่งตรวจสอบประสิทธิภาพบนลินุกซ์: `top`, `vmstat`, `iostat`, `ss`
+- **การเตรียมงานภาคสนาม**:
+  - ยื่นเอกสารขออนุญาตเข้าพื้นที่ควบคุมสำหรับทั้งสองรอบ
+  - แต่งตั้งผู้รับผิดชอบทั้ง 4 บทบาทภายในกลุ่ม พร้อมระบุผู้ประสานงานหลัก
+  - จัดเตรียมชุดเครื่องมือ: ตลับเมตร, ไฟฉาย, เครื่องพิมพ์ป้ายสายเคเบิล, กล้องถ่ายรูป และแบบฟอร์มกระดาษ
+- **งานต่อเนื่องจาก Lab 1**:
+  - ปรับปรุงแผนผังการพึ่งพาของระบบ (Dependency Map) ให้สอดคล้องกับสิ่งที่ค้นพบหน้างาน
+  - ประเมินปริมาณ Error Budget ที่คาดว่าจะต้องใช้ในวันขนย้ายจริง
+  - จัดลำดับขั้นตอนการปิดเครื่องแม่ข่ายโดยอ้างอิงจาก Dependency Map
 
 ---
 
-## 28. References and Standards
+## 28. เอกสารและมาตรฐานอ้างอิง (References)
 
-### Lecture Literature
-- Beyer, B., Jones, C., Petoff, J., & Murphy, N. R. (2016). *Site Reliability Engineering: How Google Runs Production Systems*. O'Reilly Media. Chapter 4: Service Level Objectives.
-- Beyer, B., Murphy, N. R., Raurich, D. K., Blank-Edelman, D., Ferguson, G., & Rosenthal, K. (2018). *The Site Reliability Workbook: Practical Ways to Implement SRE*. O'Reilly Media. Chapters 2 & 5.
-- Hidalgo, A. (2020). *Implementing Service Level Objectives: A Practical Guide to Slos, Sli-Based Alerts, and Error Budgets*. O'Reilly Media. Chapters 3–5.
+### เอกสารสำหรับการบรรยาย
+- Beyer, B., Jones, C., Petoff, J., & Murphy, N. R. (2016). *Site Reliability Engineering: How Google Runs Production Systems*. O'Reilly Media. บทที่ 4: Service Level Objectives.
+- Beyer, B., Murphy, N. R., Raurich, D. K., Blank-Edelman, D., Ferguson, G., & Rosenthal, K. (2018). *The Site Reliability Workbook: Practical Ways to Implement SRE*. O'Reilly Media. บทที่ 2 และบทที่ 5.
+- Hidalgo, A. (2020). *Implementing Service Level Objectives: A Practical Guide to SLOs, SLI-Based Alerts, and Error Budgets*. O'Reilly Media. บทที่ 3–5.
 
-### Field Work and Security Standards
+### มาตรฐานสำหรับงานภาคสนาม
 - **ISO/IEC 27001:2022**: *Information security, cybersecurity and privacy protection - Information security management systems - Requirements*. Annex A controls: A.5.11, A.5.15, A.7.1–A.7.4, A.7.10, A.7.14, A.8.32.
 - **ISO/IEC 27002:2022**: *Information security, cybersecurity and privacy protection - Information security controls*.
 - **ISO/IEC 22237 Series**: *Information technology - Data centre facilities and infrastructures*.
 - **NIST SP 800-88 Rev. 1**: *Guidelines for Media Sanitization*. National Institute of Standards and Technology.
-- University capital equipment procurement, transfer, and disposal policies.
+- ระเบียบการจัดซื้อ จัดจ้าง และจำหน่ายพัสดุครุภัณฑ์ของมหาวิทยาลัย
 
 ---
 
-## 29. Core Lecture Summary
+## 29. สรุปบทเรียนในสามประโยค (Today in Three Sentences)
 
-1. **If you cannot state what "good enough" is, measured from whose side, and over what window, you have not set a target.**
-2. **An error budget transforms subjective conflict ("Whose fault is it?") into objective mathematical risk management ("How much risk can we afford to take?").**
-3. **Decommissioning physical infrastructure spends a real error budget. Every minute of scheduled or unscheduled downtime draws from the exact same allowance.**
+1. **หากคุณไม่สามารถระบุได้ว่าความดีเพียงพอของระบบคืออะไร วัดจากมุมมองของใคร และวัดในกรอบเวลาใด แสดงว่าคุณยังไม่ได้ตั้งเป้าหมายที่แท้จริง**
+2. **Error Budget เปลี่ยนการถกเถียงหาคนผิด ("ความผิดของใคร?") ให้กลายเป็นการบริหารจัดการความเสี่ยงเชิงตัวเลข ("เรายังสามารถรับความเสี่ยงได้อีกเท่าใด?")**
+3. **การปลดระวางอุปกรณ์ในสัปดาห์หน้าเป็นการผลาญ Error Budget ของจริง เพราะเวลาหยุดทำงานทุกนาทีไม่ว่าจะตามแผนหรืออุบัติเหตุล้วนถูกหักออกจากงบประมาณก้อนเดียวกันเสมอ**
