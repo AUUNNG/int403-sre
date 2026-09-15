@@ -1,495 +1,431 @@
-# INT531: Site Reliability Engineering
-## Week 4: Observability I - Metrics and Prometheus
+# INT531: วิศวกรรมความน่าเชื่อถือของระบบ (Site Reliability Engineering)
+## สัปดาห์ที่ 4: การสังเกตการณ์ระบบ ตอนที่ 1 - เมทริกซ์และโพรมีธีอุส (Observability I - Metrics and Prometheus)
 
-**Course Details:**
-- Course: INT531 Site Reliability Engineering
-- Session: Week 4 - Observability I: Metrics and Prometheus (Afternoon: Containment Build Preparation)
-- Institution: School of Information Technology, King Mongkut's University of Technology Thonburi
-- Duration: Lecture 2 hours + Lab 1.5 hours
-- Content Updated: 2026
-
----
-
-## Executive Summary: Today in Three Sentences
-
-1. A metric is counting with a rule attached; choose the wrong type up front and the calculation you want later is simply unavailable.
-2. Labels multiply, they do not add; an unbounded label is how a monitoring system takes itself down.
-3. A parts list works the same way: every quantity traces to a per-unit rule, and failing on paper beats failing with a server in your hands.
-
-### Lecturer Commentary: The SRE Mentality vs. Reboot Culture
-
-- **The Fallacy of the Quick Reboot:** When a home Wi-Fi router or laptop hangs, users typically power-cycle the device or reinstall the operating system. In modern microservice deployments, engineers often adopt the same flawed mindset: tearing down a container and redeploying it when memory bloats or latency spikes. While the service recovers temporarily, the root cause remains uninvestigated and will inevitably recur.
-- **Burning Error Budget Without Learning:** A 5-minute recurring outage every month accumulates to an hour of annual downtime. In SRE practice, Error Budget exists to absorb the calculated risk of deploying new features and architectural improvements, not to subsidize recurring, unaddressed bugs.
-- **Hardware-Aware Service Level Objectives:** Real-world systems run on diverse physical hardware. Setting uniform service level objectives (such as 100,000 concurrent sessions) across mismatched machines is an anti-pattern. Engineers must benchmark the specific physical server, establish empirical operational baselines, and define SLIs/SLOs that reflect the hardware reality.
+**รายละเอียดรายวิชา:**
+- รายวิชา: INT531 วิศวกรรมความน่าเชื่อถือของระบบ (Site Reliability Engineering)
+- ภาคการศึกษา/สัปดาห์: สัปดาห์ที่ 4 - การสังเกตการณ์ระบบ ตอนที่ 1: เมทริกซ์และโพรมีธีอุส (ภาคบ่าย: การเตรียมสร้างระบบกักเก็บลมร้อน-เย็นในตู้แร็ก / Containment Build Preparation)
+- สถาบัน: คณะเทคโนโลยีสารสนเทศ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี (School of Information Technology, KMUTT)
+- ระยะเวลา: บรรยาย 2 ชั่วโมง + ปฏิบัติการ 1.5 ชั่วโมง
+- ปรับปรุงเนื้อหา: ปี 2026
 
 ---
 
-## Agenda
+## บทสรุปสำหรับผู้บริหาร: สรุปบทเรียนวันนี้ใน 3 ประโยค (Today in Three Sentences)
 
-1. **Monitoring vs Observability**: How they differ, and why metrics alone are not enough.
-2. **Metric Types**: Counter, gauge, histogram, summary - and choosing between them.
-3. **Prometheus, the TSDB, and Alertmanager**: The whole stack, the pull model, and TSDB internals.
-4. **PromQL and the Cardinality Trap**: Computing an SLI from raw metrics, and what must never be a label.
-5. **Install, Configure Targets, and Test**: Eight install steps, `prometheus.yml`, and six acceptance checks.
-6. **Lab 4 - Preparing the Build**: Count what exists, compute the BOM, check capacity before installing.
+1. เมทริกซ์ (Metric) คือการนับจำนวนที่มีกฎเกณฑ์กำกับอย่างเคร่งครัด หากเลือกประเภทของเมทริกซ์ผิดพลาดตั้งแต่เริ่มต้น การคำนวณค่าที่คุณต้องการในภายหลังจะไม่สามารถทำได้เลย
+2. ป้ายกำกับข้อมูล (Labels) เพิ่มขึ้นแบบทวีคูณโดยการคูณ ไม่ใช่การบวก การกำหนดป้ายกำกับที่ไม่มีขอบเขตจำกัด (Unbounded Label) คือหนทางที่ระบบมอนิเตอร์จะทำลายตัวเองจนล่ม
+3. รายการพัสดุและอุปกรณ์ (Bill of Materials: BOM) ทำงานด้วยหลักการเดียวกัน ปริมาณอุปกรณ์ทุกชิ้นต้องมีที่มาจากกฎการคำนวณต่อหน่วย (Per-Unit Rule) และการตรวจพบความล้มเหลวบนกระดาษคำนวณย่อมดีกว่าการพบว่าอุปกรณ์ใส่ไม่ได้เมื่อเซิร์ฟเวอร์อยู่ในมือจริง
 
 ---
 
-## Session Learning Outcomes (SLOs)
+## กำหนดการบรรยาย (Agenda)
 
-| SLO ID | Outcome Description | Mapped CLO |
+1. **การติดตามตรวจสอบเทียบกับการสังเกตการณ์ระบบ (Monitoring vs Observability)**: ความแตกต่างเชิงแนวคิด และเหตุใดการใช้เมทริกซ์เพียงอย่างเดียวจึงไม่เพียงพอ
+2. **ประเภทของเมทริกซ์ (Metric Types)**: Counter, Gauge, Histogram, Summary และการตัดสินใจเลือกใช้งานให้ถูกต้อง
+3. **โพรมีธีอุส ฐานข้อมูลอนุกรมเวลา และระบบจัดการการแจ้งเตือน (Prometheus, the TSDB, and Alertmanager)**: องค์ประกอบทั้งระบบ สถาปัตยกรรมแบบดึงข้อมูล (Pull Model) และกลไกภายในของ TSDB
+4. **ภาษา PromQL และกับดักจำนวนภาวะเชิงการนับ (PromQL and the Cardinality Trap)**: การคำนวณตัววัดระดับการให้บริการ (SLI) จากข้อมูลดิบ และสิ่งที่ไม่ควรนำมาใช้เป็นป้ายกำกับ (Label) โดยเด็ดขาด
+5. **การติดตั้ง การกำหนดค่าเป้าหมาย และการทดสอบระบบ (Install, Configure Targets, and Test)**: ลำดับขั้นตอนการติดตั้ง 8 ขั้นตอน โครงสร้างไฟล์ `prometheus.yml` และเกณฑ์การตรวจสอบการยอมรับระบบ 6 ข้อ
+6. **ปฏิบัติการ Lab 4 - การเตรียมการสร้างระบบกักเก็บลมตู้แร็ก (Lab 4 - Preparing the Build)**: การตรวจนับอุปกรณ์จริง การคำนวณ BOM และการตรวจสอบขีดความสามารถรองรับ (Capacity) ก่อนเริ่มการติดตั้ง
+
+---
+
+## ผลลัพธ์การเรียนรู้ประจำบทเรียน (Session Learning Outcomes: SLOs)
+
+เมื่อสิ้นสุดบทเรียนนี้ นักศึกษาจะมีความสามารถดังต่อไปนี้:
+
+| รหัส SLO | คำอธิบายผลลัพธ์การเรียนรู้ | ความสอดคล้องกับ CLO |
 | :--- | :--- | :--- |
-| **SLO 4.1** | Explain how monitoring and observability differ, and the limits of metrics | CLO3 |
-| **SLO 4.2** | Choose the metric type that suits what you need to measure | CLO3 |
-| **SLO 4.3** | Explain Prometheus's pull model and what it means for detecting dead targets | CLO3 |
-| **SLO 4.4** | Write PromQL for an availability SLI and a latency percentile | CLO2, CLO3 |
-| **SLO 4.5** | Estimate a metric's cardinality and avoid labels that take the system down | CLO3, CLO5 |
-| **SLO 4.6** | Install and configure Prometheus, Alertmanager, and Grafana, and verify against the checks | CLO3, CLO4 |
-| **SLO 4.7** | Compute a parts list from per-unit rules and verify capacity before installing | CLO5, CLO7 |
+| **SLO 4.1** | สามารถอธิบายความแตกต่างระหว่างการติดตามตรวจสอบ (Monitoring) กับการสังเกตการณ์ระบบ (Observability) รวมถึงขีดจำกัดของเมทริกซ์ได้ | CLO3 |
+| **SLO 4.2** | สามารถเลือกประเภทของเมทริกซ์ (Metric Type) ที่เหมาะสมกับสิ่งที่ต้องการวัดได้อย่างถูกต้อง | CLO3 |
+| **SLO 4.3** | สามารถอธิบายสถาปัตยกรรมแบบดึงข้อมูล (Pull Model) ของโพรมีธีอุส และนัยสำคัญต่อการตรวจจับเป้าหมายที่หยุดทำงานได้ | CLO3 |
+| **SLO 4.4** | สามารถเขียนคิวรีภาษา PromQL เพื่อคำนวณตัววัด SLI ด้านความพร้อมใช้งาน (Availability) และเปอร์เซ็นไทล์ของเวลาตอบสนอง (Latency Percentile) ได้ | CLO2, CLO3 |
+| **SLO 4.5** | สามารถประเมินระดับจำนวนภาวะเชิงการนับ (Cardinality) ของเมทริกซ์ และหลีกเลี่ยงป้ายกำกับที่จะทำให้ระบบล่มได้ | CLO3, CLO5 |
+| **SLO 4.6** | สามารถติดตั้งและกำหนดค่า Prometheus, Alertmanager และ Grafana พร้อมทั้งทดสอบความถูกต้องตามรายการตรวจสอบได้ | CLO3, CLO4 |
+| **SLO 4.7** | สามารถคำนวณรายการพัสดุอุปกรณ์ (Parts List / BOM) จากกฎการคำนวณต่อหน่วย และตรวจสอบความจุของทรัพยากรก่อนการติดตั้งจริงได้ | CLO5, CLO7 |
 
 ---
 
-## Section 1: Seeing It Before the Users Tell You
+## ส่วนที่ 1: การตรวจพบปัญหาก่อนที่ผู้ใช้งานจะแจ้งเตือนเรา (Seeing It Before the Users Tell You)
 
-*Context: Last week we diagnosed by hand; today we fit permanent instruments.*
+*บริบท: สัปดาห์ที่ผ่านมาเราทำการวินิจฉัยปัญหาด้วยตนเองแบบแมนนวล แต่วันนี้เราจะทำการติดตั้งเครื่องมือวัดถาวรเข้าสู่ระบบ*
 
-### 1.1 Monitoring vs. Observability
+### 1.1 การติดตามตรวจสอบ เทียบกับ การสังเกตการณ์ระบบ (Monitoring vs. Observability)
 
-Monitoring and observability are not synonyms, and neither replaces the other.
+คำว่า Monitoring และ Observability ไม่ใช่คำที่มีความหมายเหมือนกัน และไม่มีสิ่งใดมาทดแทนอีกสิ่งหนึ่งได้อย่างสมบูรณ์
 
-| Aspect | Monitoring | Observability |
+| มิติการเปรียบเทียบ | การติดตามตรวจสอบ (Monitoring) | การสังเกตการณ์ระบบ (Observability) |
 | :--- | :--- | :--- |
-| **What it answers** | Things you predicted could break (*known-unknowns*) | Things you never anticipated (*unknown-unknowns*) |
-| **How it is set up** | Decide in advance what to measure and when to alert | Collect enough detail to ask a new question later |
-| **Example question** | "Is CPU above 80% yet?" | "Why are only mobile users at 09:00 slow?" |
-| **Main cost** | Configuring and maintaining alerts | Data volume and cardinality |
+| **สิ่งที่ระบบสามารถตอบได้** | สิ่งที่คุณคาดการณ์ล่วงหน้าไว้แล้วว่าอาจจะพังได้ (*Known-Unknowns*) | สิ่งที่คุณไม่เคยคาดคิดหรือจินตนาการมาก่อนว่าจะเกิดขึ้น (*Unknown-Unknowns*) |
+| **วิธีการตั้งค่าระบบ** | ตัดสินใจล่วงหน้าว่าจะวัดค่าอะไร และควรกำหนดเงื่อนไขแจ้งเตือนเมื่อใด | รวบรวมข้อมูลสถานะภายในอย่างละเอียด เพื่อนำมาตั้งคำถามใหม่ๆ ในภายหลัง |
+| **ตัวอย่างคำถาม** | "อัตราการใช้งานซีพียู (CPU) เกิน 80% แล้วหรือยัง?" | "ทำไมเฉพาะผู้ใช้งานผ่านอุปกรณ์เคลื่อนที่ ณ เวลา 09:00 น. ถึงประสบปัญหาการตอบสนองช้า?" |
+| **ต้นทุนหลักของระบบ** | การกำหนดค่าและการบำรุงรักษาการแจ้งเตือน (Alerts) ไม่ให้เกิดการเตือนหลอก | ปริมาณข้อมูลที่จัดเก็บ (Data Volume) และความซับซ้อนของมิติข้อมูล (Cardinality) |
 
-**Core Takeaway:**
-Metrics are cheap and excellent at answering prepared questions, but useless for unprepared ones. This is why logs and traces follow in week 5.
-
-#### Lecturer Commentary: Practical Analogies
-
-- **Classroom Attendance Analogy:**
-  - *Monitoring:* Tracking if the classroom headcount exceeds 60 chairs. When 70 students enter, a predefined alarm fires indicating physical capacity overflow.
-  - *Observability:* Logging student badge scan timestamps, student study tracks, entry and exit flows, and duration of stay. This rich context allows engineers to investigate unanticipated questions such as: "Why is the 4th-floor hallway congested specifically at 09:15?", enabling informed facility redesigns like installing wider doors or staggering class schedules.
-- **Electric Vehicle (EV) Telemetry Analogy:**
-  - *Monitoring:* Checking battery state of charge (100% dropping to 80%, then 50%) or vehicle speed on the dashboard.
-  - *Observability:* Telemetry tracking instantaneous power draw (kW/h) correlated with regenerative braking (regen) states, driver throttle aggression ("lead foot" habits), incline angles, and thermal trends. Tesla and modern EV telemetry platforms record high-resolution internal logs so engineers can diagnose unexplained range degradation under arbitrary environmental conditions.
+**ข้อสรุปเชิงวิศวกรรม:**
+เมทริกซ์ (Metrics) มีต้นทุนในการประมวลผลและจัดเก็บที่ต่ำมาก อีกทั้งยังมีประสิทธิภาพยอดเยี่ยมในการตอบคำถามที่เตรียมไว้ล่วงหน้า แต่กลับไม่สามารถตอบคำถามในสถานการณ์ที่ไม่เคยคาดคิดได้เลย ด้วยเหตุนี้ บันทึกเหตุการณ์ (Logs) และร่องรอยการทำงานแบบกระจายศูนย์ (Distributed Traces) จึงต้องถูกนำมาเสริมในสัปดาห์ที่ 5
 
 ---
 
-### 1.2 Metric Types and Choosing Between Them
+### 1.2 สามเสาหลักแห่งการสังเกตการณ์ระบบ (The Three Pillars of Observability)
 
-Pick the wrong type up front and the calculation you want later becomes impossible.
+ในการบริหารจัดการระบบกระจายศูนย์สมัยใหม่ ความสามารถในการสังเกตการณ์ระบบต้องอาศัยการบูรณาการข้อมูลทางไกล (Telemetry) สามรูปแบบหลักเข้าด้วยกัน:
 
-| Type | Behaviour | Use It For | Example Name |
+| เสาหลัก (Pillar) | ลักษณะข้อมูล | จุดเด่น (Strengths) | จุดด้อยและข้อจำกัด (Limitations) | ต้นทุนและพื้นที่จัดเก็บ (Cost Profile) | การใช้งานหลักในงาน SRE |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **เมทริกซ์ (Metrics)** | ข้อมูลเชิงตัวเลขที่ถูกรวบรวมตามช่วงเวลาคงที่ (Time-Series Numbers) | คำนวณทางสถิติได้รวดเร็ว กินทรัพยากรน้อย เหมาะกับการทำ Dashboard และแจ้งเตือนอัตโนมัติ | ไม่มีบริบทเชิงลึก ไม่สามารถระบุถึงพฤติกรรมของคำขอรายตัว (Per-request context) ได้ | ต่ำมาก (ประมาณ 1-2 ไบต์ต่อหนึ่งจุดข้อมูล) | ตรวจจับความผิดปกติ (Detection), วัดค่า SLI/SLO, แสดงภาพรวมของระบบ |
+| **บันทึกเหตุการณ์ (Logs)** | บันทึกข้อความพร้อมเวลาของเหตุการณ์รายรายการ (Structured / Unstructured Text) | มีรายละเอียดและบริบทครบถ้วน แสดงข้อความแจ้งเตือนความผิดพลาดและ Stack Traces | ปริมาณข้อมูลมหาศาล สิ้นเปลืองการจัดทำดัชนี (Index) ค้นหายากหากไม่ได้จัดรูปแบบ | สูงมาก ทั้งการส่งผ่านเครือข่าย พื้นที่ดิสก์ และการทำดัชนีค้นหา | การชันสูตรหาสาเหตุของปัญหา (Root Cause Investigation), ตรวจสอบความปลอดภัย |
+| **ร่องรอยการทำงาน (Traces)** | การติดตามเส้นทางการเดินทางของคำขอ (Request) ผ่านบริการย่อยต่างๆ (Microservices) | มองเห็นความสัมพันธ์ระหว่างเซอร์วิส (Service Dependency) และจุดคอขวด (Bottleneck) ชัดเจน | ต้องทำการแทรกโค้ดเครื่องมือ (Instrumentation) ในแอปพลิเคชันอย่างครอบคลุม | ปานกลางถึงสูง ขึ้นอยู่กับอัตราการสุ่มเก็บข้อมูล (Sampling Rate) | วิเคราะห์จุดคอขวดด้าน Latency ในสถาปัตยกรรม Microservices |
+
+---
+
+### 1.3 ประเภทของเมทริกซ์ใน Prometheus และการเลือกใช้งาน (Metric Types)
+
+หากคุณเลือกประเภทของเมทริกซ์ผิดตั้งแต่เริ่มต้น การคำนวณทางคณิตศาสตร์ที่คุณต้องการในอนาคตจะกลายเป็นสิ่งที่เป็นไปไม่ได้ในทันที
+
+| ประเภท (Type) | พฤติกรรมของค่า (Behaviour) | ความเหมาะสมในการใช้งาน (Use It For) | ตัวอย่างชื่อเมทริกซ์ |
 | :--- | :--- | :--- | :--- |
-| **Counter** | Only ever increases; resets to zero on process restart | Cumulative counts such as requests or errors | `http_requests_total` |
-| **Gauge** | Moves up and down freely | A value at a single point in time: memory, temperature | `node_memory_available_bytes` |
-| **Histogram** | Counts observations into configurable buckets | Distributions such as latency; percentiles can be derived | `http_request_duration_seconds_bucket` |
-| **Summary** | Computes quantiles directly inside the application client library | When you never need to aggregate across hosts (you cannot) | `rpc_duration_seconds` |
+| **Counter** | มีค่าเพิ่มขึ้นอย่างต่อเนื่องเพียงทางเดียวเท่านั้น จะกลับไปเริ่มต้นที่ศูนย์ (Reset) ก็ต่อเมื่อโพรเซสของระบบรีสตาร์ต | การนับผลรวมสะสม เช่น จำนวนคำขอทั้งหมด (Total Requests) หรือจำนวนข้อผิดพลาดสะสม | `http_requests_total` |
+| **Gauge** | ค่าตัวเลขสามารถขยับเพิ่มขึ้นและลดลงได้อย่างอิสระตามเวลาจริง | ค่าสถานะ ณ จุดเวลาใดเวลาหนึ่ง เช่น อุณหภูมิ, ปริมาณการใช้งานหน่วยความจำ, จำนวนผู้ใช้งานปัจจุบัน | `node_memory_available_bytes` |
+| **Histogram** | ทำการนับจำนวนการสังเกตการณ์แล้วจัดกลุ่มลงในช่องช่วงค่า (Buckets) ที่กำหนดไว้ล่วงหน้า | การกระจายตัวของข้อมูล เช่น เวลาในการตอบสนอง (Latency) สามารถนำไปคำนวณหาค่า Percentile ได้ | `http_request_duration_seconds_bucket` |
+| **Summary** | คำนวณค่าควอนไทล์ (Quantiles) โดยตรงภายในไลบรารีฝั่งแอปพลิเคชัน | ใช้เมื่อไม่ต้องการรวมผลลัพธ์ข้ามเครื่องโฮสต์หลายตัว (เพราะไม่สามารถรวมผลทางคณิตศาสตร์ได้) | `rpc_duration_seconds` |
 
-**Rule of Thumb:**
-If you want percentiles, use a **histogram**, because it aggregates across hosts. A **summary** does not aggregate across hosts.
-
-#### Lecturer Commentary: Averages vs. Percentiles in High-Concurrency Services
-
-- **The Danger of Mathematical Averages:** A simple average hides critical performance anomalies. If a service handles 100,000 total requests in an hour, an arithmetic mean might show an acceptable response rate. However, a histogram reveals whether 90,000 of those requests arrived in a single 5-minute burst at 09:15, completely saturating worker pools and dropping requests.
-- **Summaries vs. Histograms across Multi-Instance Deployments:** Summaries calculate statistical quantiles (like 0.99) locally in the application memory space before export. You cannot mathematically average percentiles across 10 application instances (`(p99_1 + p99_2) / 2` is statistically invalid). Histograms export raw bucket counters (`_bucket{le="..."}`), allowing the central Prometheus server to aggregate buckets across all instances before computing cluster-wide quantiles via PromQL.
+**กฎเหล็กทางวิศวกรรม (Rule of Thumb):**
+หากคุณต้องการคำนวณหาค่าเปอร์เซ็นไทล์ (เช่น p90, p99) ให้เลือกใช้ **Histogram** เสมอ เพราะข้อมูลจาก Histogram สามารถนำมารวมผลข้ามเครื่องโฮสต์ (Aggregate across hosts) ได้อย่างถูกต้องตามหลักสถิติ ในขณะที่ **Summary** ไม่สามารถนำมารวมผลข้ามเครื่องได้
 
 ---
 
-### 1.3 Prometheus Architecture and the Pull Model
+### 1.4 สถาปัตยกรรมของ Prometheus และรูปแบบการดึงข้อมูล (Prometheus Architecture & Pull Model)
 
-**Prometheus pulls; it is never pushed to.**
+**หลักการพื้นฐาน: Prometheus ใช้รูปแบบการดึงข้อมูล (Pull) เป็นหลัก และจะไม่มีการส่งข้อมูลผลักเข้ามา (Push) เว้นแต่กรณีพิเศษ**
 
 ```
 +-------------------------------------------------------------+
-| Targets (Scrape Endpoints)                                  |
-| - Your App (/metrics)                                       |
-| - node_exporter (:9100)                                     |
-| - cAdvisor (:8080)                                          |
-| - SNMP exporter (for PDUs)                                  |
+| เป้าหมายปลายทาง (Targets / Scrape Endpoints)               |
+| - แอปพลิเคชันของคุณ (/metrics)                              |
+| - node_exporter (พอร์ต 9100)                                |
+| - cAdvisor (พอร์ต 8080)                                     |
+| - SNMP exporter (สำหรับสวิตช์และ PDU ในดาต้าเซ็นเตอร์)     |
 +-------------------------------------------------------------+
                                ^
-                               | GET /metrics (e.g. scrape_interval: 15s)
+                               | ร้องขอผ่าน HTTP GET /metrics (เช่น ทุกๆ scrape_interval: 15s)
                                |
 +-------------------------------------------------------------+
-| Prometheus Server                                           |
+| เครื่องแม่ข่าย Prometheus (Prometheus Server)              |
 |                                                             |
 | +---------------------------------------------------------+ |
-| | Local TSDB                                              | |
-| | Samples stored as: (metric, labels, timestamp, value)   | |
+| | ฐานข้อมูลอนุกรมเวลาท้องถิ่น (Local TSDB)                 | |
+| | จัดเก็บตัวอย่างในรูปแบบ: (metric, labels, timestamp, value)|
 | +---------------------------------------------------------+ |
 |                              |                              |
 |                              v                              |
 | +---------------------------------------------------------+ |
-| | PromQL Engine                                           | |
-| | Evaluates queries, rates, percentiles, aggregations     | |
+| | กลไกประมวลผล PromQL (PromQL Engine)                      | |
+| | ประเมินผลคิวรี, คำนวณอัตราการเปลี่ยนแปลง, Percentile    | |
 | +---------------------------------------------------------+ |
 +-------------------------------------------------------------+
                |                               |
                v                               v
 +-----------------------------+ +-----------------------------+
-| Grafana                     | | Alertmanager                |
-| Dashboards & Visualisation  | | Routing, Grouping, Silencing|
+| กราฟานา (Grafana)           | | ตัวจัดการการแจ้งเตือน      |
+| แดชบอร์ดและการแสดงผลข้อมูล   | | (Alertmanager)             |
+|                             | | จัดเส้นทาง, รวมกลุ่ม, ระงับ |
 +-----------------------------+ +-----------------------------+
 ```
 
-#### Time-Series Representation
-Every series is uniquely identified by its metric name and label key-value pairs:
+#### นิยามของอนุกรมเวลา (Time-Series Representation)
+ทุกๆ เส้นข้อมูลอนุกรมเวลาจะถูกระบุอย่างเจาะจงด้วยชื่อเมทริกซ์และคู่ของป้ายกำกับ (Label key-value pairs):
 ```text
 http_requests_total{path="/register", status="200", instance="app01"} 198412
 ```
-*Definition:* Metric Name + Labels = One Time Series.
+*สูตรนิยาม:* **ชื่อเมทริกซ์ (Metric Name) + ชุดป้ายกำกับ (Labels) = 1 อนุกรมเวลา (One Series)**
 
-#### The Liveness Property of Pull
-Because Prometheus pulls, a target that dies simply stops answering HTTP scrape requests. The built-in synthetic metric `up` automatically goes to `0`. That alone tells you something is wrong without requiring external health checkers.
-
-#### Lecturer Commentary: Scrape Frequency, Pull Dynamics, and Infrastructure Isolation
-
-- **Polling Mechanics:** Every scrape is a straightforward HTTP `GET /metrics` executed on a timer (defaulting to 15 seconds, equivalent to 4 queries per minute). Decreasing this interval to 5 seconds provides finer time resolution but triples data ingestion and storage overhead.
-- **The "Capstone Project Mistake" - Architecture Anti-Pattern:** A recurring error among university project teams is co-locating the monitoring stack on the same virtual machine or container host as the application workload. When the application leaks memory or locks the CPU, the entire VM crashes. The monitoring system dies along with the workload, preventing engineers from viewing historical telemetry or diagnosing the cause of failure.
-- **Physical Host Segregation:** In this course's lab environment, monitoring is strictly decoupled. For 20 student project groups running workloads on 20 dedicated physical servers, at least one additional, independent 21st server is dedicated entirely to hosting the Prometheus, Alertmanager, and Grafana observability stack.
+#### คุณสมบัติการตรวจสอบการมีชีวิตรอดผ่านสถาปัตยกรรม Pull (Liveness Property)
+เนื่องจาก Prometheus เป็นฝ่ายส่งคำขอไปดึงข้อมูล หากเซอร์วิสปลายทางเกิดขัดข้องหรือหยุดทำงาน ปลายทางจะไม่สามารถตอบสนองต่อคำขอ HTTP scrape ได้ ทำให้เมทริกซ์สังเคราะห์ในตัวที่ชื่อว่า `up` เปลี่ยนค่าเป็น `0` โดยอัตโนมัติ ซึ่งค่านี้เพียงค่าเดียวสามารถบ่งชี้ได้ทันทีว่าระบบมีปัญหา โดยไม่จำเป็นต้องติดตั้งระบบ Health Check ภายนอกเพิ่มเติม
 
 ---
 
-### 1.4 Components of the Prometheus Stack
+### 1.5 ส่วนประกอบหลัก 5 ประการของ Prometheus Stack
 
-Five pieces, with responsibilities that do not overlap:
+ห้าส่วนประกอบที่มีหน้าที่รับผิดชอบแยกจากกันอย่างชัดเจนโดยไม่ทับซ้อนกัน:
 
-| Component | Responsibility | Default Port | What Breaks Without It |
+| ส่วนประกอบ (Component) | หน้าที่รับผิดชอบหลัก | พอร์ตมาตรฐาน | ผลกระทบหากส่วนประกอบนี้ขาดหายไป |
 | :--- | :--- | :--- | :--- |
-| **Prometheus server** | Scrapes targets, stores to TSDB, evaluates rules | `9090` | No data and no alerts at all |
-| **Exporter** | Translates a system's native runtime metrics into Prometheus exposition format | `9100` (node) | Devices/services speaking other protocols cannot be scraped |
-| **Alertmanager** | Routes, deduplicates, groups, inhibits, and delivers notifications | `9093` | Alerts fire inside Prometheus, but nobody is notified |
-| **Grafana** | Visualisation, dashboarding, and interactive data exploration | `3000` | Left querying raw numbers through Prometheus expression browser UI |
-| **Pushgateway** | Accepts pushed metric values from jobs too short-lived to be scraped | `9091` | Ephemeral batch jobs exit before a scrape happens, recording nothing |
+| **Prometheus Server** | ดึงข้อมูลจากเป้าหมาย จัดเก็บลงฐานข้อมูล TSDB และประเมินผลกฎการแจ้งเตือน | `9090` | ระบบจะไม่สามารถเก็บข้อมูลใดๆ ได้ และไม่มีการแจ้งเตือนทำงาน |
+| **Exporter** | แปลงข้อมูลสถานะเฉพาะของระบบต่างๆ ให้อยู่ในรูปแบบที่ Prometheus สามารถอ่านเข้าใจได้ | `9100` (Node) | อุปกรณ์หรือระบบที่ใช้โปรโตคอลอื่นจะไม่สามารถถูกดึงข้อมูลได้ |
+| **Alertmanager** | จัดการเส้นทาง รวมกลุ่มข้อความ ระงับการแจ้งเตือนซ้ำซ้อน และส่งต่อไปยังผู้รับ | `9093` | กฎแจ้งเตือนใน Prometheus ทำงาน แต่ไม่มีข้อความส่งถึงวิศวกร |
+| **Grafana** | แปลงข้อมูลตัวเลขเป็นภาพแดชบอร์ดที่ใช้วิเคราะห์และตัดสินใจได้อย่างมีประสิทธิภาพ | `3000` | ต้องดูข้อมูลตัวเลขดิบผ่านหน้าเว็บพื้นฐานของ Prometheus เท่านั้น |
+| **Pushgateway** | เป็นจุดพักรับค่าเมทริกซ์จากงานประเภท Batch Job ที่ทำงานสั้นเกินกว่าจะรอการดึงข้อมูล | `9091` | งานประเภทประมวลผลระยะสั้นจะเสร็จสิ้นไปโดยไม่มีข้อมูลถูกบันทึก |
 
-**Caution on Pushgateway:**
-Pushgateway is strictly intended for genuinely short-lived batch jobs. Using it as a substitute for scraping long-running services destroys the `up` metric as a liveness signal, as the gateway stays alive even if the job has died.
-
-#### Lecturer Commentary: Component Roles and "Resume Padding" Anti-Patterns
-
-- **Grafana is Not a Database:** Students often mistakenly refer to Grafana as their monitoring store. Grafana is solely a presentation dashboard engine; it stores zero time-series metric data. If the underlying Prometheus TSDB or data source fails, Grafana renders empty panels.
-- **CNCF Landscape Over-Engineering:** Browsing the Cloud Native Computing Foundation (CNCF) observability landscape reveals hundreds of specialized projects. Installing dozens of tools simply to display an impressive architecture diagram creates unmaintainable operational drag. Monitoring tools consume compute and memory; observability infrastructure should remain lean, transparent, and purposeful.
+**ข้อควรระวังอย่างยิ่งเกี่ยวกับ Pushgateway:**
+Pushgateway ถูกออกแบบมาสำหรับงานประมวลผลระยะสั้นที่ปิดตัวอย่างรวดเร็ว (Genuinely short-lived batch jobs) เท่านั้น การนำ Pushgateway ไปใช้แทนการดึงข้อมูลตามปกติสำหรับงานบริการระยะยาวจะทำลายคุณสมบัติของเมทริกซ์ `up` เพราะเกตเวย์จะยังมีชีวิตอยู่แม้ว่าตัวงานหลักจะตายไปแล้วก็ตาม
 
 ---
 
-### 1.5 Inside the Local Time-Series Database (TSDB)
+### 1.6 กลไกการทำงานภายในฐานข้อมูลอนุกรมเวลาท้องถิ่น (Inside the Local TSDB)
 
-Understanding internal storage explains why memory consumption grows and why restarts can take time:
+การทำความเข้าใจโครงสร้างการจัดเก็บข้อมูลของ TSDB ช่วยอธิบายว่าทำไมการใช้หน่วยความจำจึงเพิ่มขึ้น และทำไมการรีสตาร์ตระบบจึงอาจใช้เวลานาน:
 
 ```
-[ Incoming Samples ]
-        |
-        v
+[ ข้อมูลตัวอย่างที่ถูกดึงเข้ามา (Incoming Samples) ]
+                     |
+                     v
 +----------------------------------------------------------+
-| Head Block (In-Memory RAM)                               |
-| Holds the newest ~2 hours of samples                     |
+| บล็อกส่วนหัวในหน่วยความจำ (Head Block in RAM)             |
+| จัดเก็บข้อมูลตัวอย่างใหม่ล่าสุดประมาณ 2 ชั่วโมงลงในหน่วยความจำ RAM|
 +----------------------------------------------------------+
-        |                                     |
-        | Appended first                      | Written every 2 hours
-        v                                     v
+         |                                     |
+         | บันทึกลงดิสก์ทันทีก่อน                 | เขียนถ่ายข้อมูลลงดิสก์ทุกๆ 2 ชั่วโมง
+         v                                     v
 +------------------------+          +------------------------+
-| Write-Ahead Log (WAL)  |          | Persistent Blocks      |
-| On Disk                |          | Immutable block dirs   |
-| Prevents crash loss    |          | [2h] [2h] [2h]         |
-+------------------------+          +------------------------+
-                                              |
-                                              v
+| Write-Ahead Log (WAL)  |          | บล็อกถาวรบนดิสก์       |
+| บันทึกลงบนดิสก์        |          | (Persistent Blocks)    |
+| ป้องกันข้อมูลสูญหายเมื่อระบบล่ม|          | ไดเรกทอรีที่ไม่เปลี่ยนแปลง|
++------------------------+          | [2h] [2h] [2h]         |
                                     +------------------------+
-                                    | Compaction             |
-                                    | Merged into 8h blocks; |
-                                    | duplicate indexes drop |
+                                               |
+                                               v
                                     +------------------------+
-                                              |
-                                              v
+                                    | การรวมบีบอัดข้อมูล      |
+                                    | (Compaction)           |
+                                    | รวมเป็นบล็อกขนาด 8h     |
+                                    | ตัดดัชนีที่ซ้ำซ้อนทิ้ง    |
                                     +------------------------+
-                                    | Retention              |
-                                    | Blocks deleted whole   |
-                                    | (never row-by-row)     |
+                                               |
+                                               v
+                                    +------------------------+
+                                    | การลบตามอายุการเก็บ    |
+                                    | (Retention Policy)     |
+                                    | ลบทั้งไดเรกทอรีบล็อก   |
+                                    | (ไม่ลบทีละแถวข้อมูล)    |
                                     +------------------------+
 ```
 
-#### Key Mechanics:
-1. **Head Block (in memory):** Holds the newest ~2 hours of incoming samples in RAM.
-2. **Write-Ahead Log (WAL on disk):** Every sample is appended to the WAL immediately to survive unexpected crashes.
-3. **Persistent Blocks:** Every 2 hours, the head block is flushed to disk as an immutable directory.
-4. **Compaction:** Smaller 2-hour blocks are progressively merged into larger 8-hour blocks while redundant index entries are dropped.
-5. **Retention:** Whole blocks that fall outside the retention window are deleted entirely from the filesystem (never individual rows).
+#### กลไกสำคัญของ TSDB:
+1. **Head Block (ใน RAM):** กักเก็บข้อมูลตัวอย่างใหม่ล่าสุดช่วง ~2 ชั่วโมงไว้ในหน่วยความจำหลักเพื่อการเขียนและอ่านที่รวดเร็วที่สุด
+2. **Write-Ahead Log (WAL บนดิสก์):** ทุกจุดข้อมูลจะถูกเขียนต่อท้ายลงในไฟล์ WAL บนดิสก์ทันที เพื่อป้องกันข้อมูลสูญหายหากเครื่องดับหรือระบบล่มกะทันหัน
+3. **Persistent Blocks:** ทุกๆ 2 ชั่วโมง ข้อมูลใน Head Block จะถูกบันทึกและแปลงเป็นบล็อกไดเรกทอรีถาวรบนดิสก์ที่ไม่สามารถแก้ไขได้ (Immutable)
+4. **Compaction:** กระบวนการเบื้องหลังจะรวมบล็อกขนาด 2 ชั่วโมงหลายๆ บล็อกเข้าด้วยกันเป็นบล็อกใหญ่ขนาด 8 ชั่วโมง พร้อมทั้งกำจัดรายการดัชนีที่ซ้ำซ้อนเพื่อประหยัดเนื้อที่
+5. **Retention:** เมื่อบล็อกข้อมูลมีอายุเกินระยะเวลาที่กำหนด (เช่น 15 วัน) ระบบจะลบไดเรกทอรีของบล็อกนั้นออกไปทั้งก้อน ไม่มีการรันคำสั่งลบทีละแถวข้อมูล
 
-#### Operational Consequences:
-- **Memory consumption** grows with the number of **active time series**, not with the total disk size.
-- **Process restarts** replay the WAL from disk into memory; a bloated WAL results in a prolonged restart time.
-
-#### Lecturer Commentary: TSDB Memory Dynamics and Deletion Logic
-
-- **Why Retention Deletes Blocks, Not Rows:** Relational databases often slow down when executing massive `DELETE FROM table WHERE timestamp < ...` operations due to row indexing and lock overhead. Prometheus avoids this entirely: when retention expires (e.g. 15 days), it unlinks and deletes entire 2-hour or 8-hour filesystem directories.
-- **WAL Replay Latency:** When a Prometheus server with high active series restarts, it must read and replay every uncompacted record from the disk WAL into RAM to restore in-memory head chunks. If the system crashed under memory pressure, this replay phase can exhaust RAM again immediately, triggering an unrecoverable restart loop.
+#### ข้อเท็จจริงเชิงปฏิบัติการที่สำคัญ:
+- **ปริมาณการใช้แรม (Memory):** เพิ่มขึ้นตามจำนวนของ **Active Series** (จำนวนอนุกรมเวลาที่มีข้อมูลไหลเข้า) ไม่ได้ขึ้นอยู่กับขนาดพื้นที่จัดเก็บบนดิสก์
+- **ระยะเวลาการรีสตาร์ต (Restart Time):** เมื่อ Prometheus เริ่มทำงานใหม่ ระบบจะต้องอ่านและเล่นซ้ำข้อมูลใน WAL (Replay WAL) ทั้งหมดเพื่อสร้างข้อมูลใน Head Block ขึ้นมาใหม่ หากไฟล์ WAL มีขนาดใหญ่ กระบวนการเริ่มทำงานจะใช้เวลานานขึ้นตามไปด้วย
 
 ---
 
-### 1.6 PromQL - Computing SLIs from Raw Metrics
+### 1.7 ภาษา PromQL: การคำนวณตัววัด SLI จากข้อมูลเมทริกซ์ดิบ
 
-Three primary PromQL queries cover the vast majority of operational reliability engineering:
+คิวรี PromQL หลัก 3 รูปแบบที่ครอบคลุมการทำงานด้านความน่าเชื่อถือของระบบส่วนใหญ่:
 
-#### 1. Requests per Second
+#### 1. อัตราคำขอต่อวินาที (Requests per Second)
 ```promql
 rate(http_requests_total[5m])
 ```
-- `rate()` calculates the per-second average rate of increase of a counter over a specified time window.
-- It automatically handles counter resets (e.g., when a service restarts from zero).
-- **Rule:** Never subtract raw counter values manually.
+- ฟังก์ชัน `rate()` คำนวณหาความชันหรืออัตราการเพิ่มขึ้นเฉลี่ยต่อวินาทีของข้อมูลประเภท Counter ภายในหน้าต่างเวลาที่กำหนด (เช่น `5m`)
+- จัดการปัญหากรณี Counter ถูกรีเซ็ตค่าเป็นศูนย์เมื่อระบบรีสตาร์ตโดยอัตโนมัติ
+- **ข้อห้ามเด็ดขาด:** ห้ามนำค่า Counter ดิบสองช่วงเวลามาลบกันเองแบบแมนนวล
 
-#### 2. Success Ratio (Availability SLI)
+#### 2. อัตราส่วนความสำเร็จ หรือ SLI ด้านความพร้อมใช้งาน (Success Ratio / Availability SLI)
 ```promql
 sum(rate(http_requests_total{status!~"5.."}[5m])) / sum(rate(http_requests_total[5m]))
 ```
-- **Numerator:** Sum of rates of requests whose HTTP status code does not match the regex `5..` (non-server errors).
-- **Denominator:** Sum of rates of all HTTP requests.
-- **Connection to SRE fundamentals:** This directly implements the SLI equation defined in Week 2.
+- **ตัวตั้ง (Numerator):** ผลรวมอัตราคำขอที่ไม่เกิดข้อผิดพลาดจากฝั่งเซิร์ฟเวอร์ (รหัสสถานะไม่ตรงกับ Regular Expression `5..`)
+- **ตัวหาร (Denominator):** ผลรวมของอัตราคำขอทั้งหมดที่เข้ามายังระบบ
+- สอดคล้องกับสูตรการคำนวณ SLI พื้นฐานตามหลักวิศวกรรม SRE
 
-#### 3. 99th Percentile Latency (p99)
+#### 3. เวลาตอบสนองที่เปอร์เซ็นไทล์ 99 (Latency at p99)
 ```promql
 histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))
 ```
-- You **must** aggregate by the `le` (less than or equal) bucket label before calling `histogram_quantile()`.
-- Omission of `sum by (le)` calculates a per-instance quantile rather than a cluster-wide service quantile.
-
-#### Lecturer Commentary: AI Assistance and Foundational Understanding
-
-- **The Role of Generative AI in PromQL:** Generative AI tools (ChatGPT, Claude, Copilot) are highly capable at proposing PromQL boilerplate, SLI expressions, or Grafana queries when provided with system architecture context.
-- **The Pitfall of Skipping Fundamentals:** Relying blindly on AI outputs without understanding how PromQL aggregates buckets (`le` labels) or handles counter resets leads to silent calculation errors in production dashboards. When AI hallucinates a non-existent PromQL function or misinterprets vector matching, only an engineer with solid foundational understanding can detect and rectify the flaw. Master the manual math first; leverage AI to accelerate execution later.
+- คุณ **ต้อง** รวมผลข้อมูลด้วยเงื่อนไข `by (le)` ก่อนส่งให้ฟังก์ชัน `histogram_quantile()` เสมอ
+- หากลืมใส่ `sum by (le)` ระบบจะทำการคำนวณค่าควอนไทล์แยกราย Instance ซึ่งไม่ใช่ตัวเลขรวมของระบบบริการตามที่คุณต้องการ
 
 ---
 
-### 1.7 The Cardinality Trap
+### 1.8 ไวยากรณ์สำคัญของภาษา PromQL และการประยุกต์ใช้งาน
 
-**The number-one cause of Prometheus server outages in production.**
-
-> **Core Law:** Cardinality multiplies across labels; it never adds.
-
-#### Comparative Calculation:
-
-**Sensible Metric Schema:**
-- `path`: 12 distinct values
-- `method`: 4 distinct values (GET, POST, PUT, DELETE)
-- `status`: 6 distinct values (200, 201, 400, 401, 404, 500)
-- `instance`: 20 distinct servers/containers
-$$\text{Total Series} = 12 \times 4 \times 6 \times 20 = 5,760 \text{ series}$$
-*Status:* Perfectly manageable on a single Prometheus server.
-
-**Careless Metric Schema (Adding a Single High-Cardinality Label):**
-- Adding `user_id` with 3,200 active users:
-$$\text{Total Series} = 12 \times 4 \times 6 \times 20 \times 3,200 = 18,432,000 \text{ series}$$
-*Status:* Catastrophic. Will cause out-of-memory (OOM) crashes and take down the monitoring server.
-
-**Design Rule:**
-Labels may **only** contain values from a small, bounded, closed set. User IDs, order IDs, UUIDs, email addresses, and unparameterized URLs must **never** be used as metric labels; they belong exclusively in structured logs and distributed traces.
-
-#### Lecturer Commentary: Wireshark Analogy and Log Routing
-
-- **The Wireshark Packet Capture Analogy:** Running Wireshark on a saturated gigabit network interface without capture filters quickly exhausts system memory and crashes the packet analyzer. Injecting unbounded, high-cardinality labels into Prometheus creates an identical outcome: Prometheus attempts to maintain an active in-memory index for millions of distinct time series.
-- **Where High-Cardinality Data Belongs:** When debugging user-specific issues (e.g. tracking specific user IDs, transaction IDs, or stack traces), route this telemetry to log management platforms (such as Graylog, Loki, or Elasticsearch) or distributed tracing engines. Logs store arbitrary unstructured or semi-structured data sequentially without maintaining persistent multi-dimensional indexing trees in RAM.
-
----
-
-### 1.8 Core PromQL Reference and Daily Usage
-
-| Concept / Construct | Example Syntax | Purpose / Application |
+| โครงสร้างและแนวคิด | รูปแบบไวยากรณ์ | ช่วงเวลาและวัตถุประสงค์ในการใช้งาน |
 | :--- | :--- | :--- |
-| **Instant Vector** | `http_requests_total` | Retrieves a single, most recent sample value per series (current state) |
-| **Range Vector** | `http_requests_total[5m]` | Retrieves a range of sample buffers over time; required by `rate()` and `increase()` |
-| **Label Selectors** | `{job="api", status=~"5.."}` | `=`: exact match<br>`!=`: not equal<br>`=~`: regex match<br>`!~`: regex mismatch |
-| **Aggregation** | `sum by (path) (...)`<br>`sum without (instance) (...)` | `by`: combines series while preserving named labels<br>`without`: drops named labels and preserves the rest |
-| **Counter Increase** | `increase(errors_total[1h])` | Calculates the total count increment over a time window |
-| **Binary Operators** | `a / b`, `a > 0.99`, `a and b` | Computes ratios, evaluates thresholds against targets, and filters alert triggers |
+| **Instant Vector** | `http_requests_total` | คืนค่าตัวเลขล่าสุดเพียงจุดเดียวต่อหนึ่งอนุกรมเวลา (ใช้แสดงสถานะปัจจุบัน) |
+| **Range Vector** | `http_requests_total[5m]` | ดึงชุดข้อมูลตัวอย่างย้อนหลังตามหน้าต่างเวลา (จำเป็นต้องใช้ร่วมกับ `rate()` และ `increase()`) |
+| **Label Selectors** | `{job="api", status=~"5.."}` | `=`: ตรงกันพอดี<br>`!=`: ไม่ตรงกัน<br>`=~`: ตรงตาม Regex<br>`!~`: ไม่ตรงตาม Regex |
+| **Aggregation Operators** | `sum by (path) (...)`<br>`sum without (instance) (...)` | `by`: รวมข้อมูลโดยคงป้ายกำกับที่ระบุไว้<br>`without`: รวมข้อมูลโดยตัดป้ายกำกับที่ระบุออก |
+| **increase() Function** | `increase(errors_total[1h])` | คำนวณว่าค่า Counter เพิ่มขึ้นมาเท่าใดในช่วงเวลาที่กำหนด (บอกความถี่ของเหตุการณ์) |
+| **Binary Operators** | `a / b`, `a > 0.99`, `a and b` | คำนวณอัตราส่วน เปรียบเทียบกับเกณฑ์เป้าหมาย และสร้างเงื่อนไขสำหรับกฎการแจ้งเตือน |
 
-#### Common Traps:
-1. Calling `rate()` on a **gauge** metric (it is mathematically designed only for monotonically increasing counters).
-2. Selecting a range window `[T]` shorter than **four scrape intervals** (e.g., setting `[15s]` when scraping every `15s`), which causes rate calculations to fail or drop to zero during minor scrape delays.
+#### หลุมพรางที่พบบ่อย (Common Traps):
+1. การนำฟังก์ชัน `rate()` ไปใช้กับเมทริกซ์ประเภท **Gauge** (ฟังก์ชันนี้ถูกออกแบบมาทางคณิตศาสตร์สำหรับ Counter ที่มีค่าเพิ่มขึ้นทางเดียวเท่านั้น)
+2. การเลือกหน้าต่างเวลาในเครื่องหมายก้ามปู `[]` สั้นกว่า **4 เท่าของช่วงเวลาการดึงข้อมูล (Scrape Interval)** เช่น ตั้งค่า `[15s]` ในขณะที่ดึงข้อมูลทุก `15s` ซึ่งจะทำให้การคำนวณอัตราความชันล้มเหลวทันทีที่มีคำขอล่าช้าเพียงเล็กน้อย
 
 ---
 
-### 1.9 Worked Storage Mathematics: Sizing Prometheus Disk
+### 1.9 กับดักจำนวนภาวะเชิงการนับ (The Cardinality Trap)
 
-**Fundamental Sizing Formula:**
+**สาเหตุอันดับหนึ่งที่ทำให้เซิร์ฟเวอร์ Prometheus ในองค์กรจริงล่มจนไม่สามารถทำงานได้**
+
+> **กฎเหล็กเรื่อง Cardinality:** จำนวนภาวะเชิงการนับจะเพิ่มขึ้นแบบทวีคูณจากการคูณของค่าในแต่ละป้ายกำกับ (Label) เสมอ ไม่เคยเพิ่มขึ้นด้วยการบวก
+
+#### การเปรียบเทียบการเติบโตของ Time Series:
+
+**กรณีที่ 1: การออกแบบเมทริกซ์อย่างสมเหตุสมผล (Sensible Metric)**
+- ป้ายกำกับ `path`: 12 ค่า (เส้นทาง API ที่กำหนดไว้)
+- ป้ายกำกับ `method`: 4 ค่า (GET, POST, PUT, DELETE)
+- ป้ายกำกับ `status`: 6 ค่า (200, 201, 400, 401, 404, 500)
+- ป้ายกำกับ `instance`: 20 เครื่องเซิร์ฟเวอร์/คอนเทนเนอร์
+$$\text{จำนวนอนุกรมเวลาทั้งหมด} = 12 \times 4 \times 6 \times 20 = 5,760 \text{ ซีรีส์}$$
+*ผลลัพธ์:* ปริมาณขนาดนี้ทำงานได้อย่างราบรื่นและใช้ทรัพยากรน้อยมากบน Prometheus เครื่องเดียว
+
+**กรณีที่ 2: เมทริกซ์เดิมแต่เพิ่มป้ายกำกับที่ไม่ระมัดระวังเพียงตัวเดียว (Careless Label)**
+- เพิ่มป้ายกำกับ `user_id` โดยมีผู้ใช้งาน 3,200 คน:
+$$\text{จำนวนอนุกรมเวลาทั้งหมด} = 12 \times 4 \times 6 \times 20 \times 3,200 = 18,432,000 \text{ ซีรีส์}$$
+*ผลลัพธ์:* เกิดวิกฤตหน่วยความจำหมด (Out-of-Memory: OOM) เซิร์ฟเวอร์มอนิเตอร์จะล่มลงในทันที
+
+**กฎการออกแบบป้ายกำกับ (Design Rule):**
+ป้ายกำกับจะต้องเก็บค่าจากชุดข้อมูลที่มีขอบเขตปิดและจำกัดขนาดเล็กเท่านั้น (Small, closed set) ข้อมูลประเภท รหัสผู้ใช้ (User ID), รหัสคำสั่งซื้อ (Order ID), เลข UUID, ที่อยู่อีเมล หรือ URL เต็มรูปแบบที่มีพารามิเตอร์ **ห้ามนำมาใส่เป็น Label ในเมทริกซ์โดยเด็ดขาด** ข้อมูลเหล่านี้ต้องถูกบันทึกลงใน Logs หรือ Distributed Traces เท่านั้น
+
+---
+
+### 1.10 การคำนวณขนาดพื้นที่จัดเก็บบนดิสก์ของ TSDB (Disk Space Calculation)
+
+**สูตรการคำนวณพื้นที่จัดเก็บพื้นฐาน:**
 $$\text{Storage} \approx \text{Active Series} \times \left(\frac{1}{\text{scrape\_interval}}\right) \times \text{bytes\_per\_sample} \times \text{retention\_seconds}$$
 
-#### Sizing for the Sensible Model:
-- **Active Series:** 5,760
-- **Scrape Interval:** 15 seconds (1 sample per series every 15s)
-- **Samples per Second:**
-  $$\frac{5,760}{15} = 384 \text{ samples/second}$$
-- **Bytes per Sample:** $\approx 2 \text{ Bytes}$ (industry rule of thumb after Gorilla delta-of-delta compression)
-- **Daily Ingestion Rate:**
-  $$384 \text{ samples/s} \times 86,400 \text{ s/day} \times 2 \text{ B} \approx 66,355,200 \text{ B} \approx 66 \text{ MB/day}$$
-- **Total Storage (15-Day Retention):**
-  $$66 \text{ MB/day} \times 15 \text{ days} \approx 1.0 \text{ GB}$$
-  *Result:* Easily housed within any minimal virtual machine or container.
+#### ตัวอย่างการคำนวณกรณีปกติ (5,760 ซีรีส์):
+- **จำนวน Active Series:** 5,760 ซีรีส์
+- **ช่วงเวลาการดึงข้อมูล (Scrape Interval):** 15 วินาที (ดึง 1 ตัวอย่างต่อซีรีส์ทุก 15 วินาที)
+- **อัตราข้อมูลตัวอย่างต่อวินาที:**
+  $$\frac{5,760}{15} = 384 \text{ ตัวอย่าง/วินาที}$$
+- **ขนาดข้อมูลต่อตัวอย่าง (Bytes per Sample):** $\approx 2 \text{ ไบต์}$ (ค่าเฉลี่ยมาตรฐานหลังผ่านการบีบอัดข้อมูลแบบ Gorilla)
+- **ปริมาณข้อมูลที่เกิดขึ้นต่อวัน:**
+  $$384 \text{ samples/s} \times 86,400 \text{ วินาที/วัน} \times 2 \text{ ไบต์} \approx 66,355,200 \text{ ไบต์} \approx 66 \text{ MB ต่อวัน}$$
+- **ขนาดพื้นที่ดิสก์รวมสำหรับระยะเวลาจัดเก็บ 15 วัน:**
+  $$66 \text{ MB/วัน} \times 15 \text{ วัน} \approx 1.0 \text{ GB}$$
+  *การประเมิน:* รองรับได้อย่างสบายแม้บนเครื่องเซิร์ฟเวอร์ขนาดเล็กที่สุด
 
-#### Impact of the Cardinality Trap (`user_id`):
-- **Active Series:** 18,432,000
-- **Samples per Second:**
-  $$\frac{18,432,000}{15} \approx 1,228,800 \text{ samples/second}$$
-- **Daily Ingestion Rate:**
-  $$1.23\text{M samples/s} \times 86,400 \text{ s} \times 2 \text{ B} \approx 212 \text{ GB/day}$$
-- **Total Storage (15-Day Retention):**
-  $$212 \text{ GB/day} \times 15 \text{ days} \approx 3,180 \text{ GB} \approx 3.18 \text{ TB}$$
+#### ตัวอย่างเมื่อเกิดปัญหา High Cardinality (ใส่ `user_id` จนพุ่งเป็น 18.4 ล้านซีรีส์):
+- **จำนวน Active Series:** 18,432,000 ซีรีส์
+- **อัตราข้อมูลตัวอย่างต่อวินาที:**
+  $$\frac{18,432,000}{15} \approx 1,228,800 \text{ ตัวอย่าง/วินาที (1.23 ล้าน samples/s)}$$
+- **ปริมาณข้อมูลที่เกิดขึ้นต่อวัน:**
+  $$1.23 \times 10^6 \times 86,400 \times 2 \approx 212 \text{ GB ต่อวัน}$$
+- **ขนาดพื้นที่ดิสก์รวมสำหรับระยะเวลาจัดเก็บ 15 วัน:**
+  $$212 \text{ GB/วัน} \times 15 \text{ วัน} \approx 3,180 \text{ GB} \approx 3.18 \text{ TB}$$
 
 ---
 
-### 1.10 Dashboard Design: Answering Questions in Top-to-Bottom Order
+### 1.11 การออกแบบแดชบอร์ดที่ตอบคำถามอย่างเป็นลำดับขั้น (Dashboard Design)
 
-A well-architected dashboard reads top to bottom without requiring spoken narration.
+แดชบอร์ดที่ดีต้องสามารถอ่านเข้าใจได้ตั้งแต่บนลงล่างโดยไม่ต้องมีผู้อื่นมาคอยบรรยายอธิบาย
 
 ```
 +--------------------------------------------------------------------------------------------------+
-| Row 1: Is the service healthy?                                                                   |
-| [ Availability SLI vs Target ]    [ Error Budget Remaining ]        [ Requests per Second ]      |
+| แถวที่ 1: ระบบบริการยังทำงานเป็นปกติดีอยู่หรือไม่? (Is the service healthy?)                         |
+| [ Availability SLI เทียบกับเป้าหมาย ] [ งบประมาณความคลาดเคลื่อนคงเหลือ ] [ อัตราคำขอต่อวินาที (RPS) ]|
 +--------------------------------------------------------------------------------------------------+
-| Row 2: How bad is it, and for whom?                                                              |
-| [ Latency (p50 / p90 / p99) ]     [ Errors by Status Code ]         [ Traffic by Endpoint ]      |
+| แถวที่ 2: อาการแย่แค่ไหน และส่งผลกระทบต่อใครบ้าง? (How bad, and for whom?)                           |
+| [ ค่า Latency (p50 / p90 / p99) ]   [ ข้อผิดพลาดแยกตาม Status Code ]   [ ปริมาณทราฟฟิกแยกตาม Endpoint ] |
 +--------------------------------------------------------------------------------------------------+
-| Row 3: Which underlying infrastructure resource is hurting?                                      |
-| [ CPU and Run Queue ]             [ Memory and Swap ]               [ Disk Await & Network Drops]|
+| แถวที่ 3: ทรัพยากรโครงสร้างพื้นฐานระดับล่างส่วนใดที่กำลังวิกฤต? (Which resource is hurting?)         |
+| [ อัตราการใช้ CPU และ Run Queue ]    [ การใช้งาน Memory และ Swap ]     [ ค่า Disk Await และ Network Drops ] |
 +--------------------------------------------------------------------------------------------------+
 ```
 
-#### Core Design Principles:
-- **Top row visible without scrolling:** Vital high-level health state must be immediately apparent.
-- **One question per panel:** Do not clutter single graphs with unrelated measurements.
-- **Synchronized time range:** All panels on a dashboard must reflect identical time bounds.
-- **Narrative flow:**
-  1. *Is it broken?* (Row 1)
-  2. *How badly and where?* (Row 2)
-  3. *What physical or virtual resource is causing it?* (Row 3)
-
-#### Lecturer Commentary: The Task Manager Anti-Pattern and Inter-Team Blame
-
-- **The Activity Monitor / Task Manager Flaw:** Opening Windows Task Manager or macOS Activity Monitor presents hundreds of disaggregated processes (e.g. WindowServer using high CPU or Chrome consuming gigabytes of RAM). This interface does not tell you if your core business service is functioning properly. A production dashboard cannot simply be a raw list of host processes; it must synthesize metrics into a structured narrative.
-- **Bridging the Infrastructure vs. Application Divide:** In enterprise operations, infrastructure administrators frequently deflect service tickets by showing low CPU utilization on the front-end reverse proxy, claiming: "The servers and network are green; the problem must be in your application code." An end-to-end, top-to-bottom dashboard visualizes the entire request journey (from edge ingress down to backend database replica latency), preventing cross-team finger-pointing during critical outages.
+#### หลักการออกแบบที่สำคัญ:
+- **แถวบนสุดต้องมองเห็นได้โดยไม่ต้องเลื่อนจอ (Top row visible without scrolling):** สุขภาพภาพรวมของระบบต้องประเมินได้ในทันที
+- **หนึ่ง Panel ตอบหนึ่งคำถาม:** อย่าใส่ตัววัดที่ไม่เกี่ยวข้องกันลงไปในกราฟเดียวจนสับสน
+- **กำหนดช่วงเวลาเดียวกันทุก Panel:** เวลาในแดชบอร์ดต้องซิงโครไนซ์กันทั้งหมด
+- **ลำดับการเล่าเรื่อง (Narrative Flow):**
+  1. *ระบบพังหรือไม่?* (แถวที่ 1)
+  2. *พังหนักแค่ไหนและกระทบส่วนใด?* (แถวที่ 2)
+  3. *เกิดจากทรัพยากรตัวใดเป็นต้นเหตุ?* (แถวที่ 3)
 
 ---
 
-### 1.11 Case Study 1: When the Monitoring System Took Itself Down
+### 1.12 กรณีศึกษาที่ 1: เมื่อระบบมอนิเตอร์กลายเป็นสาเหตุทำให้ตัวเองล่ม (Case Study 1)
 
-A typical post-mortem timeline seen repeatedly across engineering teams:
+ลำดับเหตุการณ์จริงที่เกิดขึ้นซ้ำแล้วซ้ำเล่าในหลายองค์กร:
 
-- **Day 0 · 14:20:** A debugging label is added. An application developer attaches `order_id` to an HTTP metric to track a subtle production bug. The change passes review and deploys.
-- **Day 0 · 16:40:** Active series count climbs exponentially from 40,000 to 900,000 within two hours. No alerts are configured to monitor the monitoring system itself.
-- **Day 1 · 02:10:** Prometheus runs out of memory and is terminated by the Linux OOM killer. The container restarts, begins replaying its bloated write-ahead log (WAL), exhausts RAM again, and enters a crash loop.
-- **Day 1 · 02:10:** Alerting goes completely silent. A real database outage occurs at 03:00 and remains completely undetected for 50 minutes until customers flood support channels.
-- **Day 1 · 09:30:** Recovery achieved after the offending metric label is dropped from application code, corrupted/bloated TSDB data is wiped, and an explicit alert on total series count is implemented.
+- **วันที่ 0 เวลา 14:20 น.:** วิศวกรเพิ่มป้ายกำกับสำหรับการดีบัก โดยใส่ `order_id` เข้าไปในเมทริกซ์ HTTP เพื่อติดตามบั๊กบางประการ และปล่อยขึ้น Production ในช่วงบ่าย
+- **วันที่ 0 เวลา 16:40 น.:** จำนวน Active Series ไต่ระดับขึ้นอย่างรวดเร็วจาก 40,000 กลายเป็น 900,000 ซีรีส์ภายในสองชั่วโมง โดยที่ไม่มีใครเฝ้าดูตัวเลขนี้
+- **วันที่ 1 เวลา 02:10 น.:** หน่วยความจำ RAM ของเครื่อง Prometheus หมดลง และกระบวนการถูกระบบปฏิบัติการสั่งยุติการทำงาน (OOM-killed) เมื่อระบบพยายามรีสตาร์ต ตัวประมวลผลต้องอ่านไฟล์ WAL ที่มีขนาดใหญ่มาก ทำให้ RAM ล้นซ้ำและวนลูปดับไปเรื่อยๆ
+- **วันที่ 1 เวลา 02:10 น.:** ระบบแจ้งเตือนเงียบสนิท เนื่องจากไม่มีข้อมูลเมทริกซ์ส่งเข้ามา เมื่อเกิดเหตุการณ์ฐานข้อมูลล่มจริงในเวลา 03:00 น. จึงไม่มีการแจ้งเตือนใดๆ ส่งหาทีมงานนานถึง 50 นาที จนกระทั่งลูกค้าโทรศัพท์เข้ามาร้องเรียน
+- **วันที่ 1 เวลา 09:30 น.:** กู้คืนระบบสำเร็จหลังจากตัดป้ายกำกับที่เป็นต้นเหตุออกจากโค้ด ล้างข้อมูล TSDB ที่บวมทิ้ง และตั้งกฎแจ้งเตือนเฝ้าระวังจำนวนซีรีส์
 
-#### Lessons Learned:
-1. **The monitoring system needs monitoring:** Configure high-priority alerts on `prometheus_tsdb_head_series` and Prometheus memory consumption.
-2. **Every label addition is an architectural decision:** Adding a label is a capacity and cardinality choice, never mere logging formatting.
-3. **Loss of observability is a Sev-1 incident:** Even if user-facing applications appear functional, running blind is an emergency.
+#### สามบทเรียนสำคัญ:
+1. **ระบบมอนิเตอร์ต้องถูกมอนิเตอร์ด้วย:** ตั้งค่าการแจ้งเตือนระดับวิกฤตต่อค่า `prometheus_tsdb_head_series` และการใช้หน่วยความจำของ Prometheus
+2. **การเพิ่มป้ายกำกับคือการตัดสินใจด้านสถาปัตยกรรม:** ป้ายกำกับส่งผลต่อ Cardinality และความจุของระบบ ไม่ใช่แค่การจัดรูปแบบข้อความ
+3. **การสูญเสียความสามารถในการสังเกตการณ์คือเหตุวิกฤตระดับสูง (Sev-1):** แม้ว่าตัวแอปพลิเคชันจะยังให้บริการได้ แต่การทำงานแบบมองไม่เห็นสภาพภายในคือความเสี่ยงที่ยอมรับไม่ได้
 
 ---
 
-### 1.12 Observability for Physical Data Centre Infrastructure
+### 1.13 เมทริกซ์สำหรับโครงสร้างพื้นฐานทางกายภาพใน Data Centre
 
-Physical infrastructure carries metrics, telemetry, and SLOs just like application services.
+โครงสร้างพื้นฐานระดับฮาร์ดแวร์ก็ต้องมีตัววัดและเป้าหมาย SLO เช่นเดียวกับระดับซอฟต์แวร์:
 
-| Infrastructure Telemetry | Metric Type | Collection Mechanism | Operational Decision Driven |
+| ข้อมูลที่ต้องการตรวจวัด | ประเภทของเมทริกซ์ | กลไกและเครื่องมือในการรวบรวม | การตัดสินใจทางวิศวกรรมที่เกี่ยวข้อง |
 | :--- | :--- | :--- | :--- |
-| **PDU load per phase (Amperes)** | Gauge | SNMP exporter on Intelligent PDU | Determines headroom for installing additional physical servers |
-| **Rack inlet & outlet temperature** | Gauge | In-rack environmental sensors via SNMP | Confirms cold/hot aisle containment integrity |
-| **PSU operational status** | Gauge (0/1) | IPMI or Redfish exporter | Detects servers running without power redundancy on a single feed |
-| **ToR switch ports in use** | Gauge | SNMP exporter on Top-of-Rack switch | Dictates procurement triggers for additional network switches |
-
-#### Lecturer Commentary: SNMP Architecture and Real-World Power Economics
-
-- **SNMP Polling Mechanics:** Simple Network Management Protocol (SNMP) functions analogously to Prometheus HTTP scraping. Enterprise switches, PDUs, and server management controllers run internal SNMP daemon agents that store hardware telemetry in Management Information Bases (MIBs). The Prometheus `snmp_exporter` periodically polls these endpoints and converts them into standard Prometheus metrics.
-- **Power Sizing Scale Comparison:**
-  - *Rural / Modest Home:* 5 Amperes main breaker.
-  - *Modern Urban Residence:* 15 Amperes single-phase breaker.
-  - *House with EV Charger:* 100 Amperes with dedicated secondary electrical circuits.
-  - *Colocation Data Centre Rack:* Typically rented with 16 Amperes or 32 Amperes feeds.
-- **Colocation Cost Context:** Renting a single standard 42U rack space with a 16A power feed at enterprise data centres (such as CAT Telecom or JAS TEL) costs approximately 50,000 THB per month for empty rack space and electrical utilities alone, excluding the cost of servers and software.
-- **Power Supply Density:** Older servers utilized 350W–500W power supplies. High-performance enterprise compute and GPU-accelerated nodes require dual 1,000W–2,000W 80 Plus Platinum power supplies. Running multiple multi-PSU servers on a single 16A feed risks exceeding thermal limits and tripping main breakers.
+| **ภาระโหลดกระแสไฟฟ้าของ PDU แต่ละเฟส (แอมแปร์)** | Gauge | SNMP exporter ที่เชื่อมต่อกับ Intelligent PDU | บ่งชี้ว่ายังมีขีดความสามารถด้านไฟฟ้าเหลือพอจะติดตั้งเซิร์ฟเวอร์เพิ่มหรือไม่ |
+| **อุณหภูมิด้านหน้าทางเข้าและด้านหลังทางออกตู้แร็ก** | Gauge | เซนเซอร์วัดอุณหภูมิในแร็กผ่านโปรโตคอล SNMP | พิสูจน์ว่าระบบกักเก็บลมร้อน-เย็น (Containment) ทำงานได้ผลจริงหรือไม่ |
+| **สถานะการทำงานของชุดจ่ายไฟ (PSU Status)** | Gauge (0 หรือ 1) | IPMI หรือ Redfish exporter | ตรวจหาอุปกรณ์ที่กำลังตกอยู่ในความเสี่ยงจากการใช้ไฟเพียงแหล่งเดียว |
+| **จำนวนพอร์ตสวิตช์เครือข่ายที่ถูกใช้งาน** | Gauge | SNMP exporter บน Top-of-Rack Switch | บ่งชี้จังหวะเวลาที่จำเป็นต้องสั่งซื้อสวิตช์เครือข่ายตัวใหม่ล่วงหน้า |
 
 ---
 
-### 1.13 Grafana Best Practices
+### 1.14 แนวปฏิบัติที่ดีในการสร้างแดชบอร์ดด้วย Grafana
 
-Four essential fundamentals for robust Grafana setups:
+หัวใจสำคัญ 4 ประการในการเริ่มต้นใช้งาน Grafana:
 
-1. **Data Source Configuration:**
-   - In containerized environments, point to Prometheus using its Docker network service name (`http://prometheus:9090`), never `localhost`.
-2. **Panels and Queries:**
-   - Title panels with the question being answered, not the metric name.
-   - Always configure explicit unit definitions (e.g., seconds, bytes, percent) so axes render meaningfully.
-3. **Template Variables:**
-   - Utilize `$job` and `$instance` variables to create reusable, dynamic dashboards instead of cloning static dashboards per server.
-4. **Declarative Provisioning:**
-   - Store dashboard JSON definitions and data source configs in Git repositories.
-   - Configure Grafana's file provisioning engine to load dashboards automatically on startup.
-   - *Rule:* A dashboard created manually in the UI and never committed to Git disappears when the container terminates.
+1. **การกำหนดค่าแหล่งข้อมูล (Data Source):**
+   - ภายใต้เครือข่าย Docker Compose ให้ระบุชื่อเซอร์วิสเครือข่าย เช่น `http://prometheus:9090` ห้ามใช้ `localhost` เพราะคอนเทนเนอร์ทำงานแยกเน็ตเวิร์กเนมสเปซกัน
+2. **พาเนลและคิวรี (Panels and Queries):**
+   - ตั้งชื่อพาเนลด้วย "คำถามที่ต้องการคำตอบ" ไม่ใช่ชื่อเมทริกซ์ และกำหนดหน่วยวัด (Unit) เสมอ
+3. **การใช้ตัวแปร (Template Variables):**
+   - นำตัวแปร `$instance` หรือ `$job` มาใช้ เพื่อให้แดชบอร์ดหน้าเดียวสามารถสลับดูข้อมูลของเครื่องเซิร์ฟเวอร์ได้ทุกเครื่อง
+4. **การจัดการโครงสร้างแบบโค้ด (Declarative Provisioning):**
+   - จัดเก็บไฟล์ JSON นิยามแดชบอร์ดไว้ใน Git และกำหนดให้ Grafana โหลดอัตโนมัติเมื่อเริ่มต้นระบบ แดชบอร์ดที่สร้างด้วยมือบนหน้าเว็บแล้วไม่เคยนำออกมาเก็บ จะสูญหายไปทันทีเมื่อคอนเทนเนอร์ถูกลบ
 
 ---
 
-### 1.14 Alertmanager: Routing, Grouping, and Notification Hygiene
+### 1.15 ตัวจัดการการแจ้งเตือน (Alertmanager): การเปลี่ยนข้อผิดพลาดให้เป็นการแจ้งเตือนที่ตรงเป้า
 
-The alerting pipeline is designed to turn a cascaded system failure into a single actionable notification.
+ท่อส่งข้อมูลการแจ้งเตือนถูกออกแบบมาเพื่อรวมความเสียหายของระบบให้กลายเป็นข้อความแจ้งเตือนที่ตรงจุดและมีประโยชน์:
 
 ```
-[ Alerting Rules in Prometheus ]
-Evaluated on fixed interval; must remain firing for 'for: <duration>'
-              |
-              v
-[ Alertmanager Pipeline ]
-  1. Route:    Evaluates label matching tree (severity, team, service); first match wins
-  2. Group:    Aggregates matching alerts sharing 'group_by' over 'group_wait' window
-  3. Inhibit:  High-level alerts suppress lower-level alerts (e.g., RackDown suppresses HostDown)
-  4. Silence:  Time-bounded human mute for planned maintenance windows
-              |
-              v
-[ Notification Receivers ]
-Email  |  Slack / Microsoft Teams  |  PagerDuty / Webhooks
+[ กฎการแจ้งเตือนใน Prometheus (Alerting Rules) ]
+ประเมินผลตามรอบเวลาคงที่ และต้องมีสถานะเป็นจริงต่อเนื่องตามระยะเวลาที่ระบุในเงื่อนไข 'for'
+                       |
+                       v
+[ กระบวนการทำงานของ Alertmanager (Alertmanager Pipeline) ]
+  1. จัดเส้นทาง (Route):    จับคู่ตามต้นไม้เงื่อนไขของป้ายกำกับ (เช่น ระดับความรุนแรง, ทีม, บริการ)
+  2. รวมกลุ่ม (Group):     รวบรวมการแจ้งเตือนที่มีป้ายกำกับเหมือนกันไว้ตามช่วงเวลา 'group_wait' เพื่อส่งเป็นชุดเดียว
+  3. ยับยั้ง (Inhibit):    การแจ้งเตือนระดับสูงจะสั่งระงับการแจ้งเตือนระดับล่าง (เช่น ตู้แร็กพัง จะระงับการเตือนเครื่องดับ 10 เครื่อง)
+  4. ปิดเสียงชั่วคราว (Silence): การตั้งระงับเตือนชั่วคราวโดยมนุษย์ในช่วงเวลาที่มีการซ่อมบำรุงตามแผน
+                       |
+                       v
+[ ปลายทางผู้รับการแจ้งเตือน (Receivers) ]
+อีเมล (Email)  |  แชตกลุ่ม (Slack / Teams)  |  ระบบเพจเจอร์และเว็บฮุก (PagerDuty / Webhooks)
 ```
 
-**Anti-Alert Fatigue Rule:**
-Alertmanager exists so that a single switch outage produces one concise incident notification rather than forty individual host unreachable pages.
-
-#### Lecturer Commentary: Alert Fatigue and Notification Psychology
-
-- **Alerts vs. Notifications:**
-  - *Alert:* Signifies an acute failure or critical threshold violation that demands immediate human intervention.
-  - *Notification:* General informational updates that do not require emergency action.
-- **The Psychology of Notification Fatigue:** In modern messaging environments, users often accumulate 999+ unread chat badges on platforms like LINE or Discord, eventually tuning them out entirely. When an SRE monitoring system configures noisy, low-severity alerts for every minor transient fluctuation, on-call engineers become desensitized. Critical Sev-1 alerts are overlooked simply because alarms fire continuously.
-- **Alert Ingestion Rule:** If an alert does not require immediate operational action, it should not trigger a pager or emergency message; it belongs on a weekly review report or dashboard.
+**กฎการป้องกันความล้าจากการแจ้งเตือน (Alert Fatigue):**
+ท่อส่งข้อมูลนี้มีไว้เพื่อให้ความล้มเหลวครั้งเดียวผลิตการแจ้งเตือนที่มีคุณค่า 1 ข้อความ แทนที่จะส่งข้อความแจ้งเตือนกระหน่ำ 40 ข้อความจนทีมงานเพิกเฉย
 
 ---
 
-### 1.15 Prometheus Stack Installation Workflow
+### 1.16 ลำดับขั้นตอนการติดตั้งระบบมอนิเตอร์ 8 ขั้นตอน
 
-An eight-step deployment sequence requiring approximately 30 minutes:
+กระบวนการติดตั้งอย่างเป็นระบบ ใช้เวลาประมาณ 30 นาที:
 
-```
-Step 1: Lay out directory structure (monitoring/ with subdirs: prometheus, alertmanager, grafana)
-   |
-Step 2: Write docker-compose.yml defining prometheus, alertmanager, grafana, node-exporter
-   |
-Step 3: Write prometheus.yml with global scrape intervals and target configurations
-   |
-Step 4: Validate syntax offline: promtool check config prometheus.yml
-   |
-Step 5: Launch containers: docker compose up -d (verify container health)
-   |
-Step 6: Inspect Prometheus targets UI: http://localhost:9090/targets (all UP)
-   |
-Step 7: Validate queries via UI: verify 'up' and 'rate(...)' return non-empty datasets
-   |
-Step 8: Connect Grafana: configure Prometheus data source and build dashboards from validated queries
-```
+1. **จัดโครงสร้างโฟลเดอร์ (Lay out the directories):** สร้างโฟลเดอร์ `monitoring/` ภายในมีโฟลเดอร์ย่อย `prometheus/`, `alertmanager/` และ `grafana/` เพื่อให้การผูก Volume ชัดเจน
+2. **สร้างไฟล์ docker-compose.yml:** นิยาม 4 บริการหลัก ได้แก่ prometheus, alertmanager, grafana, node-exporter ให้อยู่บนเน็ตเวิร์กเดียวกัน
+3. **เขียนไฟล์ prometheus.yml:** กำหนดค่า `global.scrape_interval` และระบุรายการ `scrape_configs` สำหรับเป้าหมายทุกตัว
+4. **ตรวจสอบความถูกต้องก่อนรัน (Validate config):** รันคำสั่ง `promtool check config prometheus.yml` และต้องผ่านการรับรองความถูกต้องโดยไม่มีข้อผิดพลาด
+5. **เริ่มการทำงานของระบบ (Bring it up):** สั่งรัน `docker compose up -d` และตรวจสอบให้แน่ใจว่าคอนเทนเนอร์ทุกตัวทำงานปกติ ไม่มีการวนลูปรีสตาร์ต
+6. **ตรวจสอบหน้าเป้าหมาย (Check targets page):** เปิดเบราว์เซอร์ไปที่ `http://localhost:9090/targets` ตรวจดูว่าสถานะของทุกเป้าหมายต้องแสดงผลเป็น `UP`
+7. **ทดสอบการคิวรี (Test a query):** ทดลองรันคำสั่งคิวรี `up` และคิวรีฟังก์ชัน `rate(...)` เพื่อยืนยันว่าได้รับข้อมูลจริงกลับมา
+8. **เชื่อมต่อกับ Grafana:** เพิ่ม Prometheus Data Source และสร้างกราฟพาเนลแรกจากคำสั่งคิวรีที่ผ่านการทดสอบแล้ว
 
 ---
 
-### 1.16 Standard Configuration File: `prometheus.yml`
+### 1.17 ตัวอย่างการกำหนดค่าในไฟล์ `prometheus.yml`
 
 ```yaml
 global:
@@ -517,279 +453,262 @@ scrape_configs:
       room: 'CB-204'
 ```
 
-#### Configuration Principles:
-- `job_name` becomes an immutable label on every scraped metric; name it thoughtfully.
-- Static target labels attach physical and organizational topology (e.g., `rack`, `room`) directly to time series.
-- In Docker Compose networks, target hostnames must match service names (`node-exporter:9100`), not `localhost`.
-- Limit external static labels to avoid multiplying series cardinality unnecessarily.
+#### หลักการกำหนดค่าที่สำคัญ:
+- `job_name` จะกลายเป็นป้ายกำกับบนทุกเมทริกซ์ที่ดึงมา ให้ตั้งชื่ออย่างสื่อความหมาย
+- ป้ายกำกับที่กำหนดที่นี่ (เช่น `rack`, `room`) จะถูกผูกเข้ากับทุกอนุกรมเวลา ซึ่งช่วยเชื่อมโยงเมทริกซ์เข้ากับตำแหน่งทางกายภาพจริง
+- ภายใต้ Docker Compose ให้ใช้ชื่อเซอร์วิส เช่น `node-exporter:9100` ห้ามใช้ `localhost:9100`
+- ควบคุมจำนวนป้ายกำกับอย่างระมัดระวัง เพราะทุกป้ายกำกับจะคูณเพิ่ม Cardinality
 
 ---
 
-### 1.17 Six Acceptance Verification Checks
+### 1.18 การตรวจสอบการยอมรับระบบ 6 ข้อก่อนส่งมอบงาน (Acceptance Verification Checks)
 
-All six verification criteria must pass before an installation can be declared production-ready:
+ระบบการติดตั้งจะถือว่าเสร็จสมบูรณ์ก็ต่อเมื่อผ่านการทดสอบครบทั้ง 6 ข้อ:
 
-| Step / Verification Item | Execution / Command | Acceptance Criteria |
+| รายการตรวจสอบ | คำสั่งหรือวิธีการทดสอบ | เกณฑ์การยอมรับผ่าน (Pass Criteria) |
 | :--- | :--- | :--- |
-| **1. Config Validity** | `promtool check config prometheus.yml` | Must report `SUCCESS` with 0 syntax or parsing errors |
-| **2. Target Scraping** | Navigate to `/targets` in browser | Every target reports state `UP` with scrape time within one interval |
-| **3. Real Metric Values** | Query `up` in PromQL console | Returns numeric value `1` for each defined target |
-| **4. Rate Computation** | Query `rate(node_cpu_seconds_total[5m])` | Returns computed rates, not an empty result vector |
-| **5. Rule Loading** | Navigate to `/rules` | All alert and recording rules are loaded without parsing errors |
-| **6. Alert Delivery** | Dispatch synthetic test alert into Alertmanager | Notification is successfully received at the destination endpoint |
+| **1. ไฟล์คอนฟิกถูกต้อง** | `promtool check config prometheus.yml` | ต้องรายงานผลเป็น `SUCCESS` โดยไม่มีข้อผิดพลาด |
+| **2. ดึงข้อมูลเป้าหมายได้ครบ** | เปิดหน้าเว็บ `/targets` ในเบราว์เซอร์ | ทุกแถวรายงานสถานะ `UP` และเวลา scrape ล่าสุดไม่เกิน 1 รอบ |
+| **3. เมทริกซ์มีค่าตัวเลขจริง** | รันคิวรีคำสั่ง `up` ในหน้าคอนโซล | คืนค่าเป็นตัวเลข `1` สำหรับเป้าหมายทุกตัว |
+| **4. คำนวณอัตราความชันได้** | รันคิวรี `rate(node_cpu_seconds_total[5m])` | คืนค่าข้อมูลที่คำนวณได้ ไม่ใช่ผลลัพธ์ว่างเปล่า (Empty Set) |
+| **5. กฎการแจ้งเตือนถูกโหลด** | เปิดหน้าเว็บ `/rules` | ปรากฏรายการกฎการแจ้งเตือนและไม่มีกฎใดที่ติดสถานะ Error |
+| **6. แจ้งเตือนส่งถึงปลายทางจริง** | ยิงการแจ้งเตือนทดสอบเข้าไปที่ Alertmanager | ข้อความแจ้งเตือนปรากฏที่แอปพลิเคชันปลายทางผู้รับ ไม่ใช่แค่ค้างใน UI |
 
-*Note:* Check 6 is the most frequently neglected test, yet it is the only check that proves the alert dispatch pipeline works end-to-end.
-
----
-
-## Section 2: Lab 4 - Preparing the Containment Build
-
-*Context: The old rack is empty; today we count, compute, and verify whether the physical plan fits.*
-
-### 2.1 Project Status: Week 3 to Week 4 Transition
-
-- **Completed:** All existing hardware has been decommissioned from the legacy rack, inventoried under `INV-01` and `MED-01`, and staged by target destination.
-- **Today's Objective:** Conduct a physical count of existing inventory, calculate procurement requirements, and verify rack unit (U) and electrical capacity limits.
-- **Pending:** Physical installation into the containment rack begins only after the Bill of Materials (BOM) is validated and open technical items are resolved.
-- **Core Constraint:** Approximately 10 additional servers will arrive in unscheduled phases; the install layout must tolerate partial delivery.
+*หมายเหตุสำคัญ:* ข้อที่ 6 เป็นขั้นตอนที่มักถูกละเลยมากที่สุด แต่มันเป็นขั้นตอนเดียวที่พิสูจน์ได้ว่าเส้นทางการแจ้งเตือนทำงานได้จริงตั้งแต่ต้นทางจนถึงปลายทาง
 
 ---
 
-### 2.2 Five-Layer Data Centre Physical Model
+## ส่วนที่ 2: ปฏิบัติการ Lab 4 - การเตรียมการสร้างระบบกักเก็บลมในตู้แร็ก (Lab 4 - Preparing the Containment Build)
 
-Physical facility engineering must be planned from top down, but installed from bottom up:
+*บริบท: ตู้แร็กเดิมถูกย้ายอุปกรณ์ออกจนว่างเปล่าแล้ว วันนี้เราจะทำการตรวจนับ คำนวณ และตรวจสอบว่าแผนงานที่วางไว้สามารถลงตัวกับข้อจำกัดทางกายภาพได้จริงหรือไม่*
 
-```
-Layer 5: Monitoring  --> Which metrics do we poll? (PDU current, inlet temp, PUE)
-   ^
-   |
-Layer 4: Network     --> Port media types, patch panels, cable lengths, spare uplinks
-   ^
-   |
-Layer 3: Power       --> Feeds, UPS circuits, PDU A/B branch limits, inrush currents
-   ^
-   |
-Layer 2: Racks & Air --> Cold/hot aisle containment, U slot assignments, blanking panels
-   ^
-   |
-Layer 1: Floor & Path--> Floor tile point loading, cable basket trays, clearance widths
-```
+### 2.1 สถานะของโครงงาน: รอยต่อระหว่างสัปดาห์ที่ 3 สู่สัปดาห์ที่ 4
 
-> **Planning Maxim:**
-> Plan top-down, build bottom-up. Decisions flow from monitoring back to the floor, but installation starts at the floor and works up. A layer that was never decided becomes a layer that gets improvised on the day.
+- **สิ่งที่ดำเนินการเสร็จสิ้นแล้ว:** อุปกรณ์ฮาร์ดแวร์ทั้งหมดถูกถอดออกจากตู้แร็กเดิม บันทึกรหัสทรัพย์สินในแบบฟอร์ม `INV-01` และ `MED-01` พร้อมทั้งจัดเรียงและคัดแยกตามจุดหมายปลายทาง
+- **เป้าหมายในวันนี้:** ตรวจนับจำนวนอุปกรณ์ที่มีอยู่จริง คำนวณรายการอุปกรณ์ที่จำเป็นต้องจัดซื้อเพิ่มเติม และตรวจสอบขีดความสามารถรองรับด้านพื้นที่และความจุไฟฟ้า
+- **สิ่งที่ยังไม่ได้เริ่มต้น:** การติดตั้งอุปกรณ์ลงในตู้แร็กกักเก็บลม (Containment Rack) จะเริ่มต้นได้ก็ต่อเมื่อเอกสาร BOM ผ่านการตรวจสอบ และรายการคำถามทางเทคนิคที่ค้างอยู่ได้รับการปิดอย่างสมบูรณ์
+- **ข้อจำกัดสำคัญที่ต้องตระหนัก:** เซิร์ฟเวอร์เพิ่มเติมอีกประมาณ 10 เครื่องจะทยอยส่งมอบเป็นระยะโดยยังไม่มีกำหนดวันที่แน่นอน ดังนั้นแผนการติดตั้งจะต้องยืดหยุ่นรองรับการส่งมอบอุปกรณ์เป็นส่วนๆ ได้
 
 ---
 
-### 2.3 Translating 20 Student Groups into a Bill of Materials (BOM)
+### 2.2 กรอบความคิด 5 ชั้นของห้องดาต้าเซ็นเตอร์ (Five-Layer Room Framework)
+
+การวางแผนวิศวกรรมโครงสร้างพื้นฐานกายภาพต้องคิดจากบนลงล่าง แต่เวลาลงมือติดตั้งจริงต้องสร้างจากล่างขึ้นบน:
 
 ```
-                       [ 20 Student Groups Target Capacity ]
-                                         |
-     +-------------------+---------------+-------------------+-------------------+
-     |                   |                                   |                   |
-     v                   v                                   v                   v
-[ Blade Chassis ]  [ Bare-Metal Servers ]            [ Future Servers ]    [ Network Layer ]
-8 groups (1 chassis) 3-5 groups (to confirm)          ~10 servers (phased)  2 ToR Switches
-     |                   |                                   |                   |
-     +-------------------+---------------+-------------------+-------------------+
-                                         |
-                                         v
-   +-------------------------------------------------------------------------------+
-   | Mounting:     Rails, cage nuts (M6), mounting screws, blanking panels         |
-   | Cabling:      Cat6A patch cords, Direct Attach Copper (DAC), optical fibre    |
-   | Power:        C13-C14 jumpers, C19-C20 cords, redundant PDU outlets           |
-   | Accessories:  SFP+ optical transceivers, plug adapters, shelf kits            |
-   +-------------------------------------------------------------------------------+
+ชั้นที่ 5: การมอนิเตอร์ (Monitoring) --> เราจะอ่านค่าตัวเลขใด และดึงมาจากจุดไหน? (PDU polling, อุณหภูมิ, PUE)
+   ^
+   |
+ชั้นที่ 4: เครือข่าย (Network)        --> ชนิดของพอร์ต, ความยาวสายสัญญาณ, พอร์ตสำรองเชื่อมต่อไปยังสวิตช์หลัก
+   ^
+   |
+ชั้นที่ 3: ระบบไฟฟ้า (Power)          --> สายป้อนไฟ, ระบบ UPS, ภาระโหลด PDU วงจร A และ B, ปัญหากระแสไฟกระชาก
+   ^
+   |
+ชั้นที่ 2: ตู้แร็กและการไหลของอากาศ (Racks & Airflow) --> การจัดวางตำแหน่งความสูง U, แผ่นกั้นช่องว่าง (Blanking Panels)
+   ^
+   |
+ชั้นที่ 1: พื้นห้องและเส้นทางสัญจร (Floor & Routing) --> การรับน้ำหนักของพื้น, รางรับสายสัญญาณ, ความกว้างประตูและทางเดิน
 ```
 
-**Rule:** Every single quantity on the BOM must derive from a deterministic per-unit calculation rule, never an estimate or guess. Unknown quantities must be explicitly recorded as open items.
+> **คำขวัญในการวางแผน:**
+> "วางแผนจากบนลงล่าง แต่ติดตั้งจากล่างขึ้นบน" (Plan top down, build bottom up) การตัดสินใจจะไหลย้อนจากการมอนิเตอร์กลับไปสู่พื้นห้อง แต่การติดตั้งต้องเริ่มจากพื้นห้องขึ้นสู่ด้านบน ชั้นใดที่ไม่เคยถูกตัดสินใจวางแผนไว้ล่วงหน้า จะกลายเป็นชั้นที่ต้องแก้ปัญหาเฉพาะหน้าอย่างไร้ทิศทางในวันติดตั้งจริง
 
 ---
 
-### 2.4 Per-Unit Hardware Consumption Rules
+### 2.3 การแปลงความต้องการ "20 กลุ่มโครงงาน" ให้เป็นรายการพัสดุอุปกรณ์ (BOM)
 
-| Component | Per-Unit Formula | Technical & Compliance Justification |
+```
+                            [ ความจุเป้าหมายรองรับ 20 กลุ่มโครงงาน ]
+                                              |
+      +-----------------------+---------------+-----------------------+-----------------------+
+      |                       |                                       |                       |
+      v                       v                                       v                       v
+[ สายเซิร์ฟเวอร์แบบเบลด ]  [ เซิร์ฟเวอร์แบบ Standalone ]          [ เซิร์ฟเวอร์ที่จะมาส่งมอบ ]   [ อุปกรณ์เครือข่าย ]
+(Blade Chassis: 8 กลุ่ม) (Bare-metal: 3-5 กลุ่ม)                 (มาภายหลัง: ประมาณ 10 เครื่อง) (Top-of-Rack Switch: 2 ตัว)
+      |                       |                                       |                       |
+      +-----------------------+---------------+-----------------------+-----------------------+
+                                              |
+                                              v
+    +-----------------------------------------------------------------------------------------+
+    | อุปกรณ์ยึดจับ (Mounting):   ชุดรางยึด (Rail kits), น็อตและสกรู (Cage nuts M6), แผ่นปิดช่องว่าง |
+    | การเดินสายสัญญาณ (Cabling): สายแพตช์ Cat6A, สายทองแดงต่อตรง (DAC Twinax), สายใยแก้วนำแสง     |
+    | ระบบจ่ายไฟ (Power):         สายไฟ C13-C14, สายไฟ C19-C20, เต้ารับ PDU แบบจ่ายคู่ขนาน       |
+    | อุปกรณ์แปลงสัญญาณ (Adapters): หัวต่อออปติก SFP+, หัวแปลงปลั๊กไฟ, ถาดรองอุปกรณ์แบบวางชั้น       |
+    +-----------------------------------------------------------------------------------------+
+```
+
+**กฎเหล็ก:** ปริมาณอุปกรณ์ทุกชิ้นบนเอกสาร BOM ต้องคำนวณมาจากกฎต่อหน่วย (Per-Unit Rule) ห้ามใช้การคาดเดาหรือประมาณการลอยๆ หากมีข้อมูลส่วนใดยังไม่ทราบแน่ชัด ให้บันทึกไว้ในช่องรายการรอคำตอบอย่างเป็นทางการ
+
+---
+
+### 2.4 กฎการคำนวณอุปกรณ์ต่อหน่วย (Per-Unit Rules)
+
+| รายการอุปกรณ์ | กฎการคำนวณต่อหน่วย | ที่มาและความจำเป็นทางวิศวกรรม |
 | :--- | :--- | :--- |
-| **Rail Kits** | 1 kit per rack-mounted chassis/server/switch | Every physical chassis, bare-metal server, and ToR switch requires its own rails |
-| **Cage Nuts & Screws** | 8 nuts and 8 screws per device | 4 per mounting flange/post across front and rear vertical rails |
-| **Blanking Panels** | $1\text{U}$ panel per $1\text{U}$ of unoccupied space | Every vacant slot must be sealed to stop hot exhaust recirculation into cold aisle |
-| **Power Cords** | 1 cable per Power Supply Unit (PSU) | Redundant dual-PSU devices must route cord 1 to PDU A and cord 2 to PDU B |
-| **Data Cables** | 1 patch lead per active interface | Bare-metal server standard: 2 data ports (LACP bond) + 1 IPMI out-of-band port |
-| **Cable Labels** | 2 labels per cable (one at each termination) | ISO/IEC 27001 Control A.7.12 requires both ends to be distinctly labelled |
-| **SFP+ Transceivers** | 2 optical modules per fibre run | One transceiver required at ToR switch port, one at upstream core switch port |
+| **ชุดรางเลื่อน (Rail kits)** | 1 ชุด ต่อ 1 อุปกรณ์ที่ติดตั้งลงแร็ก | แชสซีเซิร์ฟเวอร์, เซิร์ฟเวอร์ Standalone และสวิตช์เครือข่ายทุกตัวต้องมีรางเลื่อนของตนเอง |
+| **น็อตยึดตู้แร็กและสกรู (Cage nuts & screws)** | 8 ชุด ต่อ 1 อุปกรณ์ | เสาละ 4 ตัว โดยยึดทั้งเสาหน้าและเสาหลัง รวมสองเสาหลัก |
+| **แผ่นปิดช่องว่าง (Blanking panels)** | เท่ากับจำนวนความสูง U ที่ว่างอยู่ | ช่องว่างที่ไม่มีอุปกรณ์ต้องถูกปิดทึบทั้งหมด เพื่อป้องกันลมร้อนวนกลับมาห้องลมเย็น |
+| **สายไฟเอซี (Power cords)** | 1 เส้น ต่อ 1 แหล่งจ่ายไฟ (PSU) | เซิร์ฟเวอร์ที่มี Redundant PSU ต้องแยกเสียบสายไฟเข้า PDU วงจร A และ PDU วงจร B |
+| **สายสัญญาณเครือข่าย (Data cables)** | 1 เส้น ต่อ 1 พอร์ตที่ใช้งาน | เซิร์ฟเวอร์ Standalone: 2 พอร์ตข้อมูล (LACP Bond) + 1 พอร์ต IPMI บริหารจัดการ |
+| **ป้ายระบุสายสัญญาณ (Cable labels)** | 2 ป้าย ต่อสายทุกเส้น | มาตรฐาน ISO/IEC 27001 การควบคุม A.7.12 กำหนดให้ติดป้ายระบุชื่อที่ปลายสายทั้งสองด้าน |
+| **หัวต่อโมดูล SFP+** | 2 ตัว ต่อสายใยแก้วนำแสง 1 เส้น | เสียบที่พอร์ตสวิตช์ ToR ฝั่งต้นทาง 1 ตัว และสวิตช์หลัก Core Switch ฝั่งปลายทาง 1 ตัว |
 
 ---
 
-### 2.5 First-Pass Capacity Assessment (Baseline Numbers)
+### 2.5 ผลการประเมินขีดความสามารถรอบแรก (First-Pass Capacity Assessment)
 
-Initial calculations based on preliminary estimates:
+ผลลัพธ์ที่ได้จากการป้อนตัวเลขเริ่มต้นเข้าสู่ระบบคำนวณ BOM:
 
-| Planning Dimension | Baseline Calculation | Threshold / Capacity | Validation Result |
+| มิติการประเมิน | ผลการคำนวณรอบแรก | ขีดจำกัดความจุจริง | สถานะการประเมิน |
 | :--- | :--- | :--- | :--- |
-| **Groups Supported** | 22 groups (8 blade + 4 bare + 10 phased) | Target: 20 groups | **PASS** (+2 headroom) |
-| **Rack Units (U)** | 44U total space required | Rack size: 42U | **FAIL** (Deficit: 2U) |
-| **Total Power Draw** | 9,200 Watts calculated | Usable limit: 2,944 W / PDU | **FAIL** (Substantial overrun) |
-| **PDU Outlets** | 36 outlets required | Available: 48 outlets (2x24) | **PASS** (12 spare) |
+| **จำนวนกลุ่มที่รองรับได้** | 22 กลุ่ม (เบลด 8 + สแตนด์อะโลน 4 + ทยอยมา 10) | เป้าหมาย: 20 กลุ่ม | **ผ่าน (PASS)** มีขีดความสามารถเผื่อ 2 กลุ่ม |
+| **ความสูงแร็กที่ต้องการ (U)** | ต้องการความสูงรวม 44U | ตู้แร็กมาตรฐานมีขนาด 42U | **ไม่ผ่าน (FAIL)** พื้นที่ขาดไป 2U |
+| **กำลังไฟฟ้าที่ใช้รวม** | คำนวณได้ 9,200 วัตต์ | PDU ตัวเดียวจ่ายได้สูงสุด 2,944 วัตต์ | **ไม่ผ่าน (FAIL)** โหลดเกินขีดจำกัด PDU อย่างมาก |
+| **จำนวนเต้ารับของ PDU** | ต้องการเต้ารับ 36 ช่อง | มีเต้ารับรวม 48 ช่อง (24 ช่อง x 2 ตัว) | **ผ่าน (PASS)** มีเต้ารับเหลือ 12 ช่อง |
 
-**Engineering Lesson:**
-Discovering capacity deficits on paper is the desired outcome. Resolving failures mathematically on the BOM avoids physical halts during rack deployment.
+**บทเรียนทางวิศวกรรม:**
+การคำนวณพบว่าระบบล้มเหลวบนกระดาษคือผลลัพธ์ที่ถูกต้องและพึงประสงค์อย่างยิ่ง หน้าที่ของวิศวกรในวันนี้คือการหาแนวทางแก้ไขปัญหา ไม่ใช่การดัดแปลงตัวเลขทางคณิตศาสตร์เพื่อให้ผลลัพธ์ออกมาดูเหมือนผ่าน
 
 ---
 
-### 2.6 Case Study 2: Power-On Inrush Current and Tripped Breakers
+### 2.6 กรณีศึกษาที่ 2: การเปิดเครื่องพร้อมกันจนเบรกเกอร์ทริป (Case Study 2)
 
-An identical engineering failure occurs when physical power dynamics are ignored:
+ความผิดพลาดที่เกิดขึ้นจริงเมื่อละเลยคุณลักษณะทางไฟฟ้าของฮาร์ดแวร์:
 
-- **Calculated Steady-State Load:** 9,200 W
-- **Branch Circuit Breaker Rating:** 16 Amperes
-- **Inrush Surge Characteristic:** At cold power-on, switch-mode power supplies exhibit inrush spikes of **3x to 5x steady-state current** for several hundred milliseconds to charge internal capacitors.
+- **โหลดกระแสไฟฟ้าสภาวะคงที่ (Steady-state draw):** 9,200 วัตต์
+- **พิกัดตัดกระแสของเบรกเกอร์ (Breaker rating):** 16 แอมแปร์
+- **กระแสไฟกระชากขณะเริ่มเดินเครื่อง (Inrush Current at power-on):** ขณะที่เปิดเครื่องจ่ายไฟ สวิตช์ชิ่งเพาเวอร์ซัพพลายจะดึงกระแสกระชากสูงถึง **3 ถึง 5 เท่าของกระแสคงที่** เป็นเวลาหลายร้อยมิลลิวินาทีเพื่อประจุไฟฟ้าเข้าสู่ตัวเก็บประจุภายใน
 
 ```text
-Current (A)
+กระแสไฟฟ้า (แอมแปร์)
    ^
-60 |      /\  [ All At Once: Spikes to 60A - BREAKER TRIPS ]
+60 |      /\  [ หากเปิดเครื่องพร้อมกันทั้งหมด: กระแสพุ่งแตะ 60A -> เบรกเกอร์ทริปตัดไฟทันที ]
    |     /  \
-50 | - -/ - - - - - - - - - - - - - - - - - - - - - - - - - [ Trip Threshold: 50A ]
-40 |   /     \__________________________________ [ Steady-state: 40A ]
+50 | - -/ - - - - - - - - - - - - - - - - - - - - - - - - - [ จุดตัดการทำงานของเบรกเกอร์: 50A ]
+40 |   /     \__________________________________ [ กระแสโหลดสภาวะคงที่: 40A ]
    |  /
 30 | /            _/\_          _/\_
    |/            /    \        /    \
-20 |   _/\_     /      \______/      \__________ [ Staggered Power-On: Max 40A ]
+20 |   _/\_     /      \______/      \__________ [ การเปิดเครื่องแบบหน่วงเวลาสลับกัน: สูงสุดไม่เกิน 40A ]
    |  /    \___/
 10 | /
- 0 +------------------------------------------------------------> Time (s)
+ 0 +------------------------------------------------------------> เวลา (วินาที)
 ```
 
-**Mitigation:**
-Implement sequential or staggered power-on sequences (e.g., energizing servers in batches of four, separated by 30-second intervals). This eliminates transient current summing without hardware cost.
+**วิธีแก้ไขที่ไม่ต้องเสียค่าใช้จ่ายเพิ่มเติม:**
+กำหนดลำดับการเปิดเครื่องเซิร์ฟเวอร์แบบทยอยเปิดทีละกลุ่ม (Staggered Power-On) เช่น เปิดทีละ 4 เครื่อง เว้นระยะห่างกัน 30 วินาที ซึ่งจะกำจัดการสะสมของกระแสกระชากชั่วขณะได้อย่างสมบูรณ์
 
 ---
 
-### 2.7 Impact of Unverified Assumptions (Recount Scenario)
+### 2.7 ผลกระทบเมื่อตัวเลขจริงถูกยืนยัน (Worked Example: What Happens Once Numbers Are Confirmed)
 
-Illustrating the impact when unverified assumptions are corrected:
+สมมติว่าผลการตรวจนับจริงพบว่ามีเซิร์ฟเวอร์ Standalone 5 กลุ่ม (เดิมคาดการณ์ไว้ 4) และแชสซีเบลดใส่ได้เพียง 6 เครื่อง (เดิมคิดว่าใส่ได้ 8):
 
-| Planning Parameter | Initial Estimate | Confirmed Physical Count | Resulting Architecture Consequence |
+| รายการทรัพยากร | ตัวเลขก่อนยืนยัน | ตัวเลขจริงหลังตรวจนับ | ผลกระทบต่อแผนงานและสถาปัตยกรรม |
 | :--- | :--- | :--- | :--- |
-| **Bare-metal groups** | 4 groups | 5 groups | Adds 1 server chassis, extra rail kit, power cords, DAC cabling |
-| **Chassis Blade Capacity** | 8 slots | 6 slots | 8 blade groups require 2 chassis instead of 1 |
-| **Chassis Units Needed** | 1 chassis | 2 chassis | Consumes an additional 10U of rack space and 4 additional PSUs |
-| **Total Rack Units** | 44U | 56U | Exceeds 42U rack capacity by 14U; necessitates a 2nd rack or phased rollout |
-| **Total Power Draw** | 9,200 W | 12,800 W | Drastically exceeds single circuit capacity; requires multi-phase power |
+| **เซิร์ฟเวอร์ Standalone** | 4 กลุ่ม (ตัวเลขประมาณ) | 5 กลุ่ม (ตรวจนับจริง) | ต้องเพิ่มชุดรางเลื่อน, สายไฟ และสาย DAC อีก 1 ชุด |
+| **ความจุสล็อตของแชสซีเบลด** | 8 ช่อง | 6 ช่อง | 8 กลุ่มเบลดจะต้องใช้แชสซีเบลดเพิ่มเป็น 2 ตัวทันที |
+| **จำนวนแชสซีเบลดที่ต้องใช้** | 1 ตัว | 2 ตัว | เปลืองพื้นที่แร็กเพิ่มอีก 10U และต้องใช้พาวเวอร์ซัพพลายเพิ่ม 4 ตัว |
+| **ความสูงแร็กที่ต้องการ** | 44U | 56U | เกินความจุของตู้แร็ก 42U ไปมาก ต้องขอตู้แร็กตู้ที่สองหรือแบ่งเฟสติดตั้ง |
+| **กำลังไฟฟ้าที่ต้องการรวม** | 9,200 วัตต์ | 12,800 วัตต์ | ยิ่งเกินความจุไฟฟ้าเดิมอย่างรุนแรง จำเป็นต้องเดินวงจรไฟฟ้าใหม่แน่นอน |
+
+ตัวเลขที่ไม่ได้รับการยืนยันเพียง 2 ตัวสามารถเปลี่ยนแผนงานทั้งหมดได้อย่างสิ้นเชิง นี่คือเหตุผลที่ต้องปิดคำถามค้างคาให้ครบก่อนการสั่งซื้อ
 
 ---
 
-### 2.8 Strategic Remediation Options for Capacity Deficits
+### 2.8 ทางเลือกเชิงกลยุทธ์เมื่อพื้นที่หรือพลังงานไม่เพียงพอ
 
-Every mitigation decision involves architectural trade-offs and must be documented via formal Change Request (`CR-01`):
+ทุกการปรับเปลี่ยนแผนงานต้องมีเหตุผลรองรับ และต้องเสนอผ่านกระบวนการขอเปลี่ยนแปลงระบบ (Change Request: CR-01):
 
-#### When Rack Units Fall Short:
-1. Mandate high-density 1U chassis rather than 2U servers for upcoming procurements.
-2. Phase the hardware deployment, installing only what current space accommodates.
-3. Formally request allocation of a second adjacent containment rack.
-4. Reduce dedicated cable management and patch panel allowances from 4U to 2U.
+#### แนวทางแก้ไขเมื่อพื้นที่แร็ก (U) ไม่เพียงพอ:
+1. กำหนดสเปกเซิร์ฟเวอร์ที่จะจัดซื้อเพิ่มเติมในอนาคตให้เป็นขนาด 1U แทนขนาด 2U
+2. แบ่งเฟสการติดตั้ง โดยติดตั้งเฉพาะอุปกรณ์ที่พื้นที่ปัจจุบันสามารถรองรับได้ก่อน
+3. ยื่นเรื่องขอใช้งานตู้แร็กกักเก็บลมตู้ที่สองเพิ่มเติม
+4. ทบทวนการจัดสรรพื้นที่ 4U เดิมที่กันไว้สำหรับแผงกระจายสายสัญญาณ (Patch Panels) ว่าสามารถลดทอนลงได้หรือไม่
 
-#### When Electrical Power Falls Short:
-1. Install supplemental electrical feeds and branch PDUs to support the aggregate load.
-2. Upgrade single-phase distribution to three-phase 400V/16A or 32A PDU infrastructure.
-3. Configure programmable PDU outlet sequencing to suppress simultaneous inrush spikes.
-4. Validate actual nameplate ratings using hardware wattmeter measurements rather than conservative theoretical maximums.
-
----
-
-### 2.9 Eight Mandatory Technical Open Items
-
-Before procurement orders can be submitted, eight open technical unknowns must be resolved:
-
-1. **Exact Bare-Metal Group Count (3, 4, or 5):** Dictates rails, power jumpers, DAC cables, and U height.
-2. **Blade Chassis Model & Slot Density:** Verifies if one chassis suffices or if a second 10U chassis is necessary.
-3. **Delivery Schedules for ~10 Incoming Servers:** Determines whether deployment occurs in a single build or staged batches.
-4. **ToR Switch Port Form Factor (SFP+ vs. 10GBASE-T RJ45):** Determines cable media selection (DAC twinax vs Cat6A twisted pair).
-5. **Real Device Nameplate Power:** Replaces conservative engineering estimates with empirical wattage readings.
-6. **Rack Depth and Vertical Rail Hole Specification:** Verifies compatibility of slide rails with square-hole or threaded rack posts.
-7. **Usable PDU Receptacle Count:** Audits available C13 and C19 outlet counts on existing rack PDUs.
-8. **Cable Pathway Distance to Main Distribution Frame (MDF):** Establishes optical patch cord lengths along actual cable trays.
+#### แนวทางแก้ไขเมื่อกำลังไฟฟ้าไม่เพียงพอ:
+1. เดินสายวงจรป้อนไฟและติดตั้ง PDU เพิ่มเติมให้สอดคล้องกับภาระโหลดที่คำนวณได้
+2. อัปเกรดไปใช้ PDU แบบสามเฟส (Three-Phase) ที่รองรับพิกัดกระแสไฟฟ้าสูงขึ้น
+3. ตั้งโปรแกรมเปิดเครื่องแบบหน่วงเวลาสลับกลุ่ม (Staggered Power-On) เพื่อป้องกันไฟกระชาก
+4. วัดค่าการใช้พลังงานจริงจากมิเตอร์วัดไฟฟ้า แทนการใช้ตัวเลขพิกัดสูงสุดบนป้ายเนมเพลต (Nameplate) ซึ่งมักเผื่อไว้สูงเกินจริง
 
 ---
 
-### 2.10 Compliance Controls (ISO/IEC 27001:2022 Annex A)
+### 2.9 แปดรายการทางเทคนิคที่ต้องปิดให้ชัดเจนก่อนเริ่มสั่งซื้อ (Open Items)
 
-| Control Standard | Control Title | Practical Lab Enforcement |
+ทั้งแปดรายการต้องถูกบันทึกลงในชีต Open Items ของไฟล์ BOM:
+
+1. **จำนวนกลุ่มเซิร์ฟเวอร์แบบ Standalone ที่แน่นอน (3, 4 หรือ 5 กลุ่ม):** ส่งผลโดยตรงต่อการสั่งซื้อรางเลื่อน, สายไฟ, สาย DAC และความสูงแร็ก
+2. **สเปกและจำนวนช่องสล็อตของแชสซีเบลด:** หากใส่ได้น้อยกว่า 8 สล็อต จะต้องใช้แชสซี 2 ตัว ซึ่งส่งผลกระทบมหาศาลต่อโครงสร้างทั้งหมด
+3. **กำหนดการจัดส่งเซิร์ฟเวอร์ใหม่ประมาณ 10 เครื่อง:** เพื่อกำหนดว่าจะติดตั้งพร้อมกันทั้งหมดในรอบเดียวหรือทยอยติดตั้งเป็นเฟส
+4. **รูปแบบพอร์ตของสวิตช์เครือข่าย ToR (SFP+ หรือ RJ45):** ตัดสินใจว่าจะต้องสั่งสาย DAC หรือสายแลน Cat6A และต้องใช้ตัวแปลงโมดูลหรือไม่
+5. **กำลังไฟฟ้าจริงตามป้ายเนมเพลตของอุปกรณ์ทุกตัว:** ปัจจุบันเป็นเพียงตัวเลขประมาณการ หากโหลดจริงสูงกว่านี้ ปัญหาไฟไม่พอจะยิ่งรุนแรง
+6. **ความลึกของตู้แร็กและรูปแบบรูเสาแร็ก (รูกลมต๊าปเกลียวหรือรูสี่เหลี่ยมใส่น็อต Cage Nut):** รางเลื่อนต้องตรงกับรูปแบบเสาแร็ก ไม่เช่นนั้นจะไม่สามารถประกอบได้
+7. **จำนวนเต้ารับของ PDU ที่ยังว่างอยู่จริง:** หากเต้ารับไม่พอ จะต้องติดตั้ง PDU เพิ่ม ซึ่งเปลี่ยนการคำนวณโหลดไฟฟ้าทันที
+8. **ระยะห่างจากตู้แร็กไปยังแผงกระจายสายสัญญาณหลักและห้องชุมสาย:** เพื่อกำหนดความยาวของสายใยแก้วนำแสง โดยต้องวัดตามแนวรางเดินสายจริง ไม่ใช่วัดระยะขจัดเส้นตรง
+
+---
+
+### 2.10 ข้อกำหนดด้านการควบคุมความมั่นคงปลอดภัย (ISO/IEC 27001:2022 Annex A)
+
+| มาตรการควบคุม | ชื่อการควบคุม | การบังคับใช้จริงในห้องปฏิบัติการ |
 | :--- | :--- | :--- |
-| **A.5.9** | Inventory of Assets | All newly arrived physical devices must be formally catalogued in `INV-01` prior to unboxing |
-| **A.5.10** | Acceptable Use of Assets | Hardware drawn from storage must only serve designated lab workloads; surplus returns to inventory |
-| **A.7.8** | Equipment Siting and Protection | Rack elevation layout (`RACK-01`) must receive technical approval before mounting hardware |
-| **A.7.11** | Supporting Utilities | Electrical load calculations and cooling capacity must be verified before energizing equipment |
-| **A.7.12** | Cabling Security | Data and power cabling must occupy separate pathways; every cable termination must bear dual labels |
-| **A.8.32** | Change Management | All deviations, modifications, and installation steps require approved `CR-01` forms with rollback procedures |
+| **A.5.9** | การจัดทำบัญชีทรัพย์สิน (Inventory of Assets) | อุปกรณ์ใหม่ทุกชิ้นต้องถูกลงทะเบียนในแบบฟอร์ม `INV-01` ก่อนแกะกล่องเริ่มติดตั้ง |
+| **A.5.10** | การใช้งานทรัพย์สินที่ยอมรับได้ (Acceptable Use of Assets) | อุปกรณ์ที่เบิกจากคลังต้องนำมาใช้สำหรับโครงงานที่ระบุเท่านั้น อุปกรณ์ที่เหลือต้องส่งคืนคลัง |
+| **A.7.8** | การจัดวางและการป้องกันอุปกรณ์ (Equipment Siting & Protection) | แผนผังการจัดวางตำแหน่งความสูงแร็ก (`RACK-01`) ต้องผ่านการอนุมัติก่อนติดตั้งลงตู้แร็ก |
+| **A.7.11** | ระบบสาธารณูปโภคสนับสนุน (Supporting Utilities) | กำลังไฟฟ้าและระบบทำความเย็นต้องได้รับการตรวจสอบว่าเพียงพอก่อนเริ่มจ่ายกระแสไฟฟ้า |
+| **A.7.12** | ความมั่นคงปลอดภัยของการเดินสาย (Cabling Security) | สายไฟฟ้าและสายสัญญาณต้องแยกรางเดินสายกัน และต้องติดป้ายระบุชื่อที่ปลายสายทั้งสองด้าน |
+| **A.8.32** | การจัดการการเปลี่ยนแปลง (Change Management) | การติดตั้งและการเปลี่ยนแผนทุกกรณีต้องทำผ่านใบคำขอเปลี่ยนแปลง `CR-01` พร้อมระบุแผนการย้อนกลับ (Rollback Plan) |
 
 ---
 
-### 2.11 Lecturer Commentary: Field Context and Lab Hardware Realities
+### 2.11 นิยามของคำว่า "เสร็จสมบูรณ์" ประจำคาบปฏิบัติการวันนี้ (Definition of Done)
 
-#### 1. Hardware Origin and Physical Architecture
-- **Repurposed Enterprise Assets:** The lab hardware consists of enterprise Fujitsu Primergy blade servers and standalone 1U rack servers salvaged from faculty decommissioning (previously slated for scrap metal recycling). This equipment provides authentic data centre operations practice.
-- **Blade Enclosure Architecture:**
-  - The central chassis accommodates 8 blade server sleds.
-  - Sleds feature dual Intel Xeon sockets, multi-channel registered ECC server RAM (cannot be used in desktop PCs), and hot-swap SAS drive bays (e.g. dual 300GB 10K/15K RPM SAS drives).
-  - The rear backplane houses hot-swappable 80 Plus Platinum redundant power supplies, redundant fan modules, integrated pass-through or managed SAN switches (Fibre Channel), and Top-of-Rack network switch interconnect modules.
-- **Standalone 1U Servers:** Fujitsu 1U rackmount units provide dedicated bare-metal infrastructure for teams outside the blade chassis.
+ต้องผ่านการตรวจสอบยืนยันก่อนสิ้นสุดคาบเรียน:
 
-#### 2. Physical Handling and Mechanical Precautions
-- **Latch and Lever Fragility:** Students must exercise care with server insertion levers and locking latches. Forcing blades into backplanes without aligning guide pins bends pins or snaps extraction levers (an issue encountered in prior semesters).
-- **Structural Integrity:** Heavy server chassis must never be stacked loosely on classroom tables; they must be staged on dedicated floor areas or securely mounted on rack rails.
-- **Rack Mount Compatibility:** Ensure rail kits match rack post geometry (cage-nut square holes vs. pre-threaded round holes) before installation.
-
-#### 3. Storage Arrays and Software Obsolescence
-- The lab inventory includes 3 legacy SAN/NAS disk storage enclosures (1 SSD-based array and 2 spinning HDD arrays).
-- **The Management Utility Trap:** The management software for these older storage controllers requires legacy operating systems (Windows XP or Windows 7) to run proprietary configuration utilities. The lecturer advises students to prioritize direct-attached SSD storage and avoid wasting time debugging obsolete storage management software unless specifically exploring legacy SAN protocols.
-
-#### 4. The Hypervisor Layer: Proxmox VE
-- **True Site Administrator Ownership:** In earlier coursework, students operated inside pre-provisioned virtual machines managed by faculty infrastructure administrators. In INT531 SRE, students take complete bare-metal ownership of physical hardware: configuring BIOS/UEFI settings, setting up IPMI/iRMC out-of-band management, partitioning disks, wiring patch panels, configuring VLANs, and deploying hypervisors via bootable USB drives.
-- **Why Proxmox VE was Chosen:**
-  - *Microsoft Hyper-V:* Incurs software licensing costs and platform constraints.
-  - *VMware ESXi:* Industry licensing restructuring under Broadcom created uncertainty and steep costs, prompting widespread migration across enterprise infrastructure.
-  - *Proxmox VE:* Open-source, lightweight, robust Debian-based Linux KVM/LXC virtualization platform with native clustering, web GUI, and REST APIs, well-suited for modern on-premises infrastructure.
+- [ ] ชีต BOM ของกลุ่มได้รับการกรอกข้อมูลจำนวนชิ้นส่วนในช่อง "มีอยู่แล้ว" จากการตรวจนับของจริง (*หัวหน้าฝ่ายบัญชีทรัพย์สิน / Inventory Lead*)
+- [ ] แผ่นงานประเมินความจุ (Capacity Sheet) ได้รับการคำนวณสมบูรณ์และระบุชัดเจนว่ารายการใดไม่ผ่านเกณฑ์ (*ผู้ทบทวนทางเทคนิค / Technical Reviewer*)
+- [ ] มีการเลือกแนวทางแก้ไขปัญหาสำหรับทุกรายการที่ไม่ผ่านเกณฑ์ พร้อมระบุเหตุผลทางวิศวกรรมประกอบ (*เจ้าของคำขอเปลี่ยนแปลง / Change Owner*)
+- [ ] รายการคำถามทางเทคนิคที่ค้างอยู่ทั้ง 8 ข้อ มีการระบุผู้รับผิดชอบและกำหนดวันที่ต้องปิดคำตอบ (*เจ้าของคำขอเปลี่ยนแปลง / Change Owner*)
+- [ ] อุปกรณ์ที่ผ่านการตรวจนับได้รับการจัดเก็บอย่างเป็นระเบียบ ไม่ปะปนกับอุปกรณ์ของกลุ่มอื่น (*เจ้าหน้าที่ความปลอดภัย / Safety Officer*)
 
 ---
 
-### 2.12 Definition of Done for Week 4 Lab
+### 2.12 การบ้านและการเตรียมตัวสำหรับสัปดาห์ถัดไป
 
-Before the laboratory session concludes, five verification milestones must be signed off:
+#### งานกลุ่ม (ส่งมอบภายใน 5 วัน):
+1. เอกสาร BOM ที่สมบูรณ์ พร้อมชีตคำนวณขีดความสามารถรองรับที่ผ่านเกณฑ์ทุกรายการ
+2. บันทึกแนวทางแก้ไขที่เลือกใช้ พร้อมเขียนเหตุผลทางวิศวกรรมอธิบายอย่างน้อย 3 บรรทัดต่อหนึ่งรายการ
+3. ปิดรายการคำถามค้างคาทางเทคนิคทั้งหมด พร้อมแนบหลักฐานอ้างอิง เช่น ภาพถ่ายป้ายเนมเพลตบอกพิกัดกำลังไฟ
+4. ร่างเอกสารคำขอเปลี่ยนแปลง `CR-01` สำหรับใช้ในการติดตั้งจริงสัปดาห์หน้า
 
-- [ ] **BOM Verification:** The group's Bill of Materials has the "already have" column populated from an empirical hardware count (*Inventory Lead*).
-- [ ] **Capacity Sheet Completion:** The capacity worksheet is calculated and explicitly identifies failing lines (*Technical Reviewer*).
-- [ ] **Remedy Selection:** Documented engineering justifications and remedies are established for all failing parameters (*Change Owner*).
-- [ ] **Open Item Ownership:** All eight open technical items are assigned to designated owners with firm resolution deadlines (*Change Owner*).
-- [ ] **Asset Segregation:** Inventoried and counted hardware parts are neatly stored, labeled, and isolated from other groups (*Safety Officer*).
+#### งานเดี่ยว (ดำเนินการให้เสร็จก่อนเข้าเรียนสัปดาห์หน้า):
+1. อ่านหนังสือ *Observability Engineering* บทที่ 1 ถึง 3
+2. ทำแบบทดสอบก่อนเรียน Quiz 4 บนระบบ LMS
+3. ติดตั้งและรันระบบ Prometheus และ Grafana ให้พร้อมใช้งานบนเครื่องของตนเอง พร้อมส่งภาพถ่ายหน้าจอหน้า `/targets` ที่แสดงค่า `up = 1`
+4. เขียนคำสั่ง PromQL บรรทัดเดียวเพื่อคำนวณ Availability SLI ของตัวอย่างแอปพลิเคชันของคุณ
 
----
+#### เตรียมพร้อมสำหรับสัปดาห์ที่ 5:
+- สร้าง Endpoint `/metrics` บนแอปพลิเคชันเพื่อให้ Prometheus สามารถดึงข้อมูลได้
+- เพิ่ม Custom Metric ของตนเองลงในแอปพลิเคชันอย่างน้อย 1 ตัว
+- นำคำถามเกี่ยวกับปัญหา Cardinality ของเมทริกซ์ที่ตนเองสร้างขึ้นมาร่วมอภิปรายในคาบเรียน
 
-### 2.13 Course Deliverables and Next Week's Preparation
-
-#### Group Assignments (Due in 5 Days):
-1. Complete BOM workbook with capacity calculations fully balanced and passing on all lines.
-2. Technical justification documentation detailing selected remedies (minimum 3 lines of reasoning per failing dimension).
-3. Resolution evidence for all 8 open items (e.g., chassis serial photos, nameplate wattages).
-4. Completed draft Change Request (`CR-01`) for scheduled physical installation.
-
-#### Individual Preparation (Before Next Session):
-1. Read *Observability Engineering* (Charity Majors et al.), Chapters 1–3.
-2. Complete LMS Pre-Class Quiz 4.
-3. Deploy Prometheus and Grafana stack locally; submit verification screenshot of `/targets` showing `up == 1`.
-4. Compose a single-line PromQL query calculating your application's availability SLI.
-
-#### Preview for Week 5:
-- Topic: **Observability II — Structured Logs and Distributed Tracing**.
-- *Opening Discussion Question:* "Metrics can tell you that 1% of requests failed, but not whose requests failed or at which microservice step they broke — what else do we need to collect?"
+> **คำถามเปิดประเด็นสำหรับสัปดาห์หน้า:**
+> "เมทริกซ์สามารถบอกคุณได้ว่ามีคำขอล้มเหลว 1% แต่ไม่สามารถบอกได้ว่าเป็นคำขอของใคร หรือล้มเหลวที่ขั้นตอนบริการย่อยใด — เราจำเป็นต้องรวบรวมข้อมูลใดเพิ่มเติมอีก?"
 
 ---
 
-### 2.14 Academic and Technical References
+### 2.13 แหล่งข้อมูลอ้างอิงทางวิชาการและคู่มือทางเทคนิค (References)
 
-- Beyer, B., Jones, N. R., Petoff, J., & Murphy, N. R. (2016). *Site Reliability Engineering: How Google Runs Production Systems*. O'Reilly Media. Chapter 6: Monitoring Distributed Systems.
-- Majors, C., Fong-Jones, L., & Miranda, G. (2022). *Observability Engineering: Achieving Operational Excellence*. O'Reilly Media. Chapters 1–3.
-- Prometheus Documentation: Metric Types, PromQL Basics, and Exporter Guidelines.
-- Grafana Labs Documentation: Dashboard Best Practices and Provisioning Workflows.
-- ISO/IEC 27001:2022: Information Security Management Systems — Annex A Controls (A.5.9, A.5.10, A.7.8, A.7.11, A.7.12, A.8.32).
-- ISO/IEC 22237 Series: Information Technology — Data Centre Facilities and Infrastructures.
+**สำหรับการบรรยาย (Lecture):**
+- Beyer, B., Jones, N. R., Petoff, J., & Murphy, N. R. (2016). *Site Reliability Engineering: How Google Runs Production Systems*. O'Reilly Media. บทที่ 6: Monitoring Distributed Systems.
+- Majors, C., Fong-Jones, L., & Miranda, G. (2022). *Observability Engineering: Achieving Operational Excellence*. O'Reilly Media. บทที่ 1–3.
+- เอกสารคู่มือทางการของ Prometheus: ประเภทของเมทริกซ์, พื้นฐานการคิวรี PromQL และแนวปฏิบัติในการตั้งชื่อและป้ายกำกับ
+- เอกสารคู่มือทางการของ Grafana Labs: แนวปฏิบัติที่ดีในการออกแบบแดชบอร์ดและการทำ Declarative Provisioning
+
+**สำหรับงานภาคสนามและห้องปฏิบัติการ (Field Work):**
+- มาตรฐาน ISO/IEC 27001:2022 — ภาคผนวก A: A.5.9, A.5.10, A.7.8, A.7.11, A.7.12, A.8.32
+- ชุดมาตรฐาน ISO/IEC 22237 Series — สิ่งอำนวยความสะดวกและโครงสร้างพื้นฐานศูนย์ข้อมูล (การจ่ายไฟฟ้าและการจัดวางผัง)
+- คู่มือการติดตั้งของผู้ผลิตสำหรับตู้แร็กและแชสซีเซิร์ฟเวอร์เบลดที่ใช้งานจริงในห้องปฏิบัติการ
+- ชุดแบบฟอร์มเอกสารของรายวิชา — CR-01, INV-01, PWR-01, RACK-01, CAB-01
