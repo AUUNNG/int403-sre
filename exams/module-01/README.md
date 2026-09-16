@@ -88,3 +88,12 @@
 - ปิดกล้องระหว่างตอบข้อใด: ข้อนั้นจะไม่ได้รับการตรวจ
 - ใช้เครื่องคิดเลข: หัก 2 คะแนนของข้อนั้น
 - พบเสียงหรือบุคคลอื่นช่วยเหลือ: ถือเป็นการทุจริต ปรับตกตามระเบียบมหาวิทยาลัย
+
+---
+
+## 6. เอกสารอ้างอิงและเครื่องมือเตรียมตัวสอบ
+
+- [miro-board-draft.md](file:///C:/Users/aungm/Documents/auunng/5-2569/int403-sre/exams/module-01/miro-board-draft.md): ร่างเนื้อหา 1 หน้าสำหรับนำไปจัดวางบนบอร์ด Miro
+- [mental-math-cheatsheet.md](file:///C:/Users/aungm/Documents/auunng/5-2569/int403-sre/exams/module-01/mental-math-cheatsheet.md): เทคนิคคิดเลขในใจ การปัดเศษ และหน่วยที่ห้ามตอบผิด
+- [formulas-and-calculations.md](file:///C:/Users/aungm/Documents/auunng/5-2569/int403-sre/exams/module-01/formulas-and-calculations.md): รวมสูตรคำนวณ ตัวแปร หน่วย และโจทย์ตัวอย่างทั้งหมด 9 หมวด (สัปดาห์ที่ 1 ถึง 5)
+
