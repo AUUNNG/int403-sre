@@ -154,6 +154,7 @@
 
 ## 10. เอกสารอ้างอิงและเครื่องมือเตรียมตัวสอบ
 
+- [actual-exam-questions.md](file:///C:/Users/aungm/Documents/auunng/5-2569/int403-sre/exams/module-01/actual-exam-questions.md): ถอดรหัสสไลด์ข้อสอบจริง 6 ข้อ พร้อมบทวิเคราะห์ทรงข้อสอบและแนวทางตอบคะแนนเต็ม
 - [Miro Whiteboard ประจำตัว](https://miro.com/app/board/uXjVHmnlVLg=/): กระดานสรุป 3x3 Grid สำหรับเปิดหน้าจอเดียวตอนสอบ
 - [miro-board-draft.md](file:///C:/Users/aungm/Documents/auunng/5-2569/int403-sre/exams/module-01/miro-board-draft.md): ผังและรายละเอียดการจัดวาง 9 เฟรมบนบอร์ด Miro
 - [formulas-and-calculations.md](file:///C:/Users/aungm/Documents/auunng/5-2569/int403-sre/exams/module-01/formulas-and-calculations.md): รวมสูตรคำนวณ ตัวแปร หน่วย และโจทย์ตัวอย่างทั้งหมด 9 หมวด
