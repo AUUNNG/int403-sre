@@ -1,14 +1,31 @@
-# ข้อกำหนดการทำงานของ AI Agent (AGENTS.md)
+# Agent Guidelines
 
-## กฎหลัก (Core Rules)
-- **Zero Emoji**: ห้ามมี Emoji ในเนื้อหาเอกสาร, ข้อความ Git commit และข้อความตอบกลับเด็ดขาด
-- **ห้ามใช้สคริปต์อ่าน PDF**: READ PDF without py uv or anyscript
-- **ภาษา**: ใช้ภาษาไทยเป็นหลักที่อ่านเข้าใจง่ายสำหรับการทบทวน และคงคำศัพท์เทคนิคภาษาอังกฤษไว้ในวงเล็บเสมอ เช่น "งบประมาณความผิดพลาด (Error Budget)"
-- **เสริมเนื้อหา ห้ามตัดทอน**: นำข้อมูลจาก `transcript.md` มาเสริมต่อยอด ห้ามลบหรือลดทอนเนื้อหาเดิมจากสไลด์
+## Core Rules
 
-## ขั้นตอนการทำงาน 4 ขั้นตอน (Standard Workflow)
-1. **อ่าน PDF เป็น Markdown**: สกัดเนื้อหาจาก `.pdf` ทุกหน้าเป็น `.md` (ตั้งชื่อไฟล์ตรงกัน) เก็บรายละเอียด ตาราง และสูตรคณิตศาสตร์ ($...$) ให้ครบถ้วน
-2. **Commit รอบ PDF**: บันทึก git commit สำหรับเนื้อหาตั้งต้นจากสไลด์
-3. **อ่าน transcript.md เสริมเนื้อหา**: สังเคราะห์คำอธิบาย ตัวอย่างจริง และข้อคิดเห็นจากผู้สอน นำมาเสริมลงในไฟล์ pdf `.md` ให้ได้เนื้อหาครอบคลุมที่สุด
-4. **Commit รอบ Supplement**: บันทึก git commit สำหรับเนื้อหาที่เสริมจาก transcript
+- **Zero Emoji**: Never include emojis in document content, git commit messages, or agent responses.
+- **No PDF Scripts**: Never use Python, uv, or external scripts to process PDFs. Inspect PDFs directly via `Read`.
+- **Language**: Use Thai as the primary language for study notes, always preserving English technical terms in parentheses, e.g., "งบประมาณความผิดพลาด (Error Budget)".
+- **Supplement, Never Truncate**: Enhance content using `transcript.md`. Never delete or omit original information from the slides.
 
+## Lecture Notes Workflow
+
+1. **Extract Slides**: Convert all `.pdf` pages into a corresponding `.md` file, retaining all details, tables, and LaTeX math blocks ($...$).
+2. **Slide Baseline Commit**: Commit the initial extracted slide notes to git.
+3. **Supplement from Transcript**: Synthesize instructor insights, practical examples, and lecture commentary from `transcript.md` into the `.md` note.
+4. **Supplement Commit**: Commit the supplemented notes to git.
+
+## Repository Layout
+
+- `week01` - `week09`: Lecture slides, transcribed markdown notes, and lecture transcripts.
+- `exams/`: Exam slides, revision materials, and viva question guides.
+- `forms/`: ISO/IEC 27001 compliance templates, lab operational records, and checklists.
+
+## Agent Skills
+
+### Issue Tracker
+
+Local markdown files under `.scratch/`. See `docs/agents/issue-tracker.md`.
+
+### Domain Docs
+
+Single-context (`GLOSSARY.md` + `docs/adr/` at repo root). See `docs/agents/domain.md`.
