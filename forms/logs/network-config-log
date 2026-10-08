@@ -1,0 +1,2297 @@
+=~=~=~=~=~=~=~=~=~=~=~= PuTTY log 2026.09.18 15:17:24 =~=~=~=~=~=~=~=~=~=~=~=
+
+[RE-21(Core5900)]
+[RE-21(Core5900)]reset
+[RE-21(Core5900)]reset sadis
+[RE-21(Core5900)]display Iip in
+[RE-21(Core5900)]display ip interface b
+[RE-21(Core5900)]display ip interface brief 
+*down: administratively down
+(s): spoofing
+Interface                     Physical Protocol IP Address      Description 
+Loop0                         up       up(s)    unassigned      Created b...
+M-GE0/0/0                     down     down     192.168.1.254   M-Gigabit...
+Vlan1                         down     down     172.16.254.254  Vlan-inte...
+Vlan2                         *down    down     172.16.2.254    Vlan-inte...
+Vlan7                         down     down     10.4.7.254      Vlan-inte...
+Vlan8                         down     down     10.4.8.254      Vlan-inte...
+Vlan9                         down     down     10.4.9.254      CommandLa...
+Vlan10                        down     down     10.4.10.254     Vlan-inte...
+Vlan11                        down     down     10.4.11.254     LECTURER
+Vlan12                        down     down     10.4.12.254     VPN_Bridg...
+Vlan13                        down     down     10.4.13.254     LF
+Vlan14                        down     down     10.4.14.254     MULTIMEDI...
+Vlan15                        down     down     10.4.15.254     Infrastru...
+Vlan16                        down     down     10.4.16.254     Administr...
+Vlan17                        *down    down     10.4.17.254     test Conn...
+Vlan18                        down     down     10.4.18.254     VoIP_Rese...
+Vlan19                        down     down     10.4.19.254     Back Office
+Vlan20                        down     down     10.4.20.254     ESRC Room
+Vlan21                        down     down     10.4.21.254     TRAINING ...
+Vlan22                        down     down     10.4.22.254     TRAINING ...
+---- More ----               Vlan23                        down     down     10.4.23.254     TRAINING ...
+Vlan24                        down     down     10.4.24.254     TRAINING ...
+Vlan25                        down     down     10.4.25.254     TRAINING ...
+Vlan26                        down     down     10.4.26.254     ScreenBea...
+Vlan27                        down     down     10.4.27.254     CCTV_STUD...
+Vlan33                        down     down     10.4.33.1       P-to-P iLab
+Vlan34                        down     down     10.4.34.254     Vlan-inte...
+Vlan35                        down     down     10.4.35.254     Vlan-inte...
+Vlan36                        *down    down     unassigned      This VLAN...
+Vlan38                        down     down     10.4.38.254     Vlan-inte...
+Vlan39                        down     down     10.4.39.254     Vlan-inte...
+Vlan41                        down     down     10.4.41.254     COMMON 1
+Vlan42                        down     down     10.4.42.254     COMMON 2
+Vlan43                        down     down     10.4.43.254     Server Pr...
+Vlan46                        down     down     10.4.46.254     Rack Serv...
+Vlan51                        down     down     10.4.51.254     Vlan-inte...
+Vlan52                        down     down     10.4.52.254     Cloud_LAB...
+Vlan53                        down     down     10.4.53.254     Clou d-VLAN
+Vlan54                        down     down     10.4.54.254     Cloud_LAB...
+Vlan55                        down     down     10.4.55.254     STD_VM_Re...
+Vlan56                        down     down     10.4.56.254     StudentSe...
+Vlan57                        down     down     10.4.57.254     WebRevers...
+Vlan58                        *down    down     10.4.58.254     VDI Reque...
+---- More ----               Vlan61                        down     down     10.4.61.254     VM-MANAGE...
+Vlan62                        down     down     10.4.62.254     VM-VMOTION
+Vlan63                        down     down     10.4.63.254     HCI-Manag...
+Vlan64                        down     down     10.4.64.254     Server-OOB
+Vlan65                        down     down     10.4.65.254     Vlan-inte...
+Vlan66                        down     down     10.4.66.254     Vlan-inte...
+Vlan67                        down     down     10.4.67.254     Vlan-inte...
+Vlan68                        down     down     10.4.68.254     Vlan-inte...
+Vlan69                        down     down     10.4.69.254     Vlan-inte...
+Vlan70                        down     down     10.4.70.254     STORAGE-MG
+Vlan71                        down     down     10.4.71.254     VM_KMUTT_...
+Vlan72                        *down    down     10.4.72.254     IBM Power...
+Vlan76                        down     down     10.4.76.254     SIT DVI b...
+Vlan77                        down     down     10.4.77.254     SIT DVI b...
+Vlan78                        down     down     10.4.78.254     SIT DVI b...
+Vlan79                        down     down     10.4.79.254     SIT DVI b...
+Vlan80                        down     down     10.4.80.254     SIT DVI b...
+Vlan81                        down     down     10.4.81.254     SIT DVI b...
+Vlan82                        down     down     10.4.82.254     SIT DVI b...
+Vlan83                        down     down     10.4.83.254     SIT DVI b...
+Vlan84                        down     down     10.4.84.254     SIT DVI b...
+Vlan85                        down     down     10.4.85.254     SIT DVI b...
+Vlan86                        down     down     10.4.86.254     SIT DVI b...
+---- More ----               Vlan87                        down     down     10.4.87.254     SIT DVI b...
+Vlan88                        down     down     10.4.88.254     SIT DVI b...
+Vlan89                        down     down     10.4.89.254     SIT DVI b...
+Vlan90                        down     down     unassigned      Vlan-inte...
+Vlan91                        down     down     unassigned      Vlan-inte...
+Vlan92                        down     down     10.4.92.254     WiFi_Cont...
+Vlan93                        down     down     10.4.93.254     WiFi_Cont...
+Vlan94                        down     down     10.4.94.254     DHCP-AP-H...
+Vlan100                       down     down     10.4.100.254    STORAGE-M...
+Vlan101                       down     down     202.44.9.97     Vlan-inte...
+Vlan111                       down     down     10.4.111.254    Vlan-inte...
+Vlan112                       *down    down     10.4.112.254    Vlan-inte...
+Vlan131                       down     down     10.4.131.254    ISP temp
+Vlan132                       down     down     10.4.132.1      TestPF-Se...
+Vlan133                       down     down     10.4.133.1      TestPF-Se...
+Vlan136                       down     down     10.4.136.1      TestPF-Se...
+Vlan151                       down     down     unassigned      Vlan-inte...
+Vlan152                       down     down     unassigned      Vlan-inte...
+Vlan153                       down     down     unassigned      Vlan-inte...
+Vlan154                       down     down     unassigned      Vlan-inte...
+Vlan155                       down     down     unassigned      Vlan-inte...
+Vlan156                       down     down     unassigned      Vlan-inte...
+Vlan157                       down     down     unassigned      Vlan-inte...
+---- More ----               Vlan158                       down     down     unassigned      Vlan-inte...
+Vlan159                       down     down     unassigned      Vlan-inte...
+Vlan160                       down     down     unassigned      Vlan-inte...
+Vlan161                       down     down     unassigned      Vlan-inte...
+Vlan171                       *down    down     10.4.171.254    Student O...
+Vlan172                       *down    down     10.4.172.254    Student O...
+Vlan173                       *down    down     10.4.173.254    Student O...
+Vlan174                       *down    down     10.4.174.254    Student O...
+Vlan175                       *down    down     10.4.175.254    Student O...
+Vlan176                       *down    down     10.4.176.254    Student O...
+Vlan177                       *down    down     10.4.177.254    Student O...
+Vlan178                       *down    down     10.4.178.254    Student O...
+Vlan179                       *down    down     10.4.179.254    Student O...
+Vlan180                       *down    down     10.4.180.254    Student O...
+Vlan181                       *down    down     10.4.181.254    Student O...
+Vlan182                       *down    down     10.4.182.254    Student O...
+Vlan183                       *down    down     10.4.183.254    Student O...
+Vlan184                       *down    down     10.4.184.254    Student O...
+Vlan185                       *down    down     10.4.185.254    Student O...
+Vlan199                       down     down     172.16.199.254  Infrastru...
+Vlan200                       down     down     10.4.200.254    AV-Network
+Vlan202                       down     down     172.16.202.254  BackUp-NA...
+Vlan208                       down     down     10.4.211.254    Vlan-inte...
+---- More ----               Vlan210                       down     down     192.168.103.1   Vlan-inte...
+Vlan244                       down     down     10.4.244.254    Now  desc...
+Vlan245                       down     down     10.4.245.254    Vlan-inte...
+Vlan246                       down     down     10.4.246.254    Vlan-inte...
+Vlan247                       down     down     10.4.247.254    Vlan-inte...
+Vlan248                       down     down     10.4.248.254    VMSTD2
+Vlan249                       down     down     172.16.249.254  Vlan-inte...
+Vlan250                       down     down     10.4.250.254    MF-Manage...
+Vlan251                       down     down     172.16.251.254  Server Ma...
+Vlan252                       down     down     172.16.252.254  Database ...
+Vlan253                       down     down     172.16.253.254  TrueISP A...
+Vlan300                       *down    down     172.16.221.254  Vlan-inte...
+Vlan301                       *down    down     unassigned      VLAN 301 ...
+Vlan440                       down     down     10.4.44.254     Now use f...
+Vlan450                       down     down     10.4.45.254     Playground1
+Vlan610                       down     down     unassigned      IPv6_CC
+Vlan1000                      down     down     unassigned      Vlan-inte...
+Vlan1001                      down     down     10.4.0.2        ## To S67...
+Vlan1101                      down     down     10.4.101.1      SIT-LIB
+Vlan1249                      down     down     10.4.249.254    Learning ...
+Vlan2002                      down     down     unassigned      Vlan-inte...
+Vlan2003                      down     down     unassigned      Vlan-inte...
+Vlan2015                      down     down     10.4.159.254    KMUTT-edu...
+---- More ----               Vlan2100                      down     down     10.4.90.254     VLAN for ...
+Vlan3104                      down     down     unassigned      Vlan-inte...
+Vlan3999                      *down    down     10.5.43.254     ##Eduroam##
+Vlan4000                      *down    down     10.5.3.254      Vlan-inte...
+Vlan4001                      *down    down     10.5.7.254      ## WL-KMU...
+Vlan4002                      *down    down     10.5.8.254      Vlan-inte...
+Vlan4003                      *down    down     10.5.15.254     Vlan-inte...
+Vlan4004                      down     down     10.4.31.254     WLAN For ...
+Vlan4005                      down     down     10.4.32.254     WLAN For ...
+Vlan4010                      down     down     10.4.30.254     AP Aruba ...
+Vlan4020                      down     down     10.4.151.254    LX_Floor10
+Vlan4021                      down     down     10.4.155.254    KMUTT-Sec...
+Vlan4022                      *down    down     unassigned      KMUTT-Sec...
+Vlan4023                      down     down     10.4.163.254    SIT-IoT_S...
+[RE-21(Core5900)] res
+[RE-21(Core5900)]reset
+[RE-21(Core5900)]reset sac
+[RE-21(Core5900)]reset sacv
+[RE-21(Core5900)]reset save
+[RE-21(Core5900)]reset save?
+                       ^
+ % Unrecognized command found at '^' position.
+[RE-21(Core5900)]reset sav?
+  version-update-record  Version update record management
+
+[RE-21(Core5900)]reset 
+<RE-21(Core5900)>res
+<RE-21(Core5900)>reset s
+<RE-21(Core5900)>reset spbmasa
+<RE-21(Core5900)>reset saved-configuration main
+The saved configuration file will be erased. Are you sure? [Y/N]:y
+Configuration file in flash: is being cleared.  
+Please wait ...
+MainBoard:
+Configuration file is cleared.
+<RE-21(Core5900)>reset saved-configuration main 
+<RE-21(Core5900)>reset saved-configuration 
+<RE-21(Core5900)>reset saved-configuration b
+<RE-21(Core5900)>reset saved-configuration backup 
+The saved configuration file will be erased. Are you sure? [Y/N]:y
+Configuration file does not exist!
+<RE-21(Core5900)>reset saved-configuration backup reboot
+Start to check configuration with next startup configuration file, please wait.........DONE!
+Current configuration may be lost after the reboot, save current configuration? [Y/N]:y
+Please input the file name(*.cfg)[flash:/startup.cfg]
+(To leave the existing filename unchanged, press the enter key):
+Validating file. Please wait...
+Saved the current configuration to mainboard device successfully.
+This command will reboot the device. Continue? [Y/N]:y
+Now rebooting, please wait...
+%Jan  1 07:06:51:941 2011 RE-21(Core5900) DEV/5/SYSTEM_REBOOT: System is rebooting now.
+
+Starting......
+Press Ctrl+D to access BASIC BOOT MENU
+
+********************************************************************************
+*                                                                              *
+*              HPE 5900AF-48XG-4QSFP+ Switch BOOTROM, Version 156              *
+*                                                                              *
+********************************************************************************
+Copyright (c) 2010-2017 Hewlett Packard Enterprise Development LP
+
+Creation Date   : Mar  6 2017,14:49:06
+CPU Clock Speed : 1000MHz
+Memory Size     : 2048MB
+Flash Size      : 512MB
+CPLD Version    : 004/002
+PCB Version     : Ver.B
+Mac Address     : BCEAFA003067
+
+
+PEX mode is disabled.
+Press Ctrl+B to access EXTENDED BOOT MENU...1 0 0
+Loading the main image files...
+Loading file flash:/5900_5920-cmw710-system-r2432p02.bin........................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+.....Done.
+Loading file flash:/5900_5920-cmw710-boot-r2432p02.bin..........................
+..................................................................Done.
+
+Image file flash:/5900_5920-cmw710-boot-r2432p02.bin is self-decompressing......
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+.......................................Done.
+System is starting...
+Cryptographic algorithms tests passed.
+Line aux0 is available.
+
+
+Press ENTER to get started.
+
+<RE-21(Core5900)>
+<RE-21(Core5900)>%Jan  1 07:11:41:205 2011 RE-21(Core5900) SHELL/5/SHELL_LOGIN: TTY logged in from aux0.
+
+<RE-21(Core5900)>sys
+<RE-21(Core5900)>system-view hos
+<RE-21(Core5900)>hos?
+                 ^
+ % Unrecognized command found at '^' position.
+<RE-21(Core5900)>hossys
+<RE-21(Core5900)>system-view 
+System View: return to User View with Ctrl+Z.
+[RE-21(Core5900)]hos
+[RE-21(Core5900)]hos?
+                 ^
+ % Unrecognized command found at '^' position.
+[RE-21(Core5900)]hossystem-view hostname
+                 ^
+ % Unrecognized command found at '^' position.
+[RE-21(Core5900)]
+<RE-21(Core5900)>hostnamesystem-view hostname 
+                 ^
+ % Unrecognized command found at '^' position.
+<RE-21(Core5900)>con
+<RE-21(Core5900)>conc?
+  cd
+  cfd
+  clock
+  copy
+
+<RE-21(Core5900)>ct
+<RE-21(Core5900)>tftphostname system-view hostnamesystem-view 
+System View: return to User View with Ctrl+Z.
+[RE-21(Core5900)]sysn
+[RE-21(Core5900)]sysname COrCoreSW1()sysname CoreSW1(C)sysname CoreSW1(Co)sysname CoreSW1(Cor)sysname CoreSW1(Core)sysname CoreSW1(Core5)sysname CoreSW1(Core59)sysname CoreSW1(Core590)sysname CoreSW1(Core5900)
+[CoreSW1(Core5900)]
+[CoreSW1(Core5900)]dis
+[CoreSW1(Core5900)]display ip inn
+[CoreSW1(Core5900)]display ip interface 
+[CoreSW1(Core5900)]display ip interface 
+[CoreSW1(Core5900)]display ip interface ?
+  >                  Redirect it to a file
+  >>                 Redirect it to a file in append mode
+  LoopBack           LoopBack interface
+  M-GigabitEthernet  MGE interface
+  Vlan-interface     VLAN interface
+  brief              Brief summary of IP status and configuration
+  |                  Matching output
+  <cr>               
+
+[CoreSW1(Core5900)]display ip interface M
+[CoreSW1(Core5900)]display ip interface M-GigabitEthernet 
+M-GigabitEthernet0/0/0 current state: DOWN
+Line protocol current state: DOWN
+Internet Address is 192.168.1.254/24 Primary
+Broadcast address: 192.168.1.255
+The Maximum Transmit Unit: 1500 bytes
+input packets : 0, bytes : 0, multicasts : 0
+output packets : 0, bytes : 0, multicasts : 0
+TTL invalid packet number:         0
+ICMP packet input number:          0
+  Echo reply:                      0
+  Unreachable:                     0
+  Source quench:                   0
+  Routing redirect:                0
+  Echo request:                    0
+  Router advert:                   0
+  Router solicit:                  0
+  Time exceed:                     0
+  IP header bad:                   0
+  Timestamp request:               0
+  Timestamp reply:                 0
+  Information request:             0
+  Information reply:               0
+  Netmask request:                 0
+---- More ----                 Netmask reply:                   0
+  Unknown type:                    0
+
+[CoreSW1(Core5900)] display ip interface M-GigabitEthernet display ip interface M-GigabitEthernet  ni
+[CoreSW1(Core5900)]display niin
+[CoreSW1(Core5900)]display info-center
+[CoreSW1(Core5900)]display install
+[CoreSW1(Core5900)]display interface ?
+  >                    Redirect it to a file
+  >>                   Redirect it to a file in append mode
+  Bridge-Aggregation   Bridge-Aggregation interface
+  FortyGigE            FortyGigE interface
+  InLoopBack           InLoopBack interface
+  LoopBack             LoopBack interface
+  M-GigabitEthernet    MGE interface
+  NULL                 NULL interface
+  Register-Tunnel      Register Tunnel interface
+  Ten-GigabitEthernet  Ten-GigabitEthernet interface
+  Vlan-interface       VLAN interface
+  brief                Brief information of status and configuration for 
+                       interface(s)
+  range                Display range information
+  |                    Matching output
+  <cr>                 
+
+[CoreSW1(Core5900)]display interface 
+[CoreSW1(Core5900)]display interface 
+Bridge-Aggregation7
+Current state: DOWN
+IP packet frame type: Ethernet II, hardware address: bcea-fa00-3067
+Description: server switch lenovo ne2572
+Bandwidth: 0 kbps
+Unknown-speed mode, unknown-duplex mode
+Link speed type is autonegotiation, link duplex type is autonegotiation
+PVID: 61
+Port link-type: Trunk
+ VLAN Passing:   1(default vlan), 2-27, 33-39, 41-43, 46, 51-58, 60-72, 75-94, 100-101, 111-112, 131-139, 151-165, 171-185, 199-202, 208, 210, 244-253, 300-301, 440, 450, 555, 610, 1000-1001, 1101, 1249, 2002-2003, 2015, 2100, 3104, 3999-4005, 4007-4010, 4020-4023
+ VLAN permitted: 1(default vlan), 2-1303, 1305-4094
+ Trunk port encapsulation: IEEE 802.1q
+Last clearing of counters: Never
+Last 300 seconds input:  0 packets/sec 0 bytes/sec -%
+Last 300 seconds output:  0 packets/sec 0 bytes/sec -%
+Input (total):  0 packets, 0 bytes
+0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+Input (normal):  0 packets, - bytes
+0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+Input:  0 input errors, 0 runts, 0 giants, 0 throttles
+0 CRC, 0 frame, - overruns, 0 aborts
+- ignored, - parity errors
+Output (total): 0 packets, 0 bytes
+---- More ----               0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+Output (normal): 0 packets, - bytes
+0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+Output: 0 output errors, - underruns, - buffer failures
+0 aborts, 0 deferred, 0 collisions, 0 late collisions
+0 lost carrier, - no carrier
+
+Bridge-Aggregation12
+Current state: DOWN
+IP packet frame type: Ethernet II, hardware address: bcea-fa00-3067
+Description: Core-5900 to Train3
+Bandwidth: 0 kbps
+Unknown-speed mode, unknown-duplex mode
+Link speed type is autonegotiation, link duplex type is autonegotiation
+PVID: 1
+Port link-type: Trunk
+ VLAN Passing:   1(default vlan), 23, 25, 1249
+ VLAN permitted: 1(default vlan), 23, 25, 1249
+ Trunk port encapsulation: IEEE 802.1q
+Last clearing of counters: Never
+Last 300 seconds input:  0 packets/sec 0 bytes/sec -%
+Last 300 seconds output:  0 packets/sec 0 bytes/sec -%
+Input (total):  0 packets, 0 bytes
+---- More ----               0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+Input (normal):  0 packets, - bytes
+0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+Input:  0 input errors, 0 runts, 0 giants, 0 throttles
+0 CRC, 0 frame, - overruns, 0 aborts
+- ignored, - parity errors
+Output (total): 0 packets, 0 bytes
+0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+Output (normal): 0 packets, - bytes
+0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+Output: 0 output errors, - underruns, - buffer failures
+0 aborts, 0 deferred, 0 collisions, 0 late collisions
+0 lost carrier, - no carrier
+
+Bridge-Aggregation15
+Current state: DOWN
+IP packet frame type: Ethernet II, hardware address: bcea-fa00-3067
+Description: Core-5900 to Common2-Inside
+Bandwidth: 0 kbps
+Unknown-speed mode, unknown-duplex mode
+Link speed type is autonegotiation, link duplex type is autonegotiation
+PVID: 1
+Port link-type: Trunk
+---- More ----               [CoreSW1(Core5900)]display interface display ip interface M-GigabitEthernet display interface display ip interface M-GigabitEthernet b
+[CoreSW1(Core5900)]display ip interface brief 
+*down: administratively down
+(s): spoofing
+Interface                     Physical Protocol IP Address      Description 
+Loop0                         up       up(s)    unassigned      Created b...
+M-GE0/0/0                     down     down     192.168.1.254   M-Gigabit...
+Vlan1                         down     down     172.16.254.254  Vlan-inte...
+Vlan2                         *down    down     172.16.2.254    Vlan-inte...
+Vlan7                         down     down     10.4.7.254      Vlan-inte...
+Vlan8                         down     down     10.4.8.254      Vlan-inte...
+Vlan9                         down     down     10.4.9.254      CommandLa...
+Vlan10                        down     down     10.4.10.254     Vlan-inte...
+Vlan11                        down     down     10.4.11.254     LECTURER
+Vlan12                        down     down     10.4.12.254     VPN_Bridg...
+Vlan13                        down     down     10.4.13.254     LF
+Vlan14                        down     down     10.4.14.254     MULTIMEDI...
+Vlan15                        down     down     10.4.15.254     Infrastru...
+Vlan16                        down     down     10.4.16.254     Administr...
+Vlan17                        *down    down     10.4.17.254     test Conn...
+Vlan18                        down     down     10.4.18.254     VoIP_Rese...
+Vlan19                        down     down     10.4.19.254     Back Office
+Vlan20                        down     down     10.4.20.254     ESRC Room
+Vlan21                        down     down     10.4.21.254     TRAINING ...
+Vlan22                        down     down     10.4.22.254     TRAINING ...
+---- More ----               Vlan23                        down     down     10.4.23.254     TRAINING ...
+Vlan24                        down     down     10.4.24.254     TRAINING ...
+Vlan25                        down     down     10.4.25.254     TRAINING ...
+Vlan26                        down     down     10.4.26.254     ScreenBea...
+Vlan27                        down     down     10.4.27.254     CCTV_STUD...
+Vlan33                        down     down     10.4.33.1       P-to-P iLab
+Vlan34                        down     down     10.4.34.254     Vlan-inte...
+Vlan35                        down     down     10.4.35.254     Vlan-inte...
+Vlan36                        *down    down     unassigned      This VLAN...
+Vlan38                        down     down     10.4.38.254     Vlan-inte...
+Vlan39                        down     down     10.4.39.254     Vlan-inte...
+Vlan41                        down     down     10.4.41.254     COMMON 1
+Vlan42                        down     down     10.4.42.254     COMMON 2
+Vlan43                        down     down     10.4.43.254     Server Pr...
+Vlan46                        down     down     10.4.46.254     Rack Serv...
+Vlan51                        down     down     10.4.51.254     Vlan-inte...
+Vlan52                        down     down     10.4.52.254     Cloud_LAB...
+Vlan53                        down     down     10.4.53.254     Clou d-VLAN
+Vlan54                        down     down     10.4.54.254     Cloud_LAB...
+Vlan55                        down     down     10.4.55.254     STD_VM_Re...
+Vlan56                        down     down     10.4.56.254     StudentSe...
+Vlan57                        down     down     10.4.57.254     WebRevers...
+Vlan58                        *down    down     10.4.58.254     VDI Reque...
+---- More ----               Vlan61                        down     down     10.4.61.254     VM-MANAGE...
+Vlan62                        down     down     10.4.62.254     VM-VMOTION
+Vlan63                        down     down     10.4.63.254     HCI-Manag...
+Vlan64                        down     down     10.4.64.254     Server-OOB
+Vlan65                        down     down     10.4.65.254     Vlan-inte...
+Vlan66                        down     down     10.4.66.254     Vlan-inte...
+Vlan67                        down     down     10.4.67.254     Vlan-inte...
+Vlan68                        down     down     10.4.68.254     Vlan-inte...
+Vlan69                        down     down     10.4.69.254     Vlan-inte...
+Vlan70                        down     down     10.4.70.254     STORAGE-MG
+Vlan71                        down     down     10.4.71.254     VM_KMUTT_...
+Vlan72                        *down    down     10.4.72.254     IBM Power...
+Vlan76                        down     down     10.4.76.254     SIT DVI b...
+Vlan77                        down     down     10.4.77.254     SIT DVI b...
+Vlan78                        down     down     10.4.78.254     SIT DVI b...
+Vlan79                        down     down     10.4.79.254     SIT DVI b...
+Vlan80                        down     down     10.4.80.254     SIT DVI b...
+Vlan81                        down     down     10.4.81.254     SIT DVI b...
+Vlan82                        down     down     10.4.82.254     SIT DVI b...
+Vlan83                        down     down     10.4.83.254     SIT DVI b...
+Vlan84                        down     down     10.4.84.254     SIT DVI b...
+Vlan85                        down     down     10.4.85.254     SIT DVI b...
+Vlan86                        down     down     10.4.86.254     SIT DVI b...
+---- More ----               [CoreSW1(Core5900)]
+<CoreSW1(Core5900)>fa
+<CoreSW1(Core5900)>fare
+<CoreSW1(Core5900)>free res
+<CoreSW1(Core5900)>reset
+<CoreSW1(Core5900)>restore
+<CoreSW1(Core5900)>restore 
+<CoreSW1(Core5900)>restore 
+<CoreSW1(Core5900)>restore ?
+  factory-default        Restore the factory default configuration and clear 
+                         operation data
+  startup-configuration  Startup configuration file
+
+<CoreSW1(Core5900)>restore f
+<CoreSW1(Core5900)>restore factory-default 
+This command will restore the system to the factory default configuration and clear the operation data. Continue [Y/N]:y
+Restoring the factory default configuration. This process might take a few minutes. Please wait...............Done.
+Please reboot the system to place the factory default configuration into effect.
+<CoreSW1(Core5900)>re
+<CoreSW1(Core5900)>reset
+<CoreSW1(Core5900)>rename
+<CoreSW1(Core5900)>restore
+<CoreSW1(Core5900)>reboot
+<CoreSW1(Core5900)>refresheb
+<CoreSW1(Core5900)>reboot 
+Start to check configuration with next startup configuration file, please wait.........DONE!
+Current configuration may be lost after the reboot, save current configuration? [Y/N]:y
+Please input the file name(*.cfg)[flash:/startup.cfg]
+(To leave the existing filename unchanged, press the enter key):
+Validating file. Please wait...
+Saved the current configuration to mainboard device successfully.
+This command will reboot the device. Continue? [Y/N]:y
+Now rebooting, please wait...
+%Jan  1 07:16:55:719 2011 CoreSW1(Core5900) DEV/5/SYSTEM_REBOOT: System is rebooting now.
+
+Starting......
+Press Ctrl+D to access BASIC BOOT MENU
+
+********************************************************************************
+*                                                                              *
+*              HPE 5900AF-48XG-4QSFP+ Switch BOOTROM, Version 156              *
+*                                                                              *
+********************************************************************************
+Copyright (c) 2010-2017 Hewlett Packard Enterprise Development LP
+
+Creation Date   : Mar  6 2017,14:49:06
+CPU Clock Speed : 1000MHz
+Memory Size     : 2048MB
+Flash Size      : 512MB
+CPLD Version    : 004/002
+PCB Version     : Ver.B
+Mac Address     : BCEAFA003067
+
+
+PEX mode is disabled.
+Press Ctrl+B to access EXTENDED BOOT MENU...1 0 0
+Loading the main image files...
+Loading file flash:/5900_5920-cmw710-system-r2432p02.bin........................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+.....Done.
+Loading file flash:/5900_5920-cmw710-boot-r2432p02.bin..........................
+..................................................................Done.
+
+Image file flash:/5900_5920-cmw710-boot-r2432p02.bin is self-decompressing......
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+.......................................Done.
+System is starting...
+Cryptographic algorithms tests passed.
+
+Startup configuration file does not exist.
+Started automatic configuration, press CTRL_C or CTRL_D to break.
+
+Automatic configuration attempt: 1.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+
+Automatic configuration attempt: 2.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+
+Automatic configuration attempt: 3.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+
+Automatic configuration attempt: 4.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+
+Automatic configuration attempt: 5.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+
+Automatic configuration attempt: 6.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+
+Automatic configuration attempt: 7.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+
+Automatic configuration attempt: 8.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+Automatic configuration is aborted.
+Line aux0 is available.
+
+
+Press ENTER to get started.
+
+<HPE>
+<HPE>
+<HPE>%Jan  1 00:24:28:257 2011 HPE SHELL/5/SHELL_LOGIN: TTY logged in from aux0.
+%Jan  1 00:24:31:173 2011 HPE DEV/1/FAN_DIRECTION_NOT_PREFERRED: Fan 1 airflow direction is not preferred on slot 1, please check it.
+%Jan  1 00:24:31:174 2011 HPE DEV/1/FAN_DIRECTION_NOT_PREFERRED: Fan 2 airflow direction is not preferred on slot 1, please check it.
+%Jan  1 00:25:51:173 2011 HPE DEV/1/FAN_DIRECTION_NOT_PREFERRED: Fan 1 airflow direction is not preferred on slot 1, please check it.
+%Jan  1 00:25:51:174 2011 HPE DEV/1/FAN_DIRECTION_NOT_PREFERRED: Fan 2 airflow direction is not preferred on slot 1, please check it.
+dis
+<HPE>
+<HPE>dis?
+  display
+
+<HPE>disp
+<HPE>display fan
+<HPE>display fan 
+ Slot 1:
+ Fan 1: 
+ State    : FanDirectionFault
+ Airflow Direction: Port-to-power
+ Prefer Airflow Direction: Power-to-port
+ Fan 2: 
+ State    : FanDirectionFault
+ Airflow Direction: Port-to-power
+ Prefer Airflow Direction: Power-to-port
+
+
+<HPE>sys
+<HPE>system-view 
+System View: return to User View with Ctrl+Z.
+[HPE]system-view fan p
+[HPE]fan prefer-direction sl
+[HPE]fan prefer-direction slot 1 po
+[HPE]fan prefer-direction slot 1 power-to-portr
+[HPE]fan prefer-direction slot 1 port-to-power 
+[HPE]%Jan  1 00:26:53:573 2011 HPE DEV/5/FAN_RECOVERED: Fan 1 recovered.
+%Jan  1 00:26:53:575 2011 HPE DEV/5/FAN_RECOVERED: Fan 2 recovered.
+fan prefer-direction slot 1 port-to-power system-view display fan system-view fan prefer-direction slot 1 port-to-power 
+[HPE]fan prefer-direction slot 1 port-to-power system-view display fan 
+ Slot 1:
+ Fan 1: 
+ State    : Normal
+ Airflow Direction: Port-to-power
+ Prefer Airflow Direction: Port-to-power
+ Fan 2: 
+ State    : Normal
+ Airflow Direction: Port-to-power
+ Prefer Airflow Direction: Port-to-power
+
+
+[HPE]
+Starting......
+Press Ctrl+D to access BASIC BOOT MENU
+
+********************************************************************************
+*                                                                              *
+*              HPE 5900AF-48XG-4QSFP+ Switch BOOTROM, Version 156              *
+*                                                                              *
+********************************************************************************
+Copyright (c) 2010-2017 Hewlett Packard Enterprise Development LP
+
+Creation Date   : Mar  6 2017,14:49:06
+CPU Clock Speed : 1000MHz
+Memory Size     : 2048MB
+Flash Size      : 512MB
+CPLD Version    : 004/002
+PCB Version     : Ver.B
+Mac Address     : BCEAFA000484
+
+
+PEX mode is disabled.
+Press Ctrl+B to access EXTENDED BOOT MENU...1 0 0
+Loading the main image files...
+Loading file flash:/5900_5920-cmw710-system-r2432p02.bin........................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+.....Done.
+Loading file flash:/5900_5920-cmw710-boot-r2432p02.bin..........................
+...................................................................Done.
+
+Image file flash:/5900_5920-cmw710-boot-r2432p02.bin is self-decompressing......
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+.......................................Done.
+System is starting...
+Cryptographic algorithms tests passed.
+
+Startup configuration file does not exist.
+Started automatic configuration, press CTRL_C or CTRL_D to break.
+
+Automatic configuration attempt: 1.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+
+Automatic configuration attempt: 2.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+
+Automatic configuration attempt: 3.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+
+Automatic configuration attempt: 4.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+
+Automatic configuration attempt: 5.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+
+Automatic configuration attempt: 6.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+
+Automatic configuration attempt: 7.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+
+Automatic configuration attempt: 8.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+
+Automatic configuration attempt: 9.
+Not ready for automatic configuration: no interface available.
+Waiting for the next...
+Automatic configuration is running, press CTRL_C or CTRL_D to break.
+Automatic configuration is running, press CTRL_C or CTRL_D to break.
+Automatic configuration is aborted.
+Line aux1 is available.
+
+
+Press ENTER to get started.
+
+
+<HPE>
+<HPE>
+%Jan  1 00:05:32:242 2011 HPE SHELL/5/SHELL_LOGIN: TTY logged in from aux1.
+<HPE>dsys
+<HPE>system-view 
+System View: return to User View with Ctrl+Z.
+[HPE]fan
+[HPE]fan 
+[HPE]fan 
+[HPE]fan ?
+  prefer-direction  Set the preferred fan direction
+
+[HPE]fan p
+[HPE]fan prefer-direction 
+[HPE]fan prefer-direction 
+[HPE]fan prefer-direction ?
+  slot  Specify a slot number
+
+[HPE]fan prefer-direction s
+[HPE]fan prefer-direction slot 1 ?
+                               ^
+ % Wrong parameter found at '^' position.
+[HPE]fan prefer-direction slot 1 ?
+  <2>
+
+[HPE]fan prefer-direction slot 1 p
+[HPE]fan prefer-direction slot 1 p?
+  <2>  Slot number
+
+[HPE]fan prefer-direction slot 1
+                               ^
+ % Wrong parameter found at '^' position.
+[HPE]fan prefer-direction slot 1?
+  <2>
+
+[HPE]fan prefer-direction slot 1 ?
+                               ^
+ % Wrong parameter found at '^' position.
+[HPE]fan prefer-direction slot 1 pow
+[HPE]fan prefer-direction slot 1 pow
+[HPE]fan prefer-direction slot 1 pow?
+  prefer-direction
+
+[HPE]fan prefer-directio
+[HPE]fan prefer-direction 2
+[HPE]fan prefer-direction 2 
+[HPE]fan prefer-direction 2
+[HPE]fan prefer-direction 2
+[HPE]fan prefer-direction 2
+                          ^
+ % Wrong parameter found at '^' position.
+[HPE]fan prefer-direction 2
+                          ^
+ % Incomplete command found at '^' position.
+[HPE]fan prefer-direction 1
+                          ^
+ % Wrong parameter found at '^' position.
+[HPE]fan prefer-direction 1?
+  slot  Specify a slot number
+
+[HPE]fan prefer-direction sl
+[HPE]fan prefer-direction slot 
+[HPE]fan prefer-direction slot 2 
+[HPE]fan prefer-direction slot 2%Jan  1 00:06:39:150 2011 HPE DEV/1/FAN_DIRECTION_NOT_PREFERRED: Fan 1 airflow direction is not preferred on slot 2, please check it.
+%Jan  1 00:06:39:151 2011 HPE DEV/1/FAN_DIRECTION_NOT_PREFERRED: Fan 2 airflow direction is not preferred on slot 2, please check it.
+
+[HPE]fan prefer-direction slot 2
+[HPE]fan prefer-direction slot 2 ?
+  port-to-power  From port to power
+  power-to-port  From power to port
+
+[HPE]fan prefer-direction slot 2 1 pwow
+[HPE]fan prefer-direction slot 1 powr
+[HPE]fan prefer-direction slot 1 port?
+                               ^
+ % Wrong parameter found at '^' position.
+[HPE]fan prefer-direction slot 1 port
+[HPE]fan prefer-direction slot 1 port
+[HPE]fan prefer-direction slot 1
+[HPE]fan prefer-direction slot 2
+[HPE]fan prefer-direction slot 2 
+[HPE]fan prefer-direction slot 2?
+  <2>  Slot number
+
+[HPE]fan prefer-direction slot 2
+[HPE]fan prefer-direction slot 2 
+                                 ^
+ % Incomplete command found at '^' position.
+[HPE]fan prefer-direction slot 2 ?
+  port-to-power  From port to power
+  power-to-port  From power to port
+
+[HPE]fan prefer-direction slot 2 popor
+[HPE]fan prefer-direction slot 2 port-to-power 
+[HPE]%Jan  1 00:07:12:749 2011 HPE DEV/5/FAN_RECOVERED: Fan 1 recovered.
+%Jan  1 00:07:12:751 2011 HPE DEV/5/FAN_RECOVERED: Fan 2 recovered.
+
+[HPE]fan prefer-direction slot 2 port-to-power fan prefer-direction slot  port-to-power fan prefer-direction slot 1 port-to-power 
+                               ^
+ % Wrong parameter found at '^' position.
+[HPE]+fan prefer-direction slot 1 port-to-power \ ?
+  <2>  Slot number
+
+[HPE]fan prefer-direction slot 1
+                               ^
+ % Wrong parameter found at '^' position.
+[HPE]fan prefer-direction slot 12?
+  <2>
+
+[HPE]fan prefer-direction slot 2
+<HPE>dis
+<HPE>display fan
+<HPE>display fan 
+ Slot 2:
+ Fan 1: 
+ State    : Normal
+ Airflow Direction: Port-to-power
+ Prefer Airflow Direction: Port-to-power
+ Fan 2: 
+ State    : Normal
+ Airflow Direction: Port-to-power
+ Prefer Airflow Direction: Port-to-power
+
+
+<HPE>sys
+<HPE>system-view 
+System View: return to User View with Ctrl+Z.
+[HPE]sy
+[HPE]sys
+[HPE]sysname CorewdswSW1
+[CoreSW1]
+<HPE>
+<HPE>%Jan  1 00:54:55:204 2011 HPE SHELL/5/SHELL_LOGIN: TTY logged in from aux0.
+sy
+<HPE>system-view 
+System View: return to User View with Ctrl+Z.
+[HPE]sy
+[HPE]sysn
+[HPE]sysname cCoreSW2
+[CoreSW2]ins
+[CoreSW2]ins%Jan  1 00:56:11:461 2011 CoreSW2 OPTMOD/4/MODULE_IN: FortyGigE1/0/49: The transceiver is STACK_QSFP_PLUS.
+
+[CoreSW2]
+[CoreSW2]dis
+[CoreSW2]display in
+[CoreSW2]display info-center
+[CoreSW2]display install
+[CoreSW2]display interface ?
+  >                    Redirect it to a file
+  >>                   Redirect it to a file in append mode
+  FortyGigE            FortyGigE interface
+  InLoopBack           InLoopBack interface
+  M-GigabitEthernet    MGE interface
+  NULL                 NULL interface
+  Register-Tunnel      Register Tunnel interface
+  Ten-GigabitEthernet  Ten-GigabitEthernet interface
+  brief                Brief information of status and configuration for 
+                       interface(s)
+  range                Display range information
+  |                    Matching output
+  <cr>                 
+
+[CoreSW2]display interface T
+[CoreSW2]display interface Ten-GigabitEthernet 
+Ten-GigabitEthernet1/0/1
+Current state: DOWN
+Line protocol state: DOWN
+IP packet frame type: Ethernet II, hardware address: bcea-fa00-3090
+Description: Ten-GigabitEthernet1/0/1 Interface
+Bandwidth: 10000000 kbps
+Loopback is not set
+Media type is not sure, port hardware type is No connector
+Unknown-speed mode, unknown-duplex mode
+Link speed type is autonegotiation, link duplex type is autonegotiation
+Flow-control is not enabled
+Maximum frame length: 10000
+Allow jumbo frames to pass
+Broadcast max-ratio: 100%
+Multicast max-ratio: 100%
+Unicast max-ratio: 100%
+PVID: 1
+MDI type: Automdix
+Port link-type: Access
+ Tagged VLANs:   None
+ Untagged VLANs: 1
+Port priority: 0
+Last link flapping: Never
+---- More ----               Last clearing of counters: Never
+ Peak input rate: 0 bytes/sec, at 2011-01-01 00:20:36 
+ Peak output rate: 0 bytes/sec, at 2011-01-01 00:20:36 
+ Last 300 second input: 0 packets/sec 0 bytes/sec -%
+ Last 300 second output: 0 packets/sec 0 bytes/sec -%
+ Input (total):  0 packets, 0 bytes
+ 0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+ Input (normal):  0 packets, - bytes
+ 0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+ Input:  0 input errors, 0 runts, 0 giants, 0 throttles
+ 0 CRC, 0 frame, - overruns, 0 aborts
+ - ignored, - parity errors
+ Output (total): 0 packets, 0 bytes
+ 0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+ Output (normal): 0 packets, - bytes
+ 0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+ Output: 0 output errors, - underruns, - buffer failures
+ 0 aborts, 0 deferred, 0 collisions, 0 late collisions
+ 0 lost carrier, - no carrier
+
+Ten-GigabitEthernet1/0/2
+Current state: DOWN
+Line protocol state: DOWN
+---- More ----               IP packet frame type: Ethernet II, hardware address: bcea-fa00-3091
+Description: Ten-GigabitEthernet1/0/2 Interface
+Bandwidth: 10000000 kbps
+Loopback is not set
+Media type is not sure, port hardware type is No connector
+Unknown-speed mode, unknown-duplex mode
+Link speed type is autonegotiation, link duplex type is autonegotiation
+Flow-control is not enabled
+Maximum frame length: 10000
+Allow jumbo frames to pass
+Broadcast max-ratio: 100%
+Multicast max-ratio: 100%
+Unicast max-ratio: 100%
+PVID: 1
+MDI type: Automdix
+Port link-type: Access
+ Tagged VLANs:   None
+ Untagged VLANs: 1
+Port priority: 0
+Last link flapping: Never
+Last clearing of counters: Never
+ Peak input rate: 0 bytes/sec, at 2011-01-01 00:20:36 
+ Peak output rate: 0 bytes/sec, at 2011-01-01 00:20:36 
+---- More ----                Last 300 second input: 0 packets/sec 0 bytes/sec -%
+ Last 300 second output: 0 packets/sec 0 bytes/sec -%
+ Input (total):  0 packets, 0 bytes
+ 0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+ Input (normal):  0 packets, - bytes
+ 0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+ Input:  0 input errors, 0 runts, 0 giants, 0 throttles
+ 0 CRC, 0 frame, - overruns, 0 aborts
+ - ignored, - parity errors
+ Output (total): 0 packets, 0 bytes
+ 0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+ Output (normal): 0 packets, - bytes
+ 0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+ Output: 0 output errors, - underruns, - buffer failures
+ 0 aborts, 0 deferred, 0 collisions, 0 late collisions
+ 0 lost carrier, - no carrier
+
+Ten-GigabitEthernet1/0/3
+Current state: DOWN
+Line protocol state: DOWN
+IP packet frame type: Ethernet II, hardware address: bcea-fa00-3092
+Description: Ten-GigabitEthernet1/0/3 Interface
+Bandwidth: 10000000 kbps
+---- More ----               Loopback is not set
+Media type is not sure, port hardware type is No connector
+Unknown-speed mode, unknown-duplex mode
+Link speed type is autonegotiation, link duplex type is autonegotiation
+Flow-control is not enabled
+Maximum frame length: 10000
+Allow jumbo frames to pass
+Broadcast max-ratio: 100%
+Multicast max-ratio: 100%
+Unicast max-ratio: 100%
+PVID: 1
+MDI type: Automdix
+Port link-type: Access
+ Tagged VLANs:   None
+ Untagged VLANs: 1
+Port priority: 0
+Last link flapping: Never
+Last clearing of counters: Never
+ Peak input rate: 0 bytes/sec, at 2011-01-01 00:20:36 
+ Peak output rate: 0 bytes/sec, at 2011-01-01 00:20:36 
+ Last 300 second input: 0 packets/sec 0 bytes/sec -%
+ Last 300 second output: 0 packets/sec 0 bytes/sec -%
+ Input (total):  0 packets, 0 bytes
+---- More ----                0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+ Input (normal):  0 packets, - bytes
+ 0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+ Input:  0 input errors, 0 runts, 0 giants, 0 throttles
+ 0 CRC, 0 frame, - overruns, 0 aborts
+ - ignored, - parity errors
+ Output (total): 0 packets, 0 bytes
+ 0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+ Output (normal): 0 packets, - bytes
+ 0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+ Output: 0 output errors, - underruns, - buffer failures
+ 0 aborts, 0 deferred, 0 collisions, 0 late collisions
+ 0 lost carrier, - no carrier
+
+Ten-GigabitEthernet1/0/4
+Current state: DOWN
+Line protocol state: DOWN
+IP packet frame type: Ethernet II, hardware address: bcea-fa00-3093
+Description: Ten-GigabitEthernet1/0/4 Interface
+Bandwidth: 10000000 kbps
+Loopback is not set
+Media type is not sure, port hardware type is No connector
+Unknown-speed mode, unknown-duplex mode
+---- More ----               Link speed type is autonegotiation, link duplex type is autonegotiation
+Flow-control is not enabled
+Maximum frame length: 10000
+Allow jumbo frames to pass
+Broadcast max-ratio: 100%
+Multicast max-ratio: 100%
+Unicast max-ratio: 100%
+PVID: 1
+MDI type: Automdix
+Port link-type: Access
+ Tagged VLANs:   None
+ Untagged VLANs: 1
+Port priority: 0
+Last link flapping: Never
+Last clearing of counters: Never
+ Peak input rate: 0 bytes/sec, at 2011-01-01 00:20:36 
+ Peak output rate: 0 bytes/sec, at 2011-01-01 00:20:36 
+ Last 300 second input: 0 packets/sec 0 bytes/sec -%
+ Last 300 second output: 0 packets/sec 0 bytes/sec -%
+ Input (total):  0 packets, 0 bytes
+ 0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+ Input (normal):  0 packets, - bytes
+ 0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+---- More ----                Input:  0 input errors, 0 runts, 0 giants, 0 throttles
+ 0 CRC, 0 frame, - overruns, 0 aborts
+ - ignored, - parity errors
+ Output (total): 0 packets, 0 bytes
+ 0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+ Output (normal): 0 packets, - bytes
+ 0 unicasts, 0 broadcasts, 0 multicasts, 0 pauses
+ Output: 0 output errors, - underruns, - buffer failures
+ 0 aborts, 0 deferred, 0 collisions, 0 late collisions
+ 0 lost carrier, - no carrier
+
+Ten-GigabitEthernet1/0/5
+Current state: DOWN
+Line protocol state: DOWN
+IP packet frame type: Ethernet II, hardware address: bcea-fa00-3094
+Description: Ten-GigabitEthernet1/0/5 Interface
+Bandwidth: 10000000 kbps
+Loopback is not set
+Media type is not sure, port hardware type is No connector
+Unknown-speed mode, unknown-duplex mode
+Link speed type is autonegotiation, link duplex type is autonegotiation
+Flow-control is not enabled
+Maximum frame length: 10000
+---- More ----               [CoreSW2]display interface Ten-GigabitEthernet 
+[CoreSW2]display interface Ten-GigabitEthernet b b
+[CoreSW2]display interface brief 
+Brief information on interfaces in route mode:
+Link: ADM - administratively down; Stby - standby
+Protocol: (s) - spoofing
+Interface            Link Protocol Primary IP      Description                
+InLoop0              UP   UP(s)    --                                         
+M-GE0/0/0            DOWN DOWN     --                                         
+NULL0                UP   UP(s)    --                                         
+REG0                 UP   --       --                                         
+
+Brief information on interfaces in bridge mode:
+Link: ADM - administratively down; Stby - standby
+Speed: (a) - auto
+Duplex: (a)/A - auto; H - half; F - full
+Type: A - access; T - trunk; H - hybrid
+Interface            Link Speed   Duplex Type PVID Description                
+FGE1/0/49            DOWN auto    A      A    1                               
+FGE1/0/50            DOWN auto    A      A    1                               
+FGE1/0/51            DOWN auto    A      A    1                               
+FGE1/0/52            DOWN auto    A      A    1                               
+XGE1/0/1             DOWN auto    A      A    1                               
+XGE1/0/2             DOWN auto    A      A    1                               
+XGE1/0/3             DOWN auto    A      A    1                               
+XGE1/0/4             DOWN auto    A      A    1                               
+---- More ----               XGE1/0/5             DOWN auto    A      A    1                               
+XGE1/0/6             DOWN auto    A      A    1                               
+XGE1/0/7             DOWN auto    A      A    1                               
+XGE1/0/8             DOWN auto    A      A    1                               
+XGE1/0/9             DOWN auto    A      A    1                               
+XGE1/0/10            DOWN auto    A      A    1                               
+XGE1/0/11            DOWN auto    A      A    1                               
+XGE1/0/12            DOWN auto    A      A    1                               
+XGE1/0/13            DOWN auto    A      A    1                               
+XGE1/0/14            DOWN auto    A      A    1                               
+XGE1/0/15            DOWN auto    A      A    1                               
+XGE1/0/16            DOWN auto    A      A    1                               
+XGE1/0/17            DOWN auto    A      A    1                               
+XGE1/0/18            DOWN auto    A      A    1                               
+XGE1/0/19            DOWN auto    A      A    1                               
+XGE1/0/20            DOWN auto    A      A    1                               
+XGE1/0/21            DOWN auto    A      A    1                               
+XGE1/0/22            DOWN auto    A      A    1                               
+XGE1/0/23            DOWN auto    A      A    1                               
+XGE1/0/24            DOWN auto    A      A    1                               
+XGE1/0/25            DOWN auto    A      A    1                               
+XGE1/0/26            DOWN auto    A      A    1                               
+XGE1/0/27            DOWN auto    A      A    1                               
+---- More ----               XGE1/0/28            DOWN auto    A      A    1                               
+XGE1/0/29            DOWN auto    A      A    1                               
+XGE1/0/30            DOWN auto    A      A    1                               
+XGE1/0/31            DOWN auto    A      A    1                               
+XGE1/0/32            DOWN auto    A      A    1                               
+XGE1/0/33            DOWN auto    A      A    1                               
+XGE1/0/34            DOWN auto    A      A    1                               
+XGE1/0/35            DOWN auto    A      A    1                               
+XGE1/0/36            DOWN auto    A      A    1                               
+XGE1/0/37            DOWN auto    A      A    1                               
+XGE1/0/38            DOWN auto    A      A    1                               
+XGE1/0/39            DOWN auto    A      A    1                               
+XGE1/0/40            DOWN auto    A      A    1                               
+XGE1/0/41            DOWN auto    A      A    1                               
+XGE1/0/42            DOWN auto    A      A    1                               
+XGE1/0/43            DOWN auto    A      A    1                               
+XGE1/0/44            DOWN auto    A      A    1                               
+XGE1/0/45            DOWN auto    A      A    1                               
+XGE1/0/46            DOWN auto    A      A    1                               
+XGE1/0/47            DOWN auto    A      A    1                               
+XGE1/0/48            DOWN auto    A      A    1                               
+
+[CoreSW2]  %Jan  1 00:58:23:614 2011 CoreSW2 IFNET/3/PHY_UPDOWN: FortyGigE1/0/49 link status is up.
+%Jan  1 00:58:23:616 2011 CoreSW2 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE1/0/49 is up.
+%Jan  1 00:58:24:104 2011 CoreSW2 STP/6/STP_DETECTED_TC: Instance 0's port FortyGigE1/0/49 detected a topology change.
+%Jan  1 00:58:24:105 2011 CoreSW2 LLDP/6/LLDP_CREATE_NEIGHBOR: Nearest bridge agent new neighbor created on Port FortyGigE1/0/49 (IfIndex 49), Chassis ID is bcea-fa00-0484, Port ID is FortyGigE2/0/49.
+
+%Jan  1 00:58:24:113 2011 CoreSW2 STP/6/STP_NOTIFIED_TC: Instance 0's port FortyGigE1/0/49 was notified a topology change.
+%Jan  1 00:58:26:549 2011 CoreSW2 STP/6/STP_NOTIFIED_TC: Instance 0's port FortyGigE1/0/49 was notified a topology change.
+
+[CoreSW2]display interface brief display interface Ten-GigabitEthernet display interface brief 
+Brief information on interfaces in route mode:
+Link: ADM - administratively down; Stby - standby
+Protocol: (s) - spoofing
+Interface            Link Protocol Primary IP      Description                
+InLoop0              UP   UP(s)    --                                         
+M-GE0/0/0            DOWN DOWN     --                                         
+NULL0                UP   UP(s)    --                                         
+REG0                 UP   --       --                                         
+
+Brief information on interfaces in bridge mode:
+Link: ADM - administratively down; Stby - standby
+Speed: (a) - auto
+Duplex: (a)/A - auto; H - half; F - full
+Type: A - access; T - trunk; H - hybrid
+Interface            Link Speed   Duplex Type PVID Description                
+FGE1/0/49            UP   40G(a)  F(a)   A    1                               
+FGE1/0/50            DOWN auto    A      A    1                               
+FGE1/0/51            DOWN auto    A      A    1                               
+FGE1/0/52            DOWN auto    A      A    1                               
+XGE1/0/1             DOWN auto    A      A    1                               
+XGE1/0/2             DOWN auto    A      A    1                               
+XGE1/0/3             DOWN auto    A      A    1                               
+XGE1/0/4             DOWN auto    A      A    1                               
+---- More ----               XGE1/0/5             DOWN auto    A      A    1                               
+XGE1/0/6             DOWN auto    A      A    1                               
+XGE1/0/7             DOWN auto    A      A    1                               
+XGE1/0/8             DOWN auto    A      A    1                               
+XGE1/0/9             DOWN auto    A      A    1                               
+XGE1/0/10            DOWN auto    A      A    1                               
+XGE1/0/11            DOWN auto    A      A    1                               
+XGE1/0/12            DOWN auto    A      A    1                               
+XGE1/0/13            DOWN auto    A      A    1                               
+XGE1/0/14            DOWN auto    A      A    1                               
+XGE1/0/15            DOWN auto    A      A    1                               
+XGE1/0/16            DOWN auto    A      A    1                               
+XGE1/0/17            DOWN auto    A      A    1                               
+XGE1/0/18            DOWN auto    A      A    1                               
+XGE1/0/19            DOWN auto    A      A    1                               
+XGE1/0/20            DOWN auto    A      A    1                               
+XGE1/0/21            DOWN auto    A      A    1                               
+XGE1/0/22            DOWN auto    A      A    1                               
+XGE1/0/23            DOWN auto    A      A    1                               
+XGE1/0/24            DOWN auto    A      A    1                               
+XGE1/0/25            DOWN auto    A      A    1                               
+XGE1/0/26            DOWN auto    A      A    1                               
+XGE1/0/27            DOWN auto    A      A    1                               
+---- More ----               [CoreSW2]display interface brief display interface Ten-GigabitEthernet sysname CoreSW2system-view sysname CoreSW2display interface Ten-GigabitEthernet sysname CoreSW2system-view sysname CoreSW2display interface Ten-GigabitEthernet display interface brief int
+[CoreSW2]interface ?
+  Bridge-Aggregation   Bridge-Aggregation interface
+  FortyGigE            FortyGigE interface
+  LoopBack             LoopBack interface
+  M-GigabitEthernet    MGE interface
+  NULL                 NULL interface
+  Route-Aggregation    Route-Aggregation interface
+  Ten-GigabitEthernet  Ten-GigabitEthernet interface
+  Tunnel               Tunnel interface
+  Vlan-interface       VLAN interface
+  Vsi-interface        Vsi interface
+  range                Configure an interface range
+
+[CoreSW2]interface f
+[CoreSW2]interface FortyGigE 1/0/349
+[CoreSW2-FortyGigE1/0/49]us
+[CoreSW2-FortyGigE1/0/49]using f
+[CoreSW2-FortyGigE1/0/49]using f?
+                               ^
+ % Unrecognized command found at '^' position.
+[CoreSW2-FortyGigE1/0/49]using f?
+  tengige     Split the interface into tengige interfaces 
+  twentygige  Split the interface into twentygige interfaces 
+
+[CoreSW2-FortyGigE1/0/49]using 
+[CoreSW1]sysname CoreSW1ir
+[CoreSW1]irf
+[CoreSW1]irf-port me
+[CoreSW1]irf member 1 p
+[CoreSW1]irf member 1 priority 32
+The device is not in the current IRF.
+[CoreSW1]en
+[CoreSW1]en
+[CoreSW1]en?
+         ^
+ % Unrecognized command found at '^' position.
+[CoreSW1]en
+<CoreSW1>en
+<CoreSW1>en
+<CoreSW1>ena
+<CoreSW1>enairf member 1 priority 32sysname CoreSW1irf member 1 priority 32sysname CoreSW1irf member 1 priority 32?
+User view commands:
+  archive             Archive configuration
+  backup              Backup the startup configuration file to a TFTP server
+  boot-loader         Software image file management
+  bootrom             Update/read/backup/restore bootrom
+  cd                  Change current directory
+  cfd                 Connectivity Fault Detection (CFD) module
+  clock               Specify the system clock
+  copy                Copy a file
+  debugging           Enable system debugging functions
+  delete              Delete a file
+  diagnostic-logfile  Diagnostic log file configuration
+  dir                 Display files and directories on the storage media
+  display             Display current system information
+  exception           Exception information configuration
+  fdisk               Partition a storage medium
+  fixdisk             Check and repair a storage medium
+  format              Format a storage medium
+  free                Release a connection
+  ftp                 Open an FTP connection
+  gunzip              Decompress file
+  gzip                Compress file
+  install             Perform package management operation
+  ip                  Specify IP configuration
+---- More ----                 issu                In-Service Software Upgrade module
+  l2vpn               Layer 2 Virtual Private Network (L2VPN) module
+  lock                Lock the current line
+  logfile             Log file configuration
+  md5sum              Compute the hash digest of a file using the MD5 algorithm
+  mkdir               Create a new directory
+  monitor             System monitor
+  more                Display the contents of a file
+  mount               Mount a storage medium
+  move                Move a file
+  mpls                Multiprotocol Label Switching (MPLS) module
+  oam                 OAM module
+  ping                Ping function
+  process             Process management
+  pwd                 Display current working directory
+  python              Source using python script
+  quit                Exit from current command view
+  reboot              Reboot operation
+  refresh             Do soft reset
+  rename              Rename a file or directory
+  reset               Reset operation
+  restore             Restore operation
+  rmdir               Remove an existing directory
+---- More ----               <CoreSW1>sy
+<CoreSW1>system-view 
+System View: return to User View with Ctrl+Z.
+[CoreSW1]We?
+  ecmp
+  evb
+  explicit-path
+
+[CoreSW1]eir
+[CoreSW1]irf en
+[CoreSW1]irf en?
+  auto-update  Update application file automatically when versions mismatch 
+               occurs
+  domain       IRF domain
+  link-delay   Time interval for the link layer to report a link-down event
+  mac-address  Bridge MAC address of the IRF system 
+  member       IRF Member
+  mode         Specify an IRF mode
+
+[CoreSW1]irf m
+[CoreSW1]irf membermode
+[CoreSW1]irf mode 
+[CoreSW1]irf mode ?
+  enhanced  Use enhanced IRF mode
+  normal    Use normal IRF mode
+
+[CoreSW1]irf mode dis
+[CoreSW1]display irf
+[CoreSW1]display irf-port
+MemberID    Role    Priority  CPU-Mac         Description
+ *+2        Master  1         00e0-fc0f-8c03  ---
+--------------------------------------------------
+ * indicates the device is the master.
+ + indicates the device through which the user logs in.
+
+ The bridge MAC of the IRF is: bcea-fa00-0484
+ Auto upgrade                : yes
+ Mac persistent              : 6 min
+ Domain ID                   : 0
+ IRF mode                    : normal
+[CoreSW1] interface FortyGigE 1/0/49
+[CoreSW2-FortyGigE1/0/49]
+[CoreSW2-FortyGigE1/0/49]interface FortyGigE 1/0/49display interface brief interface FortyGigE 1/0/49
+<CoreSW2>interface FortyGigE 1/0/49sys
+<CoreSW2>system-view 
+System View: return to User View with Ctrl+Z.
+[CoreSW2]irf
+[CoreSW2]irf-port ,m
+[CoreSW2]irf member 1 ?
+  description  Specify IRF member description
+  priority     Specify IRF priority
+  renumber     Specify a new member ID
+
+[CoreSW2]irf member 1 m
+[CoreSW2]irf member 1 mem?
+  INTEGER<1-10>  Member ID
+
+[CoreSW2]irf member 1
+                      ^
+ % Incomplete command found at '^' position.
+[CoreSW2]irf member 1 ?
+  description  Specify IRF member description
+  priority     Specify IRF priority
+  renumber     Specify a new member ID
+
+[CoreSW2]irf member 1 re?
+  renumber
+
+[CoreSW2]irf member 1 re
+[CoreSW2]irf member 1 renumber 2
+Renumbering the member ID may result in configuration change or loss. Continue?[Y/N]y
+[CoreSW2]dis
+[CoreSW2]display irf
+[CoreSW2]display irf-port
+MemberID    Role    Priority  CPU-Mac         Description
+ *+1        Master  1         00e0-fc0f-8c02  ---
+--------------------------------------------------
+ * indicates the device is the master.
+ + indicates the device through which the user logs in.
+
+ The bridge MAC of the IRF is: bcea-fa00-3067
+ Auto upgrade                : yes
+ Mac persistent              : 6 min
+ Domain ID                   : 0
+ IRF mode                    : normal
+[CoreSW2]resave 
+[CoreSW2]save 
+The current configuration will be written to the device. Are you sure? [Y/N]:y
+Please input the file name(*.cfg)[flash:/startup.cfg]
+(To leave the existing filename unchanged, press the enter key):
+flash:/startup.cfg exists, overwrite? [Y/N]:y
+Validating file. Please wait...
+Saved the current configuration to mainboard device successfully.
+[CoreSW2]reboot
+         ^
+ % Unrecognized command found at '^' position.
+[CoreSW2]
+<CoreSW2>reboot
+Start to check configuration with next startup configuration file, please wait.........DONE!
+This command will reboot the device. Continue? [Y/N]:y
+Now rebooting, please wait...
+%Jan  1 01:09:01:884 2011 CoreSW2 DEV/5/SYSTEM_REBOOT: System is rebooting now.
+
+Starting......
+Press Ctrl+D to access BASIC BOOT MENU
+
+********************************************************************************
+*                                                                              *
+*              HPE 5900AF-48XG-4QSFP+ Switch BOOTROM, Version 156              *
+*                                                                              *
+********************************************************************************
+Copyright (c) 2010-2017 Hewlett Packard Enterprise Development LP
+
+Creation Date   : Mar  6 2017,14:49:06
+CPU Clock Speed : 1000MHz
+Memory Size     : 2048MB
+Flash Size      : 512MB
+CPLD Version    : 004/002
+PCB Version     : Ver.B
+Mac Address     : BCEAFA003067
+
+
+PEX mode is disabled.
+Press Ctrl+B to access EXTENDED BOOT MENU...1 0 0
+Loading the main image files...
+Loading file flash:/5900_5920-cmw710-system-r2432p02.bin........................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+.....Done.
+Loading file flash:/5900_5920-cmw710-boot-r2432p02.bin..........................
+..................................................................Done.
+
+Image file flash:/5900_5920-cmw710-boot-r2432p02.bin is self-decompressing......
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+.......................................Done.
+System is starting...
+Cryptographic algorithms tests passed.
+Line aux1 is available.
+
+
+Press ENTER to get started.
+<CoreSW2>%Jan  1 01:13:57:800 2011 CoreSW2 SHELL/5/SHELL_LOGIN: TTY logged in from aux1.
+
+<CoreSW2>s
+<CoreSW2>system-view
+System View: return to User View with Ctrl+Z.
+[CoreSW2]system-viewdic
+[CoreSW2]dics
+[CoreSW2]display ir
+[CoreSW2]display irf
+MemberID    Role    Priority  CPU-Mac         Description
+ *+2        Master  1         00e0-fc0f-8c03  ---
+--------------------------------------------------
+ * indicates the device is the master.
+ + indicates the device through which the user logs in.
+
+ The bridge MAC of the IRF is: bcea-fa00-3067
+ Auto upgrade                : yes
+ Mac persistent              : 6 min
+ Domain ID                   : 0
+ IRF mode                    : normal
+[CoreSW2]display irfdis
+[CoreSW2]display fa
+[CoreSW2]display fan 
+ Slot 2:
+ Fan 1: 
+ State    : FanDirectionFault
+ Airflow Direction: Port-to-power
+ Prefer Airflow Direction: Power-to-port
+ Fan 2: 
+ State    : FanDirectionFault
+ Airflow Direction: Port-to-power
+ Prefer Airflow Direction: Power-to-port
+
+
+[CoreSW2]display fan 
+[CoreSW1]display irfsystem-view irf member 1 priority 32system-view display irfsystem-view irf member 1 priority 32system-view 
+         ^
+ % Unrecognized command found at '^' position.
+[CoreSW1]system-view display irfsystem-view irf member 1 priority 32
+The device is not in the current IRF.
+[CoreSW1]irf member 1 priority 32system-view display irfsystem-view irf member 1 priority 32irf member 1 priority 32system-view irf member 1 priority 32system-view display irfsystem-view irf member 1 priority 32system-view display irf L
+[CoreSW1]display irf link 
+Member 2
+ IRF Port  Interface                             Status
+ 1         disable                               --    
+ 2         disable                               --    
+[CoreSW1]display irf link irf 
+[CoreSW1]irf-port
+[CoreSW1]irf-port-configuration%Jan  1 00:37:51:378 2011 CoreSW1 IFNET/3/PHY_UPDOWN: FortyGigE2/0/49 link status is down.
+%Jan  1 00:37:51:379 2011 CoreSW1 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE2/0/49 is down.
+%Jan  1 00:38:01:285 2011 CoreSW1 OPTMOD/4/MODULE_OUT: FortyGigE2/0/49: Transceiver absent.
+%Jan  1 00:39:39:128 2011 CoreSW1 OPTMOD/4/MODULE_IN: FortyGigE2/0/49: The transceiver is STACK_QSFP_PLUS.
+%Jan  1 00:39:42:372 2011 CoreSW1 IFNET/3/PHY_UPDOWN: FortyGigE2/0/49 link status is up.
+%Jan  1 00:39:42:374 2011 CoreSW1 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE2/0/49 is up.
+%Jan  1 00:39:42:387 2011 CoreSW1 LLDP/6/LLDP_CREATE_NEIGHBOR: Nearest bridge agent new neighbor created on Port FortyGigE2/0/49 (IfIndex 254), Chassis ID is bcea-fa00-3067, Port ID is FortyGigE2/0/49.
+
+%Jan  1 00:39:42:392 2011 CoreSW1 STP/6/STP_DETECTED_TC: Instance 0's port FortyGigE2/0/49 detected a topology change.
+%Jan  1 00:39:44:397 2011 CoreSW1 STP/6/STP_NOTIFIED_TC: Instance 0's port FortyGigE2/0/49 was notified a topology change.
+%Jan  1 00:39:47:580 2011 CoreSW1 OPTMOD/4/MODULE_IN: FortyGigE2/0/50: The transceiver is STACK_QSFP_PLUS.
+%Jan  1 00:39:50:846 2011 CoreSW1 IFNET/3/PHY_UPDOWN: FortyGigE2/0/50 link status is up.
+%Jan  1 00:39:50:848 2011 CoreSW1 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE2/0/50 is up.
+%Jan  1 00:39:50:862 2011 CoreSW1 STP/6/STP_DETECTED_TC: Instance 0's port FortyGigE2/0/50 detected a topology change.
+%Jan  1 00:39:51:779 2011 CoreSW1 LLDP/6/LLDP_CREATE_NEIGHBOR: Nearest bridge agent new neighbor created on Port FortyGigE2/0/50 (IfIndex 255), Chassis ID is bcea-fa00-3067, Port ID is FortyGigE2/0/50.
+
+
+                  ^
+ % Incomplete command found at '^' position.
+[CoreSW1]irf-portirf-port
+                  ^
+ % Incomplete command found at '^' position.
+[CoreSW1]irf-portdisplay irf link 
+Member 2
+ IRF Port  Interface                             Status
+ 1         disable                               --    
+ 2         disable                               --    
+[CoreSW1]ir
+[CoreSW1]irf
+[CoreSW1]irf-port ?
+  <2>     IRF Member
+  global  Specify global traffic load-sharing mode for IRF links
+
+[CoreSW1]irf-port 1/2
+                  ^
+ % Wrong parameter found at '^' position.
+[CoreSW1]irf-port 1/2?
+                  ^
+ % Unrecognized command found at '^' position.
+[CoreSW1]irf-port 1/2?
+                  ^
+ % Unrecognized command found at '^' position.
+[CoreSW1]irf-port 1 ?
+                  ^
+ % Wrong parameter found at '^' position.
+[CoreSW1]irf-port 1 
+                  ^
+ % Wrong parameter found at '^' position.
+[CoreSW1]irf-port 1?
+  <2>     IRF Member
+  global  Specify global traffic load-sharing mode for IRF links
+
+[CoreSW1]irf-port 1 ?
+                  ^
+ % Wrong parameter found at '^' position.
+[CoreSW1]irf-port 1 
+                  ^
+ % Incomplete command found at '^' position.
+[CoreSW1]?
+System view commands:
+  aaa                      AAA configuration
+  acl                      Specify ACL configuration information
+  apply                    Apply a PoE profile
+  archive                  Archiving parameters
+  arp                      Address Resolution Protocol (ARP) module
+  attack-defense           Configure the attack defense function
+  bfd                      Bidirectional Forwarding Detection (BFD) module
+  bgp                      Border Gateway Protocol (BGP) module
+  buffer                   Buffer management function
+  burst-mode               Specify the burst function
+  cfd                      Connectivity Fault Detection (CFD) module
+  clock                    Specify the system clock
+  command-alias            Command keyword alias configuration
+  configuration            Configuration file operation parameters
+  control-plane            Control plane
+  copyright-info           Copyright information configuration
+  cut-through              Specify the cut-through switching function, which 
+                           starts forwarding a packet before the whole packet 
+                           has been received
+  cwmp                     CPE WAN Management Protocol (CWMP) module
+  ddns                     Dynamic Domain Name System (DDNS) module
+  delete                   Delete function
+  dhcp                     DHCP module
+---- More ----               [CoreSW1]irf-port 1/21
+                  ^
+ % Wrong parameter found at '^' position.
+[CoreSW1]irf-port 1/1 ?
+                  ^
+ % Wrong parameter found at '^' position.
+[CoreSW1]irf-port 1/1 ?
+  <2>     IRF Member
+  global  Specify global traffic load-sharing mode for IRF links
+
+[CoreSW1]irf-port 2
+                  ^
+ % Wrong parameter found at '^' position.
+[CoreSW1] irf-port 2 ?
+                  ^
+ % Wrong parameter found at '^' position.
+[CoreSW1]irf-port 2 ?
+  <2>     IRF Member
+  global  Specify global traffic load-sharing mode for IRF links
+
+[CoreSW1]irf-port 1?
+                  ^
+ % Unrecognized command found at '^' position.
+[CoreSW1]irf-port 1irf-port 1/11/1irf-port 2dis
+[CoreSW1]display oirf
+[CoreSW1]display irf-port
+                          ^
+ % Incomplete command found at '^' position.
+[CoreSW1]display irf-port?
+  irf-port
+
+[CoreSW1]display irf-port ?
+  load-sharing  IRF port load sharing
+
+[CoreSW1]display irf-port l
+[CoreSW1]display irf-port load-sharing 
+                                       ^
+ % Incomplete command found at '^' position.
+[CoreSW1]display irf-port load-sharing ?
+  mode  Load sharing mode of IRF port
+
+[CoreSW1]display irf-port load-sharing m
+[CoreSW1]display irf-port load-sharing mode 
+irf-port Load-Sharing Mode: 
+Layer 2 traffic: packet type-based sharing
+Layer 3 traffic: packet type-based sharing
+[CoreSW1]display irf-port load-sharing mode 
+MemberID    Role    Priority  CPU-Mac         Description
+ *+2        Master  1         00e0-fc0f-8c03  ---
+--------------------------------------------------
+ * indicates the device is the master.
+ + indicates the device through which the user logs in.
+
+ The bridge MAC of the IRF is: bcea-fa00-0484
+ Auto upgrade                : yes
+ Mac persistent              : 6 min
+ Domain ID                   : 0
+ IRF mode                    : normal
+[CoreSW1]
+[CoreSW2]display fan display fan display irf
+MemberID    Role    Priority  CPU-Mac         Description
+ *+2        Master  1         00e0-fc0f-8c03  ---
+--------------------------------------------------
+ * indicates the device is the master.
+ + indicates the device through which the user logs in.
+
+ The bridge MAC of the IRF is: bcea-fa00-3067
+ Auto upgrade                : yes
+ Mac persistent              : 6 min
+ Domain ID                   : 0
+ IRF mode                    : normal
+[CoreSW2]display irfdisplay irf-port load-sharing mode display irf-port load-sharing mode  load-sharing mode 
+[CoreSW1]
+[CoreSW1]display irf-port load-sharing mode irf-port 2
+                  ^
+ % Incomplete command found at '^' position.
+[CoreSW1]irf-port ?
+  <2>     IRF Member
+  global  Specify global traffic load-sharing mode for IRF links
+
+[CoreSW1]irf-port 2?
+  /
+
+[CoreSW1]irf-port 2/?
+  <1-2>
+
+[CoreSW1]irf-port 2/1
+[CoreSW1-irf-port2/1]irf-port 2/1display irf-port load-sharing mode irf-port 2irf-port 1/111/1irf-port 2display irf-port load-sharing mode irf-port 2/1irf-port 2/1
+<CoreSW1>irf-port 2/12/1sys
+<CoreSW1>system-view 
+System View: return to User View with Ctrl+Z.
+[CoreSW1]system-view irf
+[CoreSW1]irf-port ?
+  auto-update  Update application file automatically when versions mismatch 
+               occurs
+  domain       IRF domain
+  link-delay   Time interval for the link layer to report a link-down event
+  mac-address  Bridge MAC address of the IRF system 
+  member       IRF Member
+  mode         Specify an IRF mode
+
+[CoreSW1]irf m
+[CoreSW1]irf member
+[CoreSW1]irf mac-address
+[CoreSW1]irf mode
+[CoreSW1]irf member ?
+  INTEGER<1-10>  Member ID
+
+[CoreSW1]irf member 1
+                      ^
+ % Incomplete command found at '^' position.
+[CoreSW1]irf member 1 r
+[CoreSW1]irf member 1>?
+  INTEGER<1-10>
+
+[CoreSW1]irf member 1 ?
+  description  Specify IRF member description
+  priority     Specify IRF priority
+  renumber     Specify a new member ID
+
+[CoreSW1]irf member 1  2dirf member 2diirf member 2disirf member 2
+[CoreSW1]display irf me
+[CoreSW1]display irf me
+[CoreSW1]display irf-port
+[CoreSW1]display irf
+MemberID    Role    Priority  CPU-Mac         Description
+ *+2        Master  1         00e0-fc0f-8c03  ---
+--------------------------------------------------
+ * indicates the device is the master.
+ + indicates the device through which the user logs in.
+
+ The bridge MAC of the IRF is: bcea-fa00-0484
+ Auto upgrade                : yes
+ Mac persistent              : 6 min
+ Domain ID                   : 0
+ IRF mode                    : normal
+[CoreSW1]display irfirf member 1system-view irf member 1 ?
+  description  Specify IRF member description
+  priority     Specify IRF priority
+  renumber     Specify a new member ID
+
+[CoreSW1]irf member 1 re2 re
+[CoreSW1]irf member 2 renumber 1?
+  INTEGER<1-10>
+
+[CoreSW1]irf member 2 renumber 1
+Renumbering the member ID may result in configuration change or loss. Continue?[Y/N]y
+[CoreSW1]seave for
+[CoreSW1]save force 
+Validating file. Please wait...
+Saved the current configuration to mainboard device successfully.
+[CoreSW1]save force irf member 2 renumber 1display irfirf member 1
+                      ^
+ % Incomplete command found at '^' position.
+[CoreSW1]irf member 1save force irf member 2 renumber 1display irf
+MemberID    Role    Priority  CPU-Mac         Description
+ *+2        Master  1         00e0-fc0f-8c03  ---
+--------------------------------------------------
+ * indicates the device is the master.
+ + indicates the device through which the user logs in.
+
+ The bridge MAC of the IRF is: bcea-fa00-0484
+ Auto upgrade                : yes
+ Mac persistent              : 6 min
+ Domain ID                   : 0
+ IRF mode                    : normal
+[CoreSW1]display irfdisplay irfirf member 1save force irf member 2 renumber 1display irfirf member 2 renumber 1save force irf member 1display irfreboot
+<CoreSW1>display irfrebboot
+Start to check configuration with next startup configuration file, please wait.........DONE!
+This command will reboot the device. Continue? [Y/N]:y
+Now rebooting, please wait...
+%Jan  1 00:44:28:702 2011 CoreSW1 DEV/5/SYSTEM_REBOOT: System is rebooting now.
+
+[CoreSW2]
+[CoreSW2]
+[CoreSW2]%Jan  1 01:23:12:640 2011 CoreSW2 DEV/1/FAN_DIRECTION_NOT_PREFERRED: Fan 1 airflow direction is not preferred on slot 2, please check it.
+%Jan  1 01:23:12:641 2011 CoreSW2 DEV/1/FAN_DIRECTION_NOT_PREFERRED: Fan 2 airflow direction is not preferred on slot 2, please check it.
+display irfdisplay fan display irfsystem-viewdisplay irfdisplay fan display irfd
+[CoreSW2]
+[CoreSW2]ddfan
+[CoreSW2]fan 
+[CoreSW2]fan ?
+  prefer-direction  Set the preferred fan direction
+
+[CoreSW2]fan p
+[CoreSW2]fan prefer-direction ?
+  slot  Specify a slot number
+
+[CoreSW2]fan prefer-direction s
+[CoreSW2]fan prefer-direction slot 1 ?
+                                   ^
+ % Wrong parameter found at '^' position.
+[CoreSW2]fan prefer-direction slot 1 2?
+  <2>
+
+[CoreSW2]fan prefer-direction slot 2 ?
+  port-to-power  From port to power
+  power-to-port  From power to port
+
+[CoreSW2]fan prefer-direction slot 2 ppor
+[CoreSW2]fan prefer-direction slot 2 port-to-power 
+[CoreSW2]%Jan  1 01:23:40:641 2011 CoreSW2 DEV/5/FAN_RECOVERED: Fan 1 recovered.
+%Jan  1 01:23:40:642 2011 CoreSW2 DEV/5/FAN_RECOVERED: Fan 2 recovered.
+save forece
+Validating file. Please wait...
+Saved the current configuration to mainboard device successfully.
+[CoreSW2]save forcefan prefer-direction slot 2 port-to-power display irf
+MemberID    Role    Priority  CPU-Mac         Description
+ *+2        Master  1         00e0-fc0f-8c03  ---
+--------------------------------------------------
+ * indicates the device is the master.
+ + indicates the device through which the user logs in.
+
+ The bridge MAC of the IRF is: bcea-fa00-3067
+ Auto upgrade                : yes
+ Mac persistent              : 6 min
+ Domain ID                   : 0
+ IRF mode                    : normal
+[CoreSW2]
+Loading file flash:/5900_5920-cmw710-boot-r2432p02.bin..........................
+...................................................................Done.
+
+Image file flash:/5900_5920-cmw710-boot-r2432p02.bin is self-decompressing......
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+.......................................Done.
+System is starting...
+Cryptographic algorithms tests passed.
+Line aux0 is available.
+
+
+Press ENTER to get started.
+<CoreSW1>%Jan  1 00:48:10:875 2011 CoreSW1 SHELL/5/SHELL_LOGIN: TTY logged in from aux0.
+%Jan  1 00:48:11:596 2011 CoreSW1 IFNET/3/PHY_UPDOWN: FortyGigE1/0/50 link status is up.
+%Jan  1 00:48:11:600 2011 CoreSW1 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE1/0/50 is up.
+%Jan  1 00:48:11:642 2011 CoreSW1 STP/6/STP_DETECTED_TC: Instance 0's port FortyGigE1/0/50 detected a topology change.
+%Jan  1 00:48:11:657 2011 CoreSW1 IFNET/3/PHY_UPDOWN: FortyGigE1/0/49 link status is up.
+%Jan  1 00:48:11:659 2011 CoreSW1 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE1/0/49 is up.
+%Jan  1 00:48:11:675 2011 CoreSW1 STP/6/STP_DETECTED_TC: Instance 0's port FortyGigE1/0/49 detected a topology change.
+%Jan  1 00:48:12:999 2011 CoreSW1 LLDP/6/LLDP_CREATE_NEIGHBOR: Nearest bridge agent new neighbor created on Port FortyGigE1/0/50 (IfIndex 50), Chassis ID is bcea-fa00-3067, Port ID is FortyGigE2/0/50.
+
+%Jan  1 00:48:13:000 2011 CoreSW1 LLDP/6/LLDP_CREATE_NEIGHBOR: Nearest bridge agent new neighbor created on Port FortyGigE1/0/49 (IfIndex 49), Chassis ID is bcea-fa00-3067, Port ID is FortyGigE2/0/49.
+
+
+<CoreSW1>%Jan  1 00:48:14:616 2011 CoreSW1 STP/6/STP_NOTIFIED_TC: Instance 0's port FortyGigE1/0/49 was notified a topology change.
+
+<CoreSW1>dys
+<CoreSW1>yssy
+<CoreSW1>system-view 
+<CoreSW1>system-view 
+System View: return to User View with Ctrl+Z.
+[CoreSW1]fan
+[CoreSW1]fan 
+[CoreSW1]fan ?
+  prefer-direction  Set the preferred fan direction
+
+[CoreSW1]fan p
+[CoreSW1]fan prefer-direction p
+[CoreSW1]fan prefer-direction ps
+[CoreSW1]fan prefer-direction slot 2 
+[CoreSW1]fan prefer-direction slot 2p
+[CoreSW1]fan prefer-direction slot 2p?
+  <1>  Slot number
+
+[CoreSW1]fan prefer-direction slot 1 
+[CoreSW1]fan prefer-direction slot 1 ?
+  port-to-power  From port to power
+  power-to-port  From power to port
+
+[CoreSW1]fan prefer-direction slot 1 po
+[CoreSW1]fan prefer-direction slot 1 power-to-port
+[CoreSW1]fan prefer-direction slot 1 power-to-portport
+[CoreSW1]fan prefer-direction slot 1 port-to-power 
+[CoreSW1]%Jan  1 00:48:53:260 2011 CoreSW1 DEV/5/FAN_RECOVERED: Fan 1 recovered.
+%Jan  1 00:48:53:262 2011 CoreSW1 DEV/5/FAN_RECOVERED: Fan 2 recovered.
+
+[CoreSW1]fan prefer-direction slot 1 port-to-power fan prefer-direction slot 1 power-to-portsystem-view fan prefer-direction slot 1 power-to-portsystem-view 
+         ^
+ % Unrecognized command found at '^' position.
+[CoreSW1]
+[CoreSW1]dssave forcedis
+[CoreSW1]display pir
+[CoreSW1]display irf
+MemberID    Role    Priority  CPU-Mac         Description
+ *+1        Master  1         00e0-fc0f-8c02  ---
+--------------------------------------------------
+ * indicates the device is the master.
+ + indicates the device through which the user logs in.
+
+ The bridge MAC of the IRF is: bcea-fa00-0484
+ Auto upgrade                : yes
+ Mac persistent              : 6 min
+ Domain ID                   : 0
+ IRF mode                    : normal
+[CoreSW1]
+[CoreSW2]display irfsave forcedisplay irf
+MemberID    Role    Priority  CPU-Mac         Description
+ *+2        Master  1         00e0-fc0f-8c03  ---
+--------------------------------------------------
+ * indicates the device is the master.
+ + indicates the device through which the user logs in.
+
+ The bridge MAC of the IRF is: bcea-fa00-3067
+ Auto upgrade                : yes
+ Mac persistent              : 6 min
+ Domain ID                   : 0
+ IRF mode                    : normal
+[CoreSW2]ir
+[CoreSW1]irf
+[CoreSW1]irf-port ?
+  <1>     IRF Member
+  global  Specify global traffic load-sharing mode for IRF links
+
+[CoreSW1]irf-port 1/?
+  /
+
+[CoreSW1]irf-port 1/?
+  <1-2>
+
+[CoreSW1]irf-port 1/1
+[CoreSW1-irf-port1/1]irf-port 1/12
+[CoreSW1-irf-port1/2]
+<CoreSW1>irf-port 1/2s
+<CoreSW1>sys
+<CoreSW1>system-view 
+System View: return to User View with Ctrl+Z.
+[CoreSW1]in
+[CoreSW1]interface ra
+[CoreSW1]interface range F
+[CoreSW1]interface range FortyGigE 1/0/49 to F?
+  <1-1>
+  FortyGigE
+
+[CoreSW1]interface range FortyGigE 1/0/49 to F
+[CoreSW1]interface range FortyGigE 1/0/49 to f
+[CoreSW1]interface range FortyGigE 1/0/49 to FortyGigE 1/0/50
+[CoreSW1-if-range]shutdown
+%Jan  1 00:51:30:894 2011 CoreSW1 IFNET/3/PHY_UPDOWN: FortyGigE1/0/49 link status is down.
+%Jan  1 00:51:30:894 2011 CoreSW1 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE1/0/49 is down.
+[CoreSW1-if-range]%Jan  1 00:51:31:109 2011 CoreSW1 IFNET/3/PHY_UPDOWN: FortyGigE1/0/50 link status is down.
+%Jan  1 00:51:31:111 2011 CoreSW1 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE1/0/50 is down.
+
+[CoreSW1-if-range]quit
+[CoreSW1]irf
+[CoreSW1]irf-port 1/2
+[CoreSW1-irf-port1/2]\\portport g
+[CoreSW1-irf-port1/2]port group in
+[CoreSW1-irf-port1/2]port group interface F
+[CoreSW1-irf-port1/2]port group interface FortyGigE 1/0/49
+You must perform the following tasks for a successful IRF setup: 
+Save the configuration after completing IRF configuration. 
+Execute the "irf-port-configuration active" command to activate the IRF ports. 
+[CoreSW1-irf-port1/2]port group interface FortyGigE 1/0/4950
+[CoreSW1-irf-port1/2]port group interface FortyGigE 1/0/50port group interface FortyGigE 1/0/49irf-port 1/2quit
+[CoreSW1]inquitport group interface FortyGigE 1/0/50port group interface FortyGigE 1/0/49irf-port 1/2quitshutdowninterface range FortyGigE 1/0/49 to FortyGigE 1/0/50
+[CoreSW1-if-range]undo shutdown
+[CoreSW1-if-range]%Jan  1 00:52:25:554 2011 CoreSW1 IFNET/3/PHY_UPDOWN: FortyGigE1/0/50 link status is up.
+%Jan  1 00:52:25:556 2011 CoreSW1 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE1/0/50 is up.
+%Jan  1 00:52:25:569 2011 CoreSW1 IFNET/3/PHY_UPDOWN: FortyGigE1/0/49 link status is up.
+%Jan  1 00:52:25:570 2011 CoreSW1 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE1/0/49 is up.
+quit
+[CoreSW1]save forvece
+Validating file. Please wait...
+Saved the current configuration to mainboard device successfully.
+[CoreSW1]save forcequitundo shutdowninterface range FortyGigE 1/0/49 to FortyGigE 1/0/50undo shutdownquitsave forcedis
+[CoreSW1]display ir
+[CoreSW1]display irf
+MemberID    Role    Priority  CPU-Mac         Description
+ *+1        Master  1         00e0-fc0f-8c02  ---
+--------------------------------------------------
+ * indicates the device is the master.
+ + indicates the device through which the user logs in.
+
+ The bridge MAC of the IRF is: bcea-fa00-0484
+ Auto upgrade                : yes
+ Mac persistent              : 6 min
+ Domain ID                   : 0
+ IRF mode                    : normal
+[CoreSW1]display irf
+[CoreSW1]display irf
+[CoreSW1]display irf-port
+                          ^
+ % Incomplete command found at '^' position.
+[CoreSW1]display irf-port> ?
+  load-sharing  IRF port load sharing
+
+[CoreSW1]display irf-port l
+[CoreSW1]display irf-port load-sharing 
+                                       ^
+ % Incomplete command found at '^' position.
+[CoreSW1]display irf-port load-sharing  l
+[CoreSW1]display irf link 
+Member 1
+ IRF Port  Interface                             Status
+ 1         disable                               --    
+ 2         FortyGigE1/0/49                       UP    
+           FortyGigE1/0/50                       UP    
+[CoreSW1]
+[CoreSW2]
+[CoreSW2]display irfsave forcedisplay irf l
+[CoreSW2]display irf link 
+Member 2
+ IRF Port  Interface                             Status
+ 1         disable                               --    
+ 2         disable                               --    
+[CoreSW2]display irf link save forcedisplay irf link display irf link  link display irf link display irf link save forcefan prefer-direction slot 2 port-to-power display irffan prefer-direction slot 2 port-to-power save forcedisplay irf link irf
+[CoreSW2]irf-port 
+[CoreSW2]irf-port-configuration ?
+  <2>     IRF Member
+  global  Specify global traffic load-sharing mode for IRF links
+
+[CoreSW2]irf-port 2/
+[CoreSW2]irf-port 2/?
+  <1-2>
+
+[CoreSW2]irf-port 2/1
+[CoreSW2-irf-port2/1]quit
+[CoreSW2]quitin
+[CoreSW2]interface F
+[CoreSW2]interface FortyGigE ran
+[CoreSW2]interface range F
+[CoreSW2]interface range FortyGigE 1/0/49 to F
+[CoreSW2]interface range FortyGigE 1/0/49 to F
+[CoreSW2]interface range FortyGigE 1/0/49 to?
+                                   ^
+ % Wrong parameter found at '^' position.
+[CoreSW2]interface range FortyGigE 1/0/49 to?
+                                   ^
+ % Wrong parameter found at '^' position.
+[CoreSW2]interface range FortyGigE 1/0/49 ?
+  FortyGigE            FortyGigE interface
+  M-GigabitEthernet    MGE interface
+  NULL                 NULL interface
+  Ten-GigabitEthernet  Ten-GigabitEthernet interface
+  name                 Specify an interface range name
+
+[CoreSW2]interface range F
+[CoreSW2]interface range FortyGigE ?
+  <2-2>  FortyGigE interface number
+
+[CoreSW2]interface range FortyGigE 2?
+  /
+  <2-2>
+
+[CoreSW2]interface range FortyGigE 2/0/?
+  <49-52>
+
+[CoreSW2]interface range FortyGigE 2/0/49 to F
+[CoreSW2]interface range FortyGigE 2/0/49 to FortyGigE 2?
+  /
+  <2-2>
+
+[CoreSW2]interface range FortyGigE 2/0/49 to FortyGigE 2/0/50
+[CoreSW2-if-range]interface range FortyGigE 2/0/49 to FortyGigE 2/0/50interface range FortyGigE 2/0/49 to FortyGigE 2/0/50shutdown
+%Jan  1 01:34:40:162 2011 CoreSW2 IFNET/3/PHY_UPDOWN: FortyGigE2/0/49 link status is down.
+%Jan  1 01:34:40:163 2011 CoreSW2 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE2/0/49 is down.
+[CoreSW2-if-range]%Jan  1 01:34:40:660 2011 CoreSW2 IFNET/3/PHY_UPDOWN: FortyGigE2/0/50 link status is down.
+%Jan  1 01:34:40:662 2011 CoreSW2 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE2/0/50 is down.
+
+[CoreSW2-if-range]shutdowninterface range FortyGigE 2/0/49 to FortyGigE 2/0/50quit
+[CoreSW2]quitshutdowninterface range FortyGigE 2/0/49 to FortyGigE 2/0/50quitinterface range FortyGigE 2/0/49 to FortyGigE 2/0/50shutdownquitshutdowninterface range FortyGigE 2/0/49 to FortyGigE 2/0/50quitirf-port 2/1
+[CoreSW2-irf-port2/1]por
+[CoreSW2-irf-port2/1]port g
+[CoreSW2-irf-port2/1]port group F
+[CoreSW2-irf-port2/1]port group Fin
+[CoreSW2-irf-port2/1]port group interface F
+[CoreSW2-irf-port2/1]port group interface FortyGigE 12/0/49
+You must perform the following tasks for a successful IRF setup: 
+Save the configuration after completing IRF configuration. 
+Execute the "irf-port-configuration active" command to activate the IRF ports. 
+[CoreSW2-irf-port2/1]port group interface FortyGigE 2/0/4950
+[CoreSW2-irf-port2/1]port group interface FortyGigE 2/0/50port group interface FortyGigE 2/0/49irf-port 2/1quit
+[CoreSW2]quitport group interface FortyGigE 2/0/50port group interface FortyGigE 2/0/49irf-port 2/1quitirf-port 2/1port group interface FortyGigE 2/0/49port group interface FortyGigE 2/0/50quitquitport group interface FortyGigE 2/0/50port group interface FortyGigE 2/0/49irf-port 2/1quitshutdowninterface range FortyGigE 2/0/49 to FortyGigE 2/0/50
+[CoreSW2-if-range]undo shutdown
+[CoreSW2-if-range]undo shutdowninterface range FortyGigE 2/0/49 to FortyGigE 2/0/50%Jan  1 01:35:33:454 2011 CoreSW2 IFNET/3/PHY_UPDOWN: FortyGigE2/0/50 link status is up.
+%Jan  1 01:35:33:455 2011 CoreSW2 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE2/0/50 is up.
+%Jan  1 01:35:33:496 2011 CoreSW2 LLDP/6/LLDP_CREATE_NEIGHBOR: Nearest bridge agent new neighbor created on Port FortyGigE2/0/50 (IfIndex 255), Chassis ID is bcea-fa00-0484, Port ID is FortyGigE1/0/50.
+
+undo shutdown%Jan  1 01:35:34:851 2011 CoreSW2 IFNET/3/PHY_UPDOWN: FortyGigE2/0/49 link status is up.
+%Jan  1 01:35:34:852 2011 CoreSW2 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE2/0/49 is up.
+
+[CoreSW2-if-range]
+[CoreSW2-if-range]undo shutdown%Jan  1 01:35:36:812 2011 CoreSW2 LLDP/6/LLDP_CREATE_NEIGHBOR: Nearest bridge agent new neighbor created on Port FortyGigE2/0/49 (IfIndex 254), Chassis ID is bcea-fa00-0484, Port ID is FortyGigE1/0/49.
+
+interface range FortyGigE 2/0/49 to FortyGigE 2/0/50quitinterface range FortyGigE 2/0/49 to FortyGigE 2/0/50undo shutdownqutiit
+[CoreSW2]save force
+Validating file. Please wait...
+Saved the current configuration to mainboard device successfully.
+[CoreSW2]save forcequitsave forcesave forcesave forcequitsave forceidis
+[CoreSW2]display ir
+[CoreSW2]display irf l
+[CoreSW2]display irf link 
+Member 2
+ IRF Port  Interface                             Status
+ 1         FortyGigE2/0/49                       UP    
+           FortyGigE2/0/50                       UP    
+ 2         disable                               --    
+[CoreSW2]display irf link save forcedisplay irf link 
+[CoreSW1]
+[CoreSW1]
+[CoreSW1]irf
+[CoreSW1]irf-port m
+[CoreSW1]irf member 1 p
+[CoreSW1]irf member 1 priority 32
+[CoreSW1]irf member 1 priority 32ifrf do
+[CoreSW1]irf domain 10
+[CoreSW1]save force
+Validating file. Please wait...
+Saved the current configuration to mainboard device successfully.
+[CoreSW1]
+[CoreSW2]display irf link ir
+[CoreSW2]irf me
+[CoreSW2]irf member ?
+  INTEGER<1-10>  Member ID
+
+[CoreSW2]irf member 2 p
+[CoreSW2]irf member 2 priority 10
+[CoreSW2]irf member 2 priority 10irf
+[CoreSW2]irf-port-
+[CoreSW2]irf-port-configuration a
+[CoreSW2]irf-port-configuration active 
+[CoreSW2]%Jan  1 01:46:48:441 2011 CoreSW2 STM/6/STM_LINK_STATUS_UP: IRF port 1 is up.
+
+[CoreSW1]save forceirf
+[CoreSW1]irf-port-
+[CoreSW1]irf-port-configuration a
+[CoreSW1]irf-port-configuration active 
+[CoreSW1]%Jan  1 01:08:45:627 2011 CoreSW1 STM/6/STM_LINK_STATUS_UP: IRF port 2 is up.
+%Jan  1 01:08:45:876 2011 CoreSW1 STM/4/STM_LINK_RECOVERY: Merge occurs.
+
+[CoreSW1]%Jan  1 01:08:50:635 2011 CoreSW1 IFNET/3/PHY_UPDOWN: FortyGigE1/0/50 link status is down.
+%Jan  1 01:08:50:636 2011 CoreSW1 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE1/0/50 is down.
+%Jan  1 01:08:50:658 2011 CoreSW1 STM/3/STM_LINK_STATUS_DOWN: IRF port 2 is down.
+%Jan  1 01:08:50:660 2011 CoreSW1 IFNET/3/PHY_UPDOWN: FortyGigE1/0/49 link status is down.
+%Jan  1 01:08:50:660 2011 CoreSW1 IFNET/5/LINK_UPDOWN: Line protocol on the interface FortyGigE1/0/49 is down.
+
+[CoreSW1]irf-port-configuration active dics
+[CoreSW1]display irf
+MemberID    Role    Priority  CPU-Mac         Description
+ *+1        Master  32        00e0-fc0f-8c02  ---
+--------------------------------------------------
+ * indicates the device is the master.
+ + indicates the device through which the user logs in.
+
+ The bridge MAC of the IRF is: bcea-fa00-0484
+ Auto upgrade                : yes
+ Mac persistent              : 6 min
+ Domain ID                   : 10
+ IRF mode                    : normal
+[CoreSW1]display irf c
+[CoreSW1]display irf configuration 
+ MemberID NewID    IRF-Port1                     IRF-Port2
+ 1        1        disable                       FortyGigE1/0/49               
+                                                 FortyGigE1/0/50               
+[CoreSW1]display irf configuration toto
+[CoreSW1]display irf topology 
+                              Topology Info
+ -------------------------------------------------------------------------
+               IRF-Port1                IRF-Port2          
+ MemberID    Link       neighbor      Link       neighbor    Belong To
+ 1           DIS        ---           DOWN       ---         00e0-fc0f-8c02
+[CoreSW1]display irf topology  c
+[CoreSW1]display irf configuration 
+ MemberID NewID    IRF-Port1                     IRF-Port2
+ 1        1        disable                       FortyGigE1/0/49               
+                                                 FortyGigE1/0/50               
+[CoreSW1]display irf configuration display irf topology display irf configuration 
+MemberID    Role    Priority  CPU-Mac         Description
+ *+1        Master  32        00e0-fc0f-8c02  ---
+--------------------------------------------------
+ * indicates the device is the master.
+ + indicates the device through which the user logs in.
+
+ The bridge MAC of the IRF is: bcea-fa00-0484
+ Auto upgrade                : yes
+ Mac persistent              : 6 min
+ Domain ID                   : 10
+ IRF mode                    : normal
+[CoreSW1]..............................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+................................................................................
+.......................................Done.
+System is starting...
+Cryptographic algorithms tests passed.
+Line aux1 is available.
+
+
+Press ENTER to get started.
+<CoreSW1>%Jan  1 01:13:09:317 2011 CoreSW1 SHELL/5/SHELL_LOGIN: TTY logged in from aux1.
+
+[CoreSW1]
+[CoreSW1]display irf configuration 
+MemberID    Role    Priority  CPU-Mac         Description
+ *+1        Master  32        00e0-fc0f-8c02  ---
+   2        Standby 1         00e0-fc0f-8c03  ---
+--------------------------------------------------
+ * indicates the device is the master.
+ + indicates the device through which the user logs in.
+
+ The bridge MAC of the IRF is: bcea-fa00-0484
+ Auto upgrade                : yes
+ Mac persistent              : 6 min
+ Domain ID                   : 10
+ IRF mode                    : normal
+[CoreSW1]svsave forvce
+Validating file. Please wait...
+Saved the current configuration to mainboard device successfully.
+Slot 2:
+Save next configuration file successfully.
+[CoreSW1]disp
+[CoreSW1]display sta
+[CoreSW1]display startup 
+MainBoard:
+ Current startup saved-configuration file: flash:/startup.cfg
+ Next main startup saved-configuration file: flash:/startup.cfg
+ Next backup startup saved-configuration file: NULL
+Slot 2:
+ Current startup saved-configuration file: flash:/startup.cfg
+ Next main startup saved-configuration file: flash:/startup.cfg
+ Next backup startup saved-configuration file: NULL
+[CoreSW1]display startup c
+[CoreSW1]display cryptoU
+[CoreSW1]display current-configuration | in
+[CoreSW1]display current-configuration | include irf
+ irf domain 10
+ irf mac-address persistent timer
+ irf auto-update enable
+ undo irf link-delay
+ irf member 1 priority 32
+ irf member 2 priority 1
+ irf mode normal
+irf-port 1/2
+irf-port 2/1
+[CoreSW1]display current-configuration | include irfdisplay curren-configuration | include irfdisplay curre-configuration | include irfdisplay curr-configuration | include irfdisplay cur-configuration | include irfdisplay cu-configuration | include irfdisplay c-configuration | include irfdisplay -configuration | include irfdisplay s-configuration | include irfdisplay sa-configuration | include irfdisplay sav-configuration | include irfdisplay save-configuration | include irf
+                 ^
+ % Unrecognized command found at '^' position.
+[CoreSW1]display save-configuration | include irfdisplay saved-configuration | include irf
+ irf domain 10
+ irf mac-address persistent timer
+ irf auto-update enable
+ undo irf link-delay
+ irf member 1 priority 32
+ irf member 2 priority 1
+ irf mode normal
+irf-port 1/2
+irf-port 2/1
+[CoreSW1]dis
+[CoreSW1]display fan
+ Slot 1:
+ Fan 1: 
+ State    : Normal
+ Airflow Direction: Port-to-power
+ Prefer Airflow Direction: Port-to-power
+ Fan 2: 
+ State    : Normal
+ Airflow Direction: Port-to-power
+ Prefer Airflow Direction: Port-to-power
+
+ Slot 2:
+ Fan 1: 
+ State    : Normal
+ Airflow Direction: Port-to-power
+ Prefer Airflow Direction: Port-to-power
+ Fan 2: 
+ State    : Normal
+ Airflow Direction: Port-to-power
+ Prefer Airflow Direction: Port-to-power
+
+
+[CoreSW1]display fandisplay saved-configuration | include irf fan
+ fan prefer-direction slot 1 port-to-power 
+ fan prefer-direction slot 2 port-to-power 
+[CoreSW1]display saved-configuration | include fan

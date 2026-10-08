@@ -1,0 +1,354 @@
+=~=~=~=~=~=~=~=~=~=~=~= PuTTY log 2026.10.08 14:24:23 =~=~=~=~=~=~=~=~=~=~=~=
+
+<coreUTP_SW>
+#Apr 26 12:19:33:988 2000 coreUTP_SW SHELL/4/LOGIN: 
+ Trap 1.3.6.1.4.1.25506.2.2.1.1.3.0.1: login from Console
+%Apr 26 12:19:34:129 2000 coreUTP_SW SHELL/5/SHELL_LOGIN: Console logged in from aux0.
+<coreUTP_SW>
+<coreUTP_SW>
+<coreUTP_SW>dis
+<coreUTP_SW>display int
+<coreUTP_SW>display interface b
+<coreUTP_SW>display interface brief 
+The brief information of interface(s) under route mode:
+Link: ADM - administratively down; Stby - standby
+Protocol: (s) - spoofing
+Interface            Link Protocol Main IP         Description
+M-GE0/0/0            DOWN DOWN     --
+NULL0                UP   UP(s)    --
+Vlan100              DOWN DOWN     10.13.104.254
+
+The brief information of interface(s) under bridge mode:
+Link: ADM - administratively down; Stby - standby
+Speed or Duplex: (a)/A - auto; H - half; F - full
+Type: A - access; T - trunk; H - hybrid
+Interface            Link Speed   Duplex Type PVID Description
+GE1/0/1              DOWN auto    A      A    100
+GE1/0/2              DOWN auto    A      A    100
+GE1/0/3              DOWN auto    A      A    100
+GE1/0/4              DOWN auto    A      A    100
+GE1/0/5              DOWN auto    A      A    100
+GE1/0/6              DOWN auto    A      A    100
+GE1/0/7              DOWN auto    A      A    100
+GE1/0/8              DOWN auto    A      A    100
+GE1/0/9              DOWN auto    A      A    100
+GE1/0/10             DOWN auto    A      A    100
+  ---- More ----                GE1/0/11             DOWN auto    A      A    100
+GE1/0/12             DOWN auto    A      A    100
+GE1/0/13             DOWN auto    A      A    100
+GE1/0/14             DOWN auto    A      A    100
+GE1/0/15             DOWN auto    A      A    100
+GE1/0/16             DOWN auto    A      A    100
+GE1/0/17             DOWN auto    A      A    100
+GE1/0/18             DOWN auto    A      A    100
+GE1/0/19             DOWN auto    A      A    100
+GE1/0/20             DOWN auto    A      A    100
+GE1/0/21             DOWN auto    A      A    100
+GE1/0/22             DOWN auto    A      A    100
+GE1/0/23             DOWN auto    A      A    100
+GE1/0/24             DOWN auto    A      A    100
+GE2/0/1              DOWN auto    A      A    100
+GE2/0/2              DOWN auto    A      A    100
+GE2/0/3              DOWN auto    A      A    100
+GE2/0/4              DOWN auto    A      A    100
+GE2/0/5              DOWN auto    A      A    100
+GE2/0/6              DOWN auto    A      A    100
+GE2/0/7              DOWN auto    A      A    100
+GE2/0/8              DOWN auto    A      A    100
+GE2/0/9              DOWN auto    A      A    100
+  ---- More ----                GE2/0/10             DOWN auto    A      A    100
+GE2/0/11             DOWN auto    A      A    100
+GE2/0/12             DOWN auto    A      A    100
+GE2/0/13             DOWN auto    A      A    100
+GE2/0/14             DOWN auto    A      A    100
+GE2/0/15             DOWN auto    A      A    100
+GE2/0/16             DOWN auto    A      A    100
+GE2/0/17             DOWN auto    A      A    100
+GE2/0/18             DOWN auto    A      A    100
+GE2/0/19             DOWN auto    A      A    100
+GE2/0/20             DOWN auto    A      A    100
+GE2/0/21             DOWN auto    A      A    100
+GE2/0/22             DOWN auto    A      A    100
+GE2/0/23             DOWN auto    A      A    100
+GE2/0/24             DOWN auto    A      A    100
+XGE1/0/25            UP   --      --     --   --
+XGE1/0/26            DOWN auto    A      A    1
+XGE1/0/27            DOWN auto    A      A    1
+XGE1/0/28            DOWN auto    A      A    100  to CORE_SW
+XGE2/0/25            UP   --      --     --   --
+XGE2/0/26            DOWN auto    A      A    1
+XGE2/0/27            DOWN auto    A      A    1
+XGE2/0/28            DOWN auto    A      A    1
+  ---- More ----                
+<coreUTP_SW>rg  irf?
+            ^
+ % Unrecognized command found at '^' position.
+<coreUTP_SW>irf   dis
+<coreUTP_SW>display irf
+MemberID  Role   Priority  CPU-Mac         Description
+ *+1     Master  32        b8af-67f5-3dca  -----
+   2     Slave   1         b8af-67f5-1d33  -----
+--------------------------------------------------
+
+ * indicates the device is the master.
+ + indicates the device through which the user logs in.
+
+ The Bridge MAC of the IRF is: b8af-67f5-3dc9
+ Auto upgrade                : yes
+ Mac persistent              : 6 min
+ Domain ID                   : 0
+<coreUTP_SW>
+%Apr 26 12:21:18:480 2000 coreUTP_SW IFNET/3/LINK_UPDOWN: GigabitEthernet1/0/1 link status is UP.
+%Apr 26 12:21:18:697 2000 coreUTP_SW IFNET/3/LINK_UPDOWN: Vlan-interface100 link status is UP.
+%Apr 26 12:21:18:840 2000 coreUTP_SW IFNET/5/LINEPROTO_UPDOWN: Line protocol on the interface Vlan-interface100 is UP.
+%Apr 26 12:21:18:990 2000 coreUTP_SW LLDP/6/LLDP_CREATE_NEIGHBOR: New neighbor created on Port GigabitEthernet1/0/1 (IfIndex 9437184), Chassis ID is TRAIN10-2-PC164, Port ID is 7c4d-8f07-965a.
+%Apr 26 12:21:19:509 2000 coreUTP_SW IFNET/3/LINK_UPDOWN: GigabitEthernet1/0/23 link status is UP.
+%Apr 26 12:21:19:943 2000 coreUTP_SW LLDP/6/LLDP_CREATE_NEIGHBOR: New neighbor created on Port GigabitEthernet1/0/23 (IfIndex 9437206), Chassis ID is TRAIN10-2-PC167, Port ID is 7c4d-8f07-965c.
+<coreUTP_SW>
+%Apr 26 12:26:10:300 2000 coreUTP_SW IFNET/3/LINK_UPDOWN: Ten-GigabitEthernet1/0/28 link status is UP.
+%Apr 26 12:26:10:858 2000 coreUTP_SW LLDP/6/LLDP_CREATE_NEIGHBOR: New neighbor created on Port Ten-GigabitEthernet1/0/28 (IfIndex 12320795), Chassis ID is cc3e-5f71-da83, Port ID is Ten-GigabitEthernet1/0/29.
+%Apr 26 12:26:12:008 2000 coreUTP_SW OPTMOD/4/MODULE_IN: 
+ Ten-GigabitEthernet1/0/28: The transceiver is STACK_SFP_PLUS.
+
+%Apr 26 12:26:12:158 2000 coreUTP_SW OPTMOD/4/FIBER_SFPMODULE_NOWINVALID: 
+ Ten-GigabitEthernet1/0/28: This is not a supported transceiver for this platform. HP does not guarantee the normal operation or maintenance of unsupported transceivers. Please review the platform datasheet on the HP web site or contact your HP sales rep for a list of supported transceivers. 
+
+%Apr 26 12:26:12:672 2000 coreUTP_SW IFNET/3/LINK_UPDOWN: Ten-GigabitEthernet1/0/28 link status is DOWN.
+%Apr 26 12:26:12:812 2000 coreUTP_SW IFNET/3/LINK_UPDOWN: Ten-GigabitEthernet1/0/28 link status is UP.
+%Apr 26 12:26:12:952 2000 coreUTP_SW LLDP/6/LLDP_CREATE_NEIGHBOR: New neighbor created on Port Ten-GigabitEthernet1/0/28 (IfIndex 12320795), Chassis ID is cc3e-5f71-da83, Port ID is Ten-GigabitEthernet1/0/29.
+#Apr 26 12:26:13:212 2000 coreUTP_SW ENTITY/1/PHONY ENTITY: 
+ Trap 1.3.6.1.4.1.25506.2.6.2.0.11: Entity ID is 339, entity extend ID is 339, entity name is Ten-GigabitEthernet1/0/28, admin status is 4, alarm light status is 0
+
+<coreUTP_SW>
+<coreUTP_SW>int
+<coreUTP_SW>int   suy   sy
+<coreUTP_SW>system-view 
+System View: return to User View with Ctrl+Z.
+[coreUTP_SW]int   it
+[coreUTP_SW]it nt
+[coreUTP_SW]interface vl
+[coreUTP_SW]interface Vlan-interface 100
+[coreUTP_SW-Vlan-interface100]qu
+[coreUTP_SW-Vlan-interface100]quit 
+[coreUTP_SW]vlan 100
+[coreUTP_SW-vlan100]qu
+[coreUTP_SW-vlan100]quit 
+[coreUTP_SW]di
+[coreUTP_SW]display ip r
+[coreUTP_SW]display ip routing-table 
+Routing Tables: Public
+Destinations : 4Routes : 4
+
+Destination/Mask    Proto  Pre  Cost         NextHop         Interface
+
+10.13.104.0/24      Direct 0    0            10.13.104.254   Vlan100
+10.13.104.254/32    Direct 0    0            127.0.0.1       InLoop0
+127.0.0.0/8         Direct 0    0            127.0.0.1       InLoop0
+127.0.0.1/32        Direct 0    0            127.0.0.1       InLoop0
+
+[coreUTP_SW]display ip routing-table                          pinm g 1.1.1.1
+  PING 1.1.1.1: 56  data bytes, press CTRL_C to break
+    Request time out
+    Request time out
+
+  --- 1.1.1.1 ping statistics ---
+    2 packet(s) transmitted
+    0 packet(s) received
+    100.00% packet loss
+
+[coreUTP_SW]i[  ip ss?
+               ^
+ % Unrecognized command found at '^' position.
+[coreUTP_SW]ip ss     pub b
+[coreUTP_SW]public-key ?
+  local  Local public key pair operations
+  peer   Peer public key configuration
+
+[coreUTP_SW]public-key l
+[coreUTP_SW]public-key local c
+[coreUTP_SW]public-key local create ?
+  dsa    Key type DSA
+  ecdsa  Key type ECDSA
+  rsa    Key type RSA
+
+[coreUTP_SW]public-key local create rsa
+The range of public key size is (512 ~ 2048).      
+NOTES: If the key modulus is greater than 512,      
+It will take a few minutes.     
+Press CTRL+C to abort.
+Input the bits of the modulus[default = 1024]:
+Generating Keys...
++++
+++++++++
+++++++++++++
+++++++++
+
+[coreUTP_SW]ssh
+[coreUTP_SW]ssh sr er
+[coreUTP_SW]ssh server en
+[coreUTP_SW]ssh server enable 
+Info: Enable SSH server.
+[coreUTP_SW]lo
+[coreUTP_SW]loopback-detection
+[coreUTP_SW]local-user 
+[coreUTP_SW]local-user admin
+New local user added.
+[coreUTP_SW-luser-admin]pass
+[coreUTP_SW-luser-admin]password ?
+  cipher  Specify a ciphertext password 
+  hash    Save and display the hash value of the password
+  simple  Specify a plaintext password 
+  <cr>    
+
+[coreUTP_SW-luser-admin]password c
+[coreUTP_SW-luser-admin]password cipher S SRE_2026
+[coreUTP_SW-luser-admin]ser
+[coreUTP_SW-luser-admin]service-type ss
+[coreUTP_SW-luser-admin]service-type ssh t
+[coreUTP_SW-luser-admin]service-type ssh te?
+   telnet
+   terminal
+
+[coreUTP_SW-luser-admin]service-type ssh tee r
+[coreUTP_SW-luser-admin]service-type ssh terminal 
+[coreUTP_SW-luser-admin]a
+[coreUTP_SW-luser-admin]access-limit
+[coreUTP_SW-luser-admin]authorization-attribute ?
+  acl              Specify ACL number of user
+  callback-number  Specify dialing character string for callback user 
+  idle-cut         Specify idle-cut of local user
+  level            Specify level of user
+  user-profile     Specify user profile of user
+  user-role        Specify role of local user
+  vlan             Specify VLAN ID of user
+  work-directory   Specify directory of user
+
+[coreUTP_SW-luser-admin]authorization-attribute l  
+[coreUTP_SW-luser-admin]authorization-attribute level ?
+  INTEGER<0-3>  Level of user
+
+[coreUTP_SW-luser-admin]authorization-attribute level 3
+[coreUTP_SW-luser-admin]aut
+[coreUTP_SW-luser-admin]authorization-attribute                         uer
+[coreUTP_SW-luser-admin]uer   qu
+[coreUTP_SW-luser-admin]quit 
+[coreUTP_SW]uer
+[coreUTP_SW]uer  s
+[coreUTP_SW]user-interface ?
+  INTEGER<0-44>  First user terminal interface number to be configured
+  aux            Aux user terminal interface 
+  tty            Async serial user terminal interface 
+  vty            Virtual user terminal interface 
+
+[coreUTP_SW]user-interface v
+[coreUTP_SW]user-interface vty ?
+  INTEGER<0-15>  First user terminal interface number to be configured
+
+[coreUTP_SW]user-interface vty 0 ?
+  INTEGER<1-15>  Last user terminal interface number to be configured
+  <cr>           
+
+[coreUTP_SW]user-interface vty 0 4
+[coreUTP_SW-ui-vty0-4]
+[coreUTP_SW-ui-vty0-4]au
+[coreUTP_SW-ui-vty0-4]auth
+[coreUTP_SW-ui-vty0-4]authentication-mode ?
+  none      Login without checking 
+  password  Authentication use password of user terminal interface
+  scheme    Authentication use AAA 
+
+[coreUTP_SW-ui-vty0-4]authentication-mode s
+[coreUTP_SW-ui-vty0-4]authentication-mode scheme 
+[coreUTP_SW-ui-vty0-4]pro
+[coreUTP_SW-ui-vty0-4]protocol i
+[coreUTP_SW-ui-vty0-4]protocol inbound s
+[coreUTP_SW-ui-vty0-4]protocol inbound ssh 
+[coreUTP_SW-ui-vty0-4]user
+[coreUTP_SW-ui-vty0-4]user p
+[coreUTP_SW-ui-vty0-4]user privilege l
+[coreUTP_SW-ui-vty0-4]user privilege level 3
+[coreUTP_SW-ui-vty0-4]quit
+[coreUTP_SW]ssh
+[coreUTP_SW]ssh us
+[coreUTP_SW]ssh user ser
+[coreUTP_SW]ssh user ser   ad
+[coreUTP_SW]ssh user ad    ?
+  STRING<1-80>  Specify the user name, which is formatted as
+                'pureusername@domain'. The maximum length of pureusername is
+                55 characters and the maximum length of domain is 24
+                characters.
+
+[coreUTP_SW]ssh user admin ?
+  service-type  Specify service type
+
+[coreUTP_SW]ssh user admin s
+[coreUTP_SW]ssh user admin service-type ?
+  all      Specify service type to all
+  scp      Specify service type to scp
+  sftp     Specify service type to sftp
+  stelnet  Specify service type to stelnet
+
+[coreUTP_SW]ssh user admin service-type st
+[coreUTP_SW]ssh user admin service-type stelnet ?
+  authentication-type  Specify authentication type
+
+[coreUTP_SW]ssh user admin service-type stelnet a
+[coreUTP_SW]ssh user admin service-type stelnet authentication-type p
+[coreUTP_SW]ssh user admin service-type stelnet authentication-type password
+[coreUTP_SW]dis
+[coreUTP_SW]display ss
+[coreUTP_SW]display ssh ser
+[coreUTP_SW]display ssh server sr t
+[coreUTP_SW]display ssh server status 
+ SSH server: Enable
+ SSH version : 1.99
+ SSH authentication-timeout : 60 second(s)
+ SSH server key generating interval : 0 hour(s)
+ SSH authentication retries : 3 time(s)
+ SFTP server: Disable
+ SFTP server Idle-Timeout: 10 minute(s)
+[coreUTP_SW]
+#Apr 26 12:53:45:417 2000 coreUTP_SW SSH/4/TrapAuthFailed: 
+1.3.6.1.4.1.25506.2.22.1.3.0.1 SSH authentication fail trap information
+
+#Apr 26 12:53:50:605 2000 coreUTP_SW SHELL/4/LOGIN: 
+ Trap 1.3.6.1.4.1.25506.2.2.1.1.3.0.1:admin login from VTY
+%Apr 26 12:53:50:746 2000 coreUTP_SW SHELL/5/SHELL_LOGIN: admin logged in from 10.13.104.1.
+#Apr 26 12:53:51:498 2000 coreUTP_SW SSH/4/TrapLogin: 
+1.3.6.1.4.1.25506.2.22.1.3.0.3 SSH user login trap information
+
+[coreUTP_SW]
+[coreUTP_SW]
+%Apr 26 12:57:31:622 2000 coreUTP_SW IFNET/3/LINK_UPDOWN: GigabitEthernet1/0/23 link status is DOWN.display ssh server status                           
+#Apr 26 13:00:23:887 2000 coreUTP_SW SSH/4/TrapAuthFailed: 
+1.3.6.1.4.1.25506.2.22.1.3.0.1 SSH authentication fail trap information
+
+#Apr 26 13:00:31:170 2000 coreUTP_SW SHELL/4/LOGIN: 
+ Trap 1.3.6.1.4.1.25506.2.2.1.1.3.0.1:admin login from VTY
+%Apr 26 13:00:31:310 2000 coreUTP_SW SHELL/5/SHELL_LOGIN: admin logged in from 10.13.104.1.
+#Apr 26 13:00:32:057 2000 coreUTP_SW SSH/4/TrapLogin: 
+1.3.6.1.4.1.25506.2.22.1.3.0.3 SSH user login trap information
+
+#Apr 26 13:00:34:510 2000 coreUTP_SW SHELL/4/LOGOUT: 
+ Trap 1.3.6.1.4.1.25506.2.2.1.1.3.0.2:admin logout from VTY
+%Apr 26 13:00:34:650 2000 coreUTP_SW SHELL/5/SHELL_LOGOUT: admin logged out from 10.13.104.1.
+#Apr 26 13:00:35:507 2000 coreUTP_SW SSH/4/TrapLogoff: 
+1.3.6.1.4.1.25506.2.22.1.3.0.4 SSH user logoff trap information
+
+%Apr 26 13:01:56:144 2000 coreUTP_SW IFNET/3/LINK_UPDOWN: GigabitEthernet1/0/1 link status is DOWN.
+[coreUTP_SW]
+[coreUTP_SW]
+[coreUTP_SW]save force.
+ The current configuration is saved to the active main board successfully.
+Slot 2:
+ The current configuration is saved successfully.
+ Configuration is saved to device successfully.
+[coreUTP_SW]
+%Apr 26 13:02:21:969 2000 coreUTP_SW IFNET/3/LINK_UPDOWN: Ten-GigabitEthernet1/0/28 link status is DOWN.
+%Apr 26 13:02:22:100 2000 coreUTP_SW IFNET/3/LINK_UPDOWN: Vlan-interface100 link status is DOWN.
+%Apr 26 13:02:22:220 2000 coreUTP_SW IFNET/5/LINEPROTO_UPDOWN: Line protocol on the interface Vlan-interface100 is DOWN.
+#Apr 26 13:02:33:242 2000 coreUTP_SW ENTITY/4/ALARM OFF: 
+ Trap 1.3.6.1.4.1.25506.2.6.2.0.10: Entity ID is 339, error status is 4, admin status is 4, alarm light status is 0
+
+%Apr 26 13:02:33:462 2000 coreUTP_SW OPTMOD/4/MODULE_OUT: 
+ Ten-GigabitEthernet1/0/28: The transceiver is absent.
