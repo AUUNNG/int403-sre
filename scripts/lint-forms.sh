@@ -41,6 +41,14 @@ for f in "${FILES[@]}"; do
         echo "ERROR: Deprecated placeholder IP 10.13.104.10 found in $f. Use 10.13.104.101 or <TBD>."
         ERRORS=$((ERRORS + 1))
     fi
+
+    # 4. Mandatory heat load row check in ISO 27001 compliance form
+    if [ "$f" = "forms/INT531_Lab1_แบบฟอร์มยื่นเอกสาร_ISO27001.md" ]; then
+        if ! grep -q 'ภาระความร้อนที่เพิ่มในห้อง' "$f"; then
+            echo "ERROR: Missing mandatory row 'ภาระความร้อนที่เพิ่มในห้อง' in $f (PWR-01 calculation)."
+            ERRORS=$((ERRORS + 1))
+        fi
+    fi
 done
 
 if [ "$ERRORS" -gt 0 ]; then
