@@ -1,0 +1,72 @@
+,Rack Design – Rack-01,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,
+,,Rack Name,,Rack-01,,Owner Team,,Used U,25,,,,,,
+,,Location / DC,,LX08,,Contact,,Free U,17,,,,,,
+,,Row / Position,,,,Last Updated,,Utilisation,60%,,,,,,
+,,Rack Model,,42U,,Updated By,,Total Power (W),"5,655",,,,,,
+,,,,,,,,Issues to fix,0,,,,,,
+,FRONT VIEW  –  top of rack (U42) to bottom (U1),,,,,,,,,,,,,,
+,U,Device,U,Hostname,Team,Status,Serial / Asset Tag,Power (W),Notes,BTU/hr,Length (mm),Proxmox Version,,,
+,U42,Core Network Switch,U42,,,Complete,,260,,,,,,,
+,U41,พักสาย,U41,,,,,0,,,,,,,
+,U40,พักสาย,U40,,,,,0,,,,,,,
+,U39,Core Network Switch,U39,,,Complete,,260,,,,,,,
+,U38,Network Switch,U38,10.13.104.254,,Complete,CN2ABFN02G,40,,358,364.5,,,,
+,U37,Network Switch,U37,10.13.104.254,,Complete,CN2ABFN003,40,,358,364.5,,,,
+,U36,,U36,,,,,,,,,,,,
+,U35,DEll PowerEdge R220,U35,10.13.104.115,Judy,Reserved,22C5T92,250,,853.03,394.3,7.4.1,,,
+,U34,,U34,,,,,,,,,,,,
+,U33,,U33,,,,,,,,,,,,
+,U32,,U32,,,,,,,,,,,,
+,U31,,U31,,,,,,,,,,,,
+,U30,,U30,,,,,,,,,,,,
+,U29,,U29,,,,,,,,,,,,
+,U28,,U28,,,,,,,,,,,,
+,U27,,U27,,,,,,,,,,,,
+,U26,Dell PowerEdge R210,U26,10.13.104.213,Mallory,Incomplete,9NRC52S,250,จองที่จะติดตั้ง Server ขนาดเล็กโดยใช้ราง,,,8.4,,,
+,U25,Dell PowerEdge R220,U25,10.13.104.209,Ivan,Incomplete,48PNF42,250,,,394.3,,,,
+,U24,,U24,,,,,,,,,,,,
+,U23,Dell PowerEdge R210,U23,10.13.104.212,Leo,Incomplete,,250,จองที่จะติดตั้ง Server ขนาดเล็กโดยใช้ราง,1040,393.7,9.2,,,
+,U22,Dell PowerEdge R210,U22,10.13.104.207,Grace,Incomplete,,250,จองที่จะติดตั้ง Server ขนาดเล็กโดยใช้ราง,1040,393.7,9.2,,,
+,U21,,U21,,,,,,,,,,,,
+,U20,,U20,,,,,,,,,,,,
+,U19,,U19,,,,,,,,,,,,
+,U18,Dell PowerEdge R430,U18,10.13.104.215,Oscar,Reserved,5PVF8F2,450,จองที่จะติดตั้ง Server และจำเป็นต้องใช้ราง,1535.4,607,,,,
+,U17,,U17,,,,,,,,,,,,
+,U16,Dell PowerEdge R410,U16,10.13.104.117,Quinn,Reserved,CDCPNBX,480,จองที่จะติดตั้ง Server และจำเป็นต้องใช้ราง,1637,627,9.2-1,,,
+,U15,Dell PowerEdge R410,U15,10.13.104.221,Victor,Reserved,HT4NWBX,0,,,,,,,
+,U14,Dell PowerEdge R410,U14,10.13.104.203,Charlie,Reserved,5673RBX,480,จองที่จะติดตั้ง Server และจำเป็นต้องใช้ราง,1637,627,7.4-1,,,
+,U13,,U13,,,,,,,,,,,,
+,U12,Dell PowerEdge R410,U12,10.13.104.220,Trent,Reserved,CW5TVBX,"1,000",,,,7.4,,,
+,U11,Dell PowerEdge R620,U11,10.13.104.201,Alice,Reserved,FP56232,495,,1908,701,9.2.2,,,
+,U10,FUJITSU RX200 S7,U10,10.14.104.214,Ned,Incomplete,YLAQ018832,450,,2139.4,770,8.4,,,
+,U9,FUJITSU RX200 S7,U9,10.14.104.211,Kevin,Incomplete,YLAQ017333,450,,2139.4,770,7.4,,,
+,"Bay 13 (L)
+Bay 14 (R)",Blade Server,"Bay 13 (L)
+Bay 14 (R)",,Frank,Reserved,58A1500462,,,,500.54,,,,
+,,Blade Server,,10.13.104.202,Bob,Reserved,58A1500458,0,,,,,,,
+,"Bay 11 (L)
+Bay 12 (R)",Blade Server,"Bay 11 (L)
+Bay 12 (R)",10.13.104.204,Dave,Incomplete,06ENVTZ,0,,,,,,,
+,,Blade Server,,,,Incomplete,,0,,,,,,, 
+,"Bay 9 (L)
+Bay 10 (R)",,"Bay 9 (L)
+Bay 10 (R)",,,Incomplete,,,,,,,,,
+,,Blade Server,,10.14.104.127,Eve,Incomplete,06ENVTP,0,,,,,,,
+,"Bay 7 (L)
+Bay 8 (R)",Blade Server,"Bay 7 (L)
+Bay 8 (R)",,Peggy,Incomplete,58A1500457,0,,,500.54,,,,
+,,,,,,,,,,,,,,,
+,"Bay 5 (L)
+Bay 6 (R)",,"Bay 5 (L)
+Bay 6 (R)",,,,,,,,,,,,
+,,Blade Server,,,Sybil,Incomplete,06DFZET,0,,,500.54,,,,
+,"Bay 3 (L)
+Bay 4 (R)",Blade Server,"Bay 3 (L)
+Bay 4 (R)",,Heidi ,Incomplete,58A1500464,0,,,500.54,,,,
+,,,,,,,,,,,,,,,
+,"Bay 1 (L)
+Bay 2 (R)",,"Bay 1 (L)
+Bay 2 (R)",,,,,,,,,,,,
+,,Blade Server,,,Romeo,Incomplete,06ENVTT,0,,,500.54,,,,
+,▬  rack base / floor  ▬,,,,,,,,,,,,,,

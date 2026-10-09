@@ -1,0 +1,21 @@
+,Network – 10.13.104.0/24,,,,
+,,,,,
+,Network address,10.13.104.0,,,
+,Prefix length (/n),24,,,
+,Gateway,10.13.104.254,,,
+,Broadcast address,10.13.104.255,,,
+,Usable hosts,254,,,
+,Hosts listed in Rack-01,15,,,
+,,,,,
+,IP CONVENTION,,,,
+,Range,First octet,Last octet,Purpose,Examples
+,10.13.104.1 – 10.13.104.9,1,9,Network equipment (core and access switches),
+,10.13.104.10 – 10.13.104.99,10,99,"Management and reserved (iDRAC, IPMI, PDU)",
+,10.13.104.100 – 10.13.104.249,100,249,"Servers and hosts (Proxmox, bare metal)","10.13.104.115, 10.13.104.201"
+,10.13.104.250 – 10.13.104.253,250,253,"Shared and virtual addresses (VIP, HA)",
+,10.13.104.254 – 10.13.104.254,254,254,Gateway,10.13.104.254
+,10.13.104.255 – 10.13.104.255,255,255,Broadcast,
+,,,,,
+,Prefix length /24 is assumed from the gateway at .254. Ranges above are a proposed convention; edit the first and last octet cells to change them.,,,,
+,,,,,
+,Flex,101,,,
