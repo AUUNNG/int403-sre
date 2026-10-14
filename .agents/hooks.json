@@ -1,0 +1,23 @@
+{
+  "compliance-forms-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ../scripts/agent-hook-lint.py --event PreToolUse",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python3 ../scripts/agent-hook-lint.py --event Stop",
+        "timeout": 15
+      }
+    ]
+  }
+}

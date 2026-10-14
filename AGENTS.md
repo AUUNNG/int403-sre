@@ -8,6 +8,10 @@
   - **Study Notes (`week01` - `week09`)**: Use Thai as the primary language, preserving English technical terms in parentheses, e.g., "งบประมาณความผิดพลาด (Error Budget)".
   - **Operational Forms & MOPs (`forms/`)**: Use English technical terms directly without redundant Thai translations in parentheses (e.g., CMM, Compute Node, ToR Switch) for operational clarity. Never wrap slot IDs, component names, interface IDs, or parameters in parentheses (e.g., write "Compute Node Bay 14", "PSU 1 ถึง PSU 6", "พอร์ต GE1/0/23"). Parentheses are reserved solely for ISO clause references (e.g., A.5.37).
 - **Form Formatting (`forms/`)**: Use clean plain text, bold, and markdown tables only. Avoid unnecessary backticks (code tags) and formatting clutter in compliance forms.
+  - **Canonical Structure Baseline**: Strictly adhere to [forms/INT531_Lab1_ตัวอย่างเอกสาร_ISO27001.md](forms/INT531_Lab1_ตัวอย่างเอกสาร_ISO27001.md) as the authoritative template for table structures, section count, and concise single-line summaries. Never add extraneous tables, raw data dumps from `forms/source/`, or duplicate layout breakdowns beyond the baseline example.
+  - **Table Schema Immutability**: Never modify, rename, add, or remove columns in compliance table headers (`INV-01`, `PWR-01`, `RACK-01`). Headers must strictly adhere to the standardized baseline.
+  - **Column Semantic Integrity**: Never force data into a column that violates its designated semantic purpose (e.g., do not place IP addresses, OS versions, or wattages in `เหตุผลการจัดวาง`, `สเปกฮาร์ดแวร์`, or `ตำแหน่ง U`).
+  - **Strict Secret Zero-Exposure**: Never disclose passwords, authentication passphrases, or credentials in compliance forms or audit records (`forms/`). Credentials belong strictly in secured technical source files (`forms/source/`).
 - **Checklists & Questionnaires (`forms/คำถาม.md`)**: Use minimalist single-line prompts ending with a colon and trailing space (`[ข้อ]. [คำถามสั้นๆ]: `) with clean blank space for write-in answers. Never write verbose explanatory sentences or `<TBD>` clutter in questions. Keep compact verified/answered summary tables at the bottom.
 - **Power & Cooling Calculations (`PWR-01`)**: Always compute heat dissipation row `ภาระความร้อนที่เพิ่มในห้อง` from total equipment power using formula $P_{\text{total}} \times 3.412142\text{ BTU/h}$. Never substitute this row with ambient room readings. Ambient sensor readings (e.g., 17.5 °C, 68 %RH) belong strictly in notes.
 - **Placeholders**: Never invent arbitrary realistic-looking IP addresses (such as 10.13.104.10) as placeholders. Always use `<TBD>` or explicitly mark draft placeholders to prevent operational ambiguity.
@@ -33,7 +37,16 @@
 - `week01` - `week09`: Lecture slides, transcribed markdown notes, and lecture transcripts.
 - `exams/`: Exam slides, revision materials, and viva question guides.
 - `forms/`: ISO/IEC 27001 compliance templates, lab operational records, and checklists.
-  - `forms/คำถาม.md`: Active hardware inventory checklist and compute node bay allocations.
+  - `forms/day01/`: Day 1 submission (24 Sep 2569 — `CR-2569-001`, `AR-2569-001`, `MOP-01`, `ROLL-01`, `PWR-01`, `RACK-01`, `LOG-01`).
+  - `forms/day02/`: Day 2 submission (2 Oct 2569 — `CR-2569-002`, `AR-2569-002`, `MOP-01`, `ROLL-01`, `LOG-01`).
+  - `forms/day03/`: Day 3 submission (9 Oct 2569 — `CR-2569-003`, `AR-2569-003`, `MOP-01`, `ROLL-01`, `INV-01`, `LOG-01`).
+  - `forms/day04/`: Day 4 submission (15 Oct 2569 — `CR-2569-004`, `AR-2569-004`, `MOP-01`, `ROLL-01`, `INV-01`, `LOG-01`).
+  - `forms/PWR-01.md`: Centralized power, UPS, and cooling calculation form.
+  - `forms/RACK-01.md`: Centralized rack elevation (Rack-01 B2_Front) and physical layout form.
+  - `forms/INV-01.md`: Centralized hardware inventory form (Tables ก & ข).
+  - `forms/ROLL-01.md`: Centralized rollback plan form (CR-2569-001 ถึง CR-2569-004).
+  - `forms/LOG-01.md`: Centralized site access log form (A.7.4).
+  - `forms/source/คำถาม.md`: Active hardware inventory checklist and compute node bay allocations.
   - `forms/logs/`: Switch console logs and ToR network configuration history.
   - `forms/manuals/`: Vendor service and installation guides.
     - `Chapter 2`: Physical installation, rails, rack alignment (`CR-2569-001`, `RACK-01`).
@@ -50,3 +63,10 @@ Local markdown files under `.scratch/`. See `docs/agents/issue-tracker.md`.
 ### Domain Docs
 
 Single-context (`GLOSSARY.md` + `docs/adr/` at repo root). See `docs/agents/domain.md`.
+
+### Agent Lifecycle Hooks
+
+Lifecycle hooks are configured in `.agents/hooks.json` to enforce safety and compliance guards:
+- **PreToolUse (`run_command`)**: Blocks `git commit` or `git add` if `scripts/lint-forms.sh` detects any ISO 27001 table schema corruption or policy violations.
+- **Stop**: Prevents agent termination on turn completion if forms fail compliance lint checks.
+- Script runner: `scripts/agent-hook-lint.py`.
