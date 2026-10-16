@@ -333,7 +333,7 @@ vus............................: 400         min=10 max=400
 
 x p99 under 1s
   L  0% - v 0 / x 1
-✓ error rate under 1%
+v error rate under 1%
 
 # the threshold failed: this run already exceeded the SLO
 # so the answer is somewhere below 87 requests per second

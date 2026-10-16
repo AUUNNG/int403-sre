@@ -21,17 +21,21 @@ ERRORS=0
 
 echo "Running compliance forms linter..."
 
+# 1. Global Zero Emoji check across all markdown files in the repository
+# Detects emoji symbols in Unicode ranges while permitting form ballot boxes (☐ U+2610, ☑ U+2611)
+while IFS= read -r md_file; do
+    if [ -f "$md_file" ]; then
+        if grep -rnP '[\x{1F300}-\x{1FAFF}\x{2600}-\x{260F}\x{2612}-\x{26FF}\x{2700}-\x{27BF}]' "$md_file" 2>/dev/null; then
+            echo "ERROR: Emoji detected in $md_file. Zero emoji rule violated."
+            ERRORS=$((ERRORS + 1))
+        fi
+    fi
+done < <(find . -name "*.md" -not -path "*/.git/*" -not -path "*/.scratch/*")
+
 for f in "${FILES[@]}"; do
     if [ ! -f "$f" ]; then
         echo "WARNING: File not found: $f"
         continue
-    fi
-
-    # 1. Zero Emoji check
-    # Detects emoji symbols in Unicode ranges while permitting form ballot boxes (☐ U+2610, ☑ U+2611)
-    if grep -rnP '[\x{1F300}-\x{1FAFF}\x{2600}-\x{260F}\x{2612}-\x{26FF}\x{2700}-\x{27BF}]' "$f" 2>/dev/null; then
-        echo "ERROR: Emoji detected in $f. Zero emoji rule violated."
-        ERRORS=$((ERRORS + 1))
     fi
 
     # 2. Redundant Thai-English parentheses check

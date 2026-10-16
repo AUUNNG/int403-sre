@@ -5,7 +5,7 @@
 - **Zero Emoji**: Never include emojis in document content, git commit messages, or agent responses.
 - **No PDF Scripts**: Never use Python, uv, or external scripts to process PDFs. Inspect PDFs directly via `Read`.
 - **Language**:
-  - **Study Notes (`week01` - `week09`)**: Use Thai as the primary language, preserving English technical terms in parentheses, e.g., "งบประมาณความผิดพลาด (Error Budget)".
+  - **Study Notes (`week01` - `week13`)**: Use Thai as the primary language, preserving English technical terms in parentheses, e.g., "งบประมาณความผิดพลาด (Error Budget)".
   - **Operational Forms & MOPs (`forms/`)**: Use English technical terms directly without redundant Thai translations in parentheses (e.g., CMM, Compute Node, ToR Switch) for operational clarity. Never wrap slot IDs, component names, interface IDs, or parameters in parentheses (e.g., write "Compute Node Bay 14", "PSU 1 ถึง PSU 6", "พอร์ต GE1/0/23"). Parentheses are reserved solely for ISO clause references (e.g., A.5.37).
 - **Form Formatting (`forms/`)**: Use clean plain text, bold, and markdown tables only. Avoid unnecessary backticks (code tags) and formatting clutter in compliance forms.
   - **Canonical Structure Baseline**: Strictly adhere to [forms/INT531_Lab1_ตัวอย่างเอกสาร_ISO27001.md](forms/INT531_Lab1_ตัวอย่างเอกสาร_ISO27001.md) as the authoritative template for table structures, section count, and concise single-line summaries. Never add extraneous tables, raw data dumps from `forms/source/`, or duplicate layout breakdowns beyond the baseline example.
@@ -27,14 +27,19 @@
 
 ## Lecture Notes Workflow
 
+- **Target File Pattern**: `week{NN}/INT531_W{NN}_{Topic}_สไลด์บรรยาย.md` (or `_Lecture_EN.md` for English slides).
+- **Conventional Commits**:
+  - Baseline: `feat(week{NN}): extract PDF slides to Thai markdown`
+  - Supplement: `docs(week{NN}): supplement lecture notes with transcript insights`
+
 1. **Extract Slides**: Convert all `.pdf` pages into a corresponding `.md` file, retaining all details, tables, and LaTeX math blocks ($...$).
-2. **Slide Baseline Commit**: Commit the initial extracted slide notes to git.
+2. **Slide Baseline Commit**: Commit the initial extracted slide notes to git using the `feat(week{NN})` commit pattern.
 3. **Supplement from Transcript**: Synthesize instructor insights, practical examples, and lecture commentary from `transcript.md` into the `.md` note.
-4. **Supplement Commit**: Commit the supplemented notes to git.
+4. **Supplement Commit**: Commit the supplemented notes to git using the `docs(week{NN})` commit pattern.
 
 ## Repository Layout
 
-- `week01` - `week09`: Lecture slides, transcribed markdown notes, and lecture transcripts.
+- `week01` - `week13`: Lecture slides, transcribed markdown notes, and lecture transcripts.
 - `exams/`: Exam slides, revision materials, and viva question guides.
 - `forms/`: ISO/IEC 27001 compliance templates, lab operational records, and checklists.
   - `forms/day01/`: Day 1 submission (24 Sep 2569 — `CR-2569-001`, `AR-2569-001`, `MOP-01`, `ROLL-01`, `PWR-01`, `RACK-01`, `LOG-01`).

@@ -36,12 +36,20 @@ def main():
         
         if tool_name == "run_command":
             cmd = tool_args.get("CommandLine", "")
+            if "git commit" in cmd:
+                import re
+                if re.search(r'[\U0001F300-\U0001FAFF\u2600-\u260F\u2612-\u26FF\u2700-\u27BF]', cmd):
+                    json.dump({
+                        "decision": "deny",
+                        "reason": "Agent hook blocked git commit: commit message contains emoji. Zero emoji rule violated."
+                    }, sys.stdout)
+                    return
             if "git commit" in cmd or "git add" in cmd:
                 code, output = run_linter(repo_root)
                 if code != 0:
                     json.dump({
                         "decision": "deny",
-                        "reason": f"Agent hook blocked command because compliance forms linter failed:\n{output}"
+                        "reason": f"Agent hook blocked command because compliance linter failed:\n{output}"
                     }, sys.stdout)
                     return
         json.dump({"decision": "allow"}, sys.stdout)
