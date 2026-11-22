@@ -4,11 +4,9 @@ set -euo pipefail
 # Linter for ISO/IEC 27001 Compliance Forms and Checklists
 # Target files: Operational forms and checklist markdown documents in forms/
 
+shopt -s nullglob
 FILES=(
-    "forms/day01/1_Bob_เอกสาร_ISO27001_24_Sep_2026.md"
-    "forms/day02/2_Bob_เอกสาร_ISO27001_2_Oct_2026.md"
-    "forms/day03/3_Bob_เอกสาร_ISO27001_9_Oct_2026.md"
-    "forms/day04/4_Bob_เอกสาร_ISO27001_15_Oct_2026.md"
+    forms/day*/*.md
     "forms/PWR-01.md"
     "forms/RACK-01.md"
     "forms/INV-01.md"
@@ -16,6 +14,7 @@ FILES=(
     "forms/LOG-01.md"
     "forms/source/คำถาม.md"
 )
+shopt -u nullglob
 
 ERRORS=0
 

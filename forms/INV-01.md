@@ -64,7 +64,7 @@
 | 16 | ทีม Ned | Proxmox VE 8.4 | C2 | Fujitsu 1U Server, ยาว 770 มม., น้ำหนักสูงสุด 18.0 กก. (มีรางเฉพาะ) | เก็บไว้ใช้ | ปกติ |
 | 17 | ทีม Kevin | Proxmox VE 7.4 | C2 | Fujitsu 1U Server, ยาว 770 มม., น้ำหนักสูงสุด 18.0 กก. (มีรางเฉพาะ) | เก็บไว้ใช้ | ปกติ |
 | 18 | คณะเทคโนโลยีสารสนเทศ SIT | Flex System Chassis | C1 | 6x 2500W PSU, 8x พัดลม, CMM MAC 40:F2:E9:BF:71:82 | เก็บไว้ใช้ | ปกติ |
-| 19 | กลุ่มโครงงาน SRE | Proxmox VE Bay 14 | C2 | CPU Intel Xeon, 128GB RAM (4x 32GB LRDIMM), 2x 300GB SAS HDD, ยาว 500.54 มม. | เก็บไว้ใช้ | ปกติ |
+| 19 | กลุ่มโครงงาน SRE | Proxmox VE Bay 14; Ubuntu VM ของกลุ่ม 02 | C2 | CPU Intel Xeon, 128GB RAM (4x 32GB LRDIMM), 2x 300GB SAS HDD, ยาว 500.54 มม. | เก็บไว้ใช้ | ปกติ |
 | 20 | ทีม Frank | Compute Node | C2 | โมดูล x240 M5, ยาว 500.54 มม. | เก็บไว้ใช้ | ปกติ |
 | 21 | ทีม Dave | Compute Node | C2 | โมดูล x240 M5, ยาว 500.54 มม. | เก็บไว้ใช้ | ปกติ |
 | 22 | ทีม Eve | Compute Node | C2 | โมดูล x240 M5, ยาว 500.54 มม. | เก็บไว้ใช้ | ปกติ |
